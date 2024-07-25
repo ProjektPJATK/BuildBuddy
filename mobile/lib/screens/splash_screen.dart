@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
-import '../../widgets/login_form.dart';
+import '../widgets/login_form.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -44,6 +44,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     super.dispose();
   }
 
+  void _login() {
+    // Replace with actual login logic
+    Navigator.pushReplacementNamed(context, '/home');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,23 +58,23 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/background.png'), // Dodaj obraz tła do folderu assets
+                image: AssetImage('assets/background.png'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
           // Filtr
           Container(
-            color: Colors.black.withOpacity(0.9), // Możesz dostosować poziom przezroczystości
+            color: Colors.black.withOpacity(0.9),
           ),
           // Logo na środku
           Center(
             child: SlideTransition(
               position: _animation,
               child: SizedBox(
-                width: 100, // Zmniejsz szerokość o połowę
-                height: 100, // Zmniejsz wysokość o połowę
-                child: Image.asset('assets/logo_small.png'), // Dodaj logo do folderu assets
+                width: 100,
+                height: 100,
+                child: Image.asset('assets/logo_small.png'),
               ),
             ),
           ),
@@ -79,7 +84,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               alignment: Alignment.bottomCenter,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: LoginForm(),
+                child: LoginForm(onLogin: _login),
               ),
             ),
         ],

@@ -1,35 +1,45 @@
 import 'package:flutter/material.dart';
 
 class LoginForm extends StatelessWidget {
+  final VoidCallback onLogin;
+
+  LoginForm({super.key, required this.onLogin});
+
+  final TextEditingController _loginController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         TextField(
-          decoration: InputDecoration(
+          controller: _loginController,
+          decoration: const InputDecoration(
             hintText: 'Login',
             fillColor: Colors.white,
             filled: true,
             border: OutlineInputBorder(),
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         TextField(
+          controller: _passwordController,
           obscureText: true,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: 'Hasło',
             fillColor: Colors.white,
             filled: true,
             border: OutlineInputBorder(),
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         ElevatedButton(
           onPressed: () {
-            Navigator.pushNamed(context, '/login');
+            // Perform login logic and call onLogin if successful
+            onLogin();
           },
-          child: Text('Zaloguj się'),
+          child: const Text('Zaloguj się'),
         ),
         SizedBox(height: 16),
         TextButton(
