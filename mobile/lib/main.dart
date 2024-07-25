@@ -8,27 +8,39 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'My Basic App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(),
+      home: SplashScreen(),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Home Page'),
-      ),
-      body: Center(
-        child: Text(
-          'Hello, Flutter!',
-          style: TextStyle(fontSize: 24),
-        ),
+      body: Stack(
+        children: [
+          // Tło
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/background.png'), // Dodaj obraz tła do folderu assets
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          // Filtr
+          Container(
+            color: Colors.black.withOpacity(0.9), // Możesz dostosować poziom przezroczystości
+          ),
+          // Logo na środku
+          Center(
+             child: SizedBox(
+            width: 100, // Zmniejsz szerokość o połowę
+              height: 100, // Zmniejsz wysokość o połowę
+              child: Image.asset('assets/logo_small.png'), // Zmniejsz wysokość o połowę
+               ),
+          ),
+        ],
       ),
     );
   }
