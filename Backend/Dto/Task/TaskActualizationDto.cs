@@ -1,12 +1,10 @@
-﻿namespace Backend.Model;
+﻿namespace Backend.Dto;
 
-public class TaskActualization
+public class TaskActualizationDto
 {
-    public int Id { get; set; }
     public int ImageId { get; set; }
     public int Message { get; set; }
     public bool IsDone { get; set; }
     public List<string> TaskImageUrl { get; set; }
-
-    public virtual Task Task { get; set; }
+    
 }
