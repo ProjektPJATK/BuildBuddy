@@ -68,33 +68,69 @@ class HomeScreen extends StatelessWidget {
                           child: ListView(
                             padding: EdgeInsets.zero, // Usunięcie domyślnego paddingu ListView
                             children: [
-                              BuildOption(title: 'Budowa w Gdańsku'),
-                              BuildOption(title: 'Budowa w Warszawie'),
-                              BuildOption(title: 'Budowa w Krakowie'),
+                              // Zmiana na InkWell, który obsługuje kliknięcia
+                              InkWell(
+                                onTap: () {
+                                  // Akcja po kliknięciu
+                                  Navigator.pushNamed(context, '/gdansk'); // Przejście na stronę Gdańska
+                                },
+                                child: BuildOption(title: 'Budowa w Gdańsku'),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(context, '/warszawa'); // Przejście na stronę Warszawy
+                                },
+                                child: BuildOption(title: 'Budowa w Warszawie'),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(context, '/krakow'); // Przejście na stronę Krakowa
+                                },
+                                child: BuildOption(title: 'Budowa w Krakowie'),
+                              ),
                             ],
                           ),
                         ),
-                        Divider(thickness: 1, color: Colors.white, height: 20), // Kreska oddzielająca sekcje
+                        // Dodanie odstępu między ListView a Dividerem
+                        SizedBox(height: 10), // Przerwa o wysokości 30px
+                        Divider(thickness: 1, color: Colors.white, height: 10), // Kreska oddzielająca sekcje
                       ],
                     ),
                   ),
                 ),
-                  Expanded(
-                    flex: 4, // Ustalamy elastyczność sekcji powiadomień
-                    child: Container(
-                      color: Colors.white.withOpacity(0.7),
-                      child: ListView(
-                        padding: EdgeInsets.zero, // Usunięcie domyślnego paddingu ListView
-                        children: [
-                          NotificationItem(title: 'Powiadomienie 1: Nowa aktualizacja budowy w Gdańsku'),
-                          NotificationItem(title: 'Powiadomienie 2: Termin zakończenia budowy w Warszawie przesunięty'),
-                          NotificationItem(title: 'Powiadomienie 3: Zmiana w planie budowy w Krakowie'),
-                          NotificationItem(title: 'Powiadomienie 4: Spotkanie z inwestorem w Gdańsku'),
-                        ],
-                      ),
+                Expanded(
+                  flex: 4, // Ustalamy elastyczność sekcji powiadomień
+                  child: Container(
+                    color: Colors.white.withOpacity(0.7),
+                    child: Column(
+                      children: [
+                        // Nagłówek dla sekcji powiadomień
+                        Container(
+                          padding: const EdgeInsets.only(bottom: 4.0), // Zmniejszenie paddingu
+                          child: Text(
+                            'Powiadomienia',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 49, 49, 49),
+                              fontSize: 18, // Czcionka nagłówka
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView(
+                            padding: EdgeInsets.zero, // Usunięcie domyślnego paddingu ListView
+                            children: [
+                              NotificationItem(title: 'Powiadomienie 1: Nowa aktualizacja budowy w Gdańsku'),
+                              NotificationItem(title: 'Powiadomienie 2: Termin zakończenia budowy w Warszawie przesunięty'),
+                              NotificationItem(title: 'Powiadomienie 3: Zmiana w planie budowy w Krakowie'),
+                              NotificationItem(title: 'Powiadomienie 4: Spotkanie z inwestorem w Gdańsku'),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-
+                ),
                 // Kreska oddzielająca pasek z ikonami
                 Container(
                   color: Colors.white.withOpacity(0.7), // Przezroczyste tło dla oddzielającej kreski
@@ -110,9 +146,7 @@ class HomeScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Icon(Icons.calendar_today, size: 20), // Rozmiar ikony
-                            Icon(Icons.home, size: 20), // Rozmiar ikony
                             Icon(Icons.chat, size: 20), // Rozmiar ikony
-                            Icon(Icons.inventory, size: 20), // Rozmiar ikony
                             Icon(Icons.person, size: 20), // Rozmiar ikony
                           ],
                         ),
