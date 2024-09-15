@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
 import '../widgets/build_option.dart';
 import '../widgets/notification_item.dart';
+import '../widgets/bottom_navigation.dart'; // Importujemy nasz dolny widget nawigacyjny
+import '../app_state.dart' as appState; // Importujemy zmienną globalną
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Ustawienie aktywnej strony na 'home'
+    appState.currentPage = 'home';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,7 +85,6 @@ class HomeScreen extends StatelessWidget {
                               // Zmiana na InkWell, który obsługuje kliknięcia
                               InkWell(
                                 onTap: () {
-                                  // Akcja po kliknięciu
                                   Navigator.pushNamed(context, '/gdansk'); // Przejście na stronę Gdańska
                                 },
                                 child: BuildOption(title: 'Budowa w Gdańsku'),
@@ -131,28 +144,16 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Kreska oddzielająca pasek z ikonami
-                Container(
-                  color: Colors.white.withOpacity(0.7), // Przezroczyste tło dla oddzielającej kreski
-                  child: Column(
-                    children: [
-                      Divider(
-                        thickness: 1,
-                        color: Colors.white,
-                        height: 20, // Zmniejszenie przestrzeni pod Dividerem
-                      ),
-                      Container(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Icon(Icons.calendar_today, size: 20), // Rozmiar ikony
-                            Icon(Icons.chat, size: 20), // Rozmiar ikony
-                            Icon(Icons.person, size: 20), // Rozmiar ikony
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                BottomNavigation(
+                  onTap: (index) {
+                    if (index == 0) {
+                      Navigator.pushNamed(context, '/calendar');
+                    } else if (index == 1) {
+                      Navigator.pushNamed(context, '/chats');
+                    } else if (index == 2) {
+                      Navigator.pushNamed(context, '/profile');
+                    }
+                  },
                 ),
               ],
             ),
