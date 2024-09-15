@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../widgets/build_option.dart';
 import '../widgets/notification_item.dart';
+import 'profile.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -147,7 +149,14 @@ class HomeScreen extends StatelessWidget {
                           children: [
                             Icon(Icons.calendar_today, size: 20), // Rozmiar ikony
                             Icon(Icons.chat, size: 20), // Rozmiar ikony
-                            Icon(Icons.person, size: 20), // Rozmiar ikony
+                            GestureDetector(
+                              onTap: (){
+                                Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => UserProfileScreen())
+                                );
+                              },
+                            child:Icon(Icons.person, size: 20 ), ),// Rozmiar ikony
                           ],
                         ),
                       ),
