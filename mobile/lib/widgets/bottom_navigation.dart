@@ -1,74 +1,54 @@
+// lib/widgets/bottom_navigation.dart
 import 'package:flutter/material.dart';
-import '../app_state.dart' as appState; // Importujemy zmienną globalną
+import '../app_state.dart' as appState;
 
 class BottomNavigation extends StatelessWidget {
   final Function(int) onTap;
 
   BottomNavigation({required this.onTap});
 
+  final List<Map<String, dynamic>> _navItems = [
+    {'icon': Icons.calendar_today, 'label': 'Kalendarz', 'page': 'calendar'},
+    {'icon': Icons.chat, 'label': 'Czat', 'page': 'chats'},
+    {'icon': Icons.person, 'label': 'Profil', 'page': 'profile'},
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white.withOpacity(0.7), // Białe tło z przezroczystością 0.7
+      color: Colors.white.withOpacity(0.7),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Divider(
             thickness: 1,
             color: Colors.white,
-            height: 20, // Wysokość Dividera między kalendarzem a ikonami
+            height: 20,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
+            children: _navItems.map((item) {
+              int index = _navItems.indexOf(item);
+              return Expanded(
                 child: InkWell(
-                  onTap: appState.currentPage == 'calendar'
-                      ? null // Dezaktywujemy możliwość klikania w kalendarz, jeśli to aktualna strona
-                      : () => onTap(0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.calendar_today,
-                        size: 20,
-                        color: appState.currentPage == 'calendar'
-                            ? Colors.blue // Aktywna ikona zmienia kolor
-                            : Colors.black,
-                      ),
-                      Text(
-                        'Kalendarz',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: appState.currentPage == 'calendar'
-                              ? Colors.blue // Aktywny tekst zmienia kolor
-                              : Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: InkWell(
-                  onTap: appState.currentPage == 'chats'
+                  onTap: appState.currentPage == item['page']
                       ? null
-                      : () => onTap(1),
+                      : () => onTap(index),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.chat,
+                        item['icon'],
                         size: 20,
-                        color: appState.currentPage == 'chats'
+                        color: appState.currentPage == item['page']
                             ? Colors.blue
                             : Colors.black,
                       ),
                       Text(
-                        'Czat',
+                        item['label'],
                         style: TextStyle(
                           fontSize: 12,
-                          color: appState.currentPage == 'chats'
+                          color: appState.currentPage == item['page']
                               ? Colors.blue
                               : Colors.black,
                         ),
@@ -76,36 +56,8 @@ class BottomNavigation extends StatelessWidget {
                     ],
                   ),
                 ),
-              ),
-              Expanded(
-                child: InkWell(
-                  onTap: appState.currentPage == 'profile'
-                      ? null
-                      : () => onTap(2),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.person,
-                        size: 20,
-                        color: appState.currentPage == 'profile'
-                            ? Colors.blue
-                            : Colors.black,
-                      ),
-                      Text(
-                        'Profil',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: appState.currentPage == 'profile'
-                              ? Colors.blue
-                              : Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+              );
+            }).toList(),
           ),
         ],
       ),

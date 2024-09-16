@@ -1,6 +1,8 @@
+// lib/screens/splash_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 import '../widgets/login_form.dart';
+import '../styles.dart'; // Import stylów
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -45,7 +47,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   void _login() {
-    // Replace with actual login logic
     Navigator.pushReplacementNamed(context, '/home');
   }
 
@@ -56,16 +57,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         children: [
           // Tło
           Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/background.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
+            decoration: AppStyles.backgroundDecoration,
           ),
           // Filtr
           Container(
-            color: Colors.black.withOpacity(0.9),
+            color: AppStyles.filterColor.withOpacity(0.9),
           ),
           // Logo na środku
           Center(
