@@ -1,45 +1,35 @@
 import 'package:flutter/material.dart';
-import '../widgets/bottom_navigation.dart'; // Import the BottomNavigation widget
+import '../widgets/bottom_navigation.dart';
+import '../app_state.dart' as appState;
+import '../styles.dart'; // Import stylów
 
 class UserProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    appState.currentPage = 'profile'; // Ustawiamy aktualną stronę na profil
+
     return Scaffold(
-      backgroundColor: Colors.grey[200],
       body: Stack(
         children: [
-          // Background Image with transparency
+          // Background
           Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/background.png'), // Replace with your background image
-                fit: BoxFit.cover,
-              ),
-            ),
+            decoration: AppStyles.backgroundDecoration,
           ),
-          // Semi-transparent overlay to darken the background slightly
+          // Filter
           Container(
-            color: Colors.black.withOpacity(0.3), // Adjust transparency here
+            color: AppStyles.filterColor.withOpacity(0.75), // Użycie ciemniejszego filtru
           ),
-          // Content
+          // Screen content
           Column(
             children: [
-              SizedBox(height: 80), // Space from top for status bar
-              // White semi-transparent card section
+              // Profil od góry ekranu
               Expanded(
                 child: SingleChildScrollView(
                   child: Container(
-                    margin: EdgeInsets.only(top: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
-                      ),
-                    ),
+                    color: AppStyles.transparentWhite, // Białe tło z przezroczystością
                     child: Column(
                       children: [
-                        SizedBox(height: 30), // Padding from top of card
+                        SizedBox(height: 50), // Margines od góry na status bar
                         // Profile Name and Picture section
                         Column(
                           children: [
@@ -49,14 +39,25 @@ class UserProfileScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black, // Adjust text color if needed
+                                color: Colors.black,
                               ),
                             ),
                             SizedBox(height: 10),
                             // Profile Image
                             CircleAvatar(
-                              radius: 50, // Adjust the size of the profile image
-                              backgroundImage: AssetImage('assets/profile_picture.jpg'), // Replace with the uploaded profile picture
+                              radius: 50, // Rozmiar zdjęcia profilowego
+                              backgroundColor: Colors.grey[300], // Dodaj szare tło
+                              child: ClipOval(
+                                child: Image.asset(
+                                  'assets/profile_picture.png',
+                                  fit: BoxFit.cover,
+                                  width: 100,
+                                  height: 100,
+                                  errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                                    return Icon(Icons.person, size: 50, color: Colors.grey); // Ikona zastępcza
+                                  },
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -110,19 +111,30 @@ class UserProfileScreen extends StatelessWidget {
                             ),
                           ),
                         ),
+                        SizedBox(height: 20), // Dodajemy odstęp na dole zawartości
                       ],
                     ),
                   ),
                 ),
               ),
+              // Pasek nawigacyjny na dole
+              BottomNavigation(
+                onTap: (int index) {
+                  if (index == 0) {
+                    Navigator.pushNamed(context, '/calendar');
+                  } else if (index == 1) {
+                    Navigator.pushNamed(context, '/chat');
+                  } else if (index == 2) {
+                    Navigator.pushNamed(context, '/home');
+                  } else if (index == 3) {
+                    Navigator.pushNamed(context, '/profile');
+                  }
+                },
+                noBackground: false, // Tło dla paska, tak jak w HomeScreen
+              ),
             ],
           ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigation(
-        onTap: (int index) {
-          // Define navigation logic here based on the index
-        },
       ),
     );
   }

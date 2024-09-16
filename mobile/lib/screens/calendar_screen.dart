@@ -4,7 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../widgets/bottom_navigation.dart';
 import '../app_state.dart' as appState;
-import '../styles.dart'; // Import stylów
+import '../styles.dart';
+import '../widgets/task_item.dart';  // Import TaskItem
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -22,7 +23,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     super.initState();
     initializeDateFormatting('pl_PL');
     _selectedDay = DateTime.now();
-    appState.currentPage = 'calendar';
+    appState.currentPage = 'calendar'; // Ustawiamy aktualną stronę na kalendarz
   }
 
   @override
@@ -30,11 +31,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Tło
+          // Tło całej strony
           Container(
             decoration: AppStyles.backgroundDecoration,
           ),
-          // Filtr z przezroczystością
+          // Filtr dla całej strony
           Container(
             color: AppStyles.filterColor.withOpacity(0.75),
           ),
@@ -44,7 +45,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               // Kalendarz
               Container(
                 padding: const EdgeInsets.all(8.0),
-                color: AppStyles.transparentWhite, // Jasne tło z przezroczystością
+                color: AppStyles.transparentWhite, // Jasne tło z przezroczystością dla kalendarza
                 child: TableCalendar(
                   locale: 'pl_PL',
                   firstDay: DateTime.utc(2020, 1, 1),
@@ -118,7 +119,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
               // Divider między kalendarzem a sekcją z zadaniami
               Container(
-                color: AppStyles.transparentWhite,
+                color: AppStyles.transparentWhite, // Upewniamy się, że tło sekcji jest takie samo jak na innych stronach
                 child: const Divider(
                   color: Colors.white,
                   thickness: 1,
@@ -127,7 +128,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               // Sekcja z zadaniami
               Expanded(
                 child: Container(
-                  color: AppStyles.transparentWhite, // Białe tło z przezroczystością
+                  color: AppStyles.transparentWhite, // Białe tło z przezroczystością dla zadań
                   padding: const EdgeInsets.all(12.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,54 +154,30 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
             ],
           ),
-          // Pasek nawigacyjny na dole
+          // Pasek nawigacyjny na dole z przezroczystością
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: Container(
-              color: Colors.black.withOpacity(0.7),
+              color: Colors.transparent, // Pasek nawigacyjny bez tła, jak na innych stronach
               child: BottomNavigation(
                 onTap: (index) {
                   if (index == 0) {
-                    // Strona kalendarza już załadowana, brak akcji
+                    Navigator.pushNamed(context, '/calendar');
                   } else if (index == 1) {
-                    Navigator.pushNamed(context, '/chats');
+                    Navigator.pushNamed(context, '/chat');
                   } else if (index == 2) {
+                    Navigator.pushNamed(context, '/home');
+                  } else if (index == 3) {
                     Navigator.pushNamed(context, '/profile');
                   }
                 },
+                noBackground: true, // Usunięcie tła z paska nawigacyjnego
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// Widget dla elementu taska
-class TaskItem extends StatelessWidget {
-  final String title;
-  const TaskItem(this.title, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            const Icon(Icons.circle, size: 8, color: Colors.black),
-            const SizedBox(width: 8),
-            Text(title, style: AppStyles.textStyle),
-          ],
-        ),
       ),
     );
   }

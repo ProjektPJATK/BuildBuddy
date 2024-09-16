@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/build_option.dart';
 import '../widgets/notification_item.dart';
-import 'profile.dart';
 import '../widgets/bottom_navigation.dart';
 import '../app_state.dart' as appState;
 import '../styles.dart'; // Import stylów
@@ -15,7 +14,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    appState.currentPage = 'home';
+    appState.currentPage = 'home'; // Ustawiamy stronę Home jako aktualną
   }
 
   @override
@@ -127,15 +126,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-
                 BottomNavigation(
                   onTap: (index) {
                     if (index == 0) {
-                      Navigator.pushNamed(context, '/calendar');
+                      Navigator.pushNamed(context, '/calendar'); // Kalendarz
                     } else if (index == 1) {
-                      Navigator.pushNamed(context, '/chats');
+                      Navigator.pushNamed(context, '/chat'); // Czat
                     } else if (index == 2) {
-                      Navigator.pushNamed(context, '/profile');
+                      Navigator.pushNamed(context, '/home'); // Home
+                    } else if (index == 3) {
+                      Navigator.pushNamed(context, '/profile'); // Profil
                     }
                   },
                 ),

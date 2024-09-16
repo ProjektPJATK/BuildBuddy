@@ -2,32 +2,35 @@ import 'package:flutter/material.dart';
 
 class BuildOption extends StatelessWidget {
   final String title;
-  final VoidCallback onTap; // Changed to VoidCallback for simplicity
+  final VoidCallback onTap;
 
   const BuildOption({super.key, required this.title, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.center, // Center the element
+      alignment: Alignment.center,
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.85, // Width 85% of the screen width
-        margin: const EdgeInsets.symmetric(vertical: 4.0), // Margin between items
-        padding: const EdgeInsets.all(6.0), // Padding inside the container
+        width: MediaQuery.of(context).size.width * 0.85,
+        margin: const EdgeInsets.symmetric(vertical: 4.0),
+        padding: const EdgeInsets.all(6.0),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.7), // Background color with opacity
+          color: Colors.white.withOpacity(0.7),
           borderRadius: BorderRadius.circular(8),
-          boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4.0)], // Optional shadow
+          boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4.0)],
         ),
         child: SizedBox(
-          height: 50, // Fixed height for each option
+          height: 50, 
           child: ListTile(
-            contentPadding: EdgeInsets.zero, // Remove default ListTile padding
+            contentPadding: EdgeInsets.zero,
             title: Text(
               title,
-              style: const TextStyle(fontSize: 12), // Reduced font size
+              style: const TextStyle(
+                fontSize: 12, // Zmniejszona czcionka, bez dodatkowych stylów
+                color: Colors.black, 
+              ),
             ),
-            onTap: onTap, // Use the onTap function here
+            onTap: onTap,
           ),
         ),
       ),
