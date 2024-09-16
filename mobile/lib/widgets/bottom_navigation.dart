@@ -5,7 +5,7 @@ import '../app_state.dart' as appState;
 class BottomNavigation extends StatelessWidget {
   final Function(int) onTap;
 
-  BottomNavigation({required this.onTap});
+  BottomNavigation({super.key, required this.onTap});
 
   final List<Map<String, dynamic>> _navItems = [
     {'icon': Icons.calendar_today, 'label': 'Kalendarz', 'page': 'calendar'},
@@ -20,7 +20,7 @@ class BottomNavigation extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Divider(
+          const Divider(
             thickness: 1,
             color: Colors.white,
             height: 20,

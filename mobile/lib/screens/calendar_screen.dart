@@ -7,6 +7,8 @@ import '../app_state.dart' as appState;
 import '../styles.dart'; // Import stylów
 
 class CalendarScreen extends StatefulWidget {
+  const CalendarScreen({super.key});
+
   @override
   _CalendarScreenState createState() => _CalendarScreenState();
 }
@@ -54,7 +56,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     CalendarFormat.month: '',
                   },
                   startingDayOfWeek: StartingDayOfWeek.monday,
-                  headerStyle: HeaderStyle(
+                  headerStyle: const HeaderStyle(
                     formatButtonVisible: false, // Ukrycie przycisku zmiany widoku
                     titleCentered: true, // Wyśrodkowanie tytułu
                     titleTextStyle: TextStyle(
@@ -71,7 +73,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   onPageChanged: (focusedDay) {
                     _focusedDay = focusedDay;
                   },
-                  calendarStyle: CalendarStyle(
+                  calendarStyle: const CalendarStyle(
                     defaultTextStyle: TextStyle(
                       color: Colors.black,
                       fontSize: 12, // Zmniejszamy czcionkę dla dni
@@ -104,7 +106,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   ),
                   daysOfWeekHeight: 20.0,
                   rowHeight: 28.0,
-                  daysOfWeekStyle: DaysOfWeekStyle(
+                  daysOfWeekStyle: const DaysOfWeekStyle(
                     weekdayStyle: TextStyle(
                       fontSize: 10, // Czcionka dla dni tygodnia
                     ),
@@ -117,7 +119,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               // Divider między kalendarzem a sekcją z zadaniami
               Container(
                 color: AppStyles.transparentWhite,
-                child: Divider(
+                child: const Divider(
                   color: Colors.white,
                   thickness: 1,
                 ),
@@ -126,7 +128,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               Expanded(
                 child: Container(
                   color: AppStyles.transparentWhite, // Białe tło z przezroczystością
-                  padding: EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.all(12.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -134,11 +136,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         'Zadania na: ${DateFormat('dd.MM.yyyy', 'pl_PL').format(_selectedDay!)}',
                         style: AppStyles.headerStyle,
                       ),
-                      SizedBox(height: 8), // Odstęp
+                      const SizedBox(height: 8), // Odstęp
                       Expanded(
                         child: ListView(
                           padding: EdgeInsets.zero,
-                          children: [
+                          children: const [
                             TaskItem('Kurier przywiezie płytki'),
                             TaskItem('Szpachlowanie gładzi'),
                             TaskItem('Montaż płyt meblowych'),
@@ -180,7 +182,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 // Widget dla elementu taska
 class TaskItem extends StatelessWidget {
   final String title;
-  TaskItem(this.title);
+  const TaskItem(this.title, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -191,11 +193,11 @@ class TaskItem extends StatelessWidget {
           color: Colors.white.withOpacity(0.7),
           borderRadius: BorderRadius.circular(8),
         ),
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            Icon(Icons.circle, size: 8, color: Colors.black),
-            SizedBox(width: 8),
+            const Icon(Icons.circle, size: 8, color: Colors.black),
+            const SizedBox(width: 8),
             Text(title, style: AppStyles.textStyle),
           ],
         ),

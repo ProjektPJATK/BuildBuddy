@@ -1,6 +1,4 @@
-// lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
-
 import '../widgets/build_option.dart';
 import '../widgets/notification_item.dart';
 import 'profile.dart';
@@ -25,15 +23,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Tło
+          // Background
           Container(
             decoration: AppStyles.backgroundDecoration,
           ),
-          // Filtr
+          // Filter
           Container(
             color: AppStyles.filterColor.withOpacity(0.75),
           ),
-          // Małe logo
+          // Small logo
           Align(
             alignment: Alignment.topCenter,
             child: Padding(
@@ -45,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          // Zawartość ekranu
+          // Screen content
           Positioned(
             top: 100,
             left: 0,
@@ -74,23 +72,29 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: ListView(
                             padding: EdgeInsets.zero,
                             children: [
-                              InkWell(
-                                onTap: () => Navigator.pushNamed(context, '/gdansk'),
-                                child: BuildOption(title: 'Budowa w Gdańsku'),
+                              BuildOption(
+                                title: 'Budowa w Gdańsku',
+                                onTap: () {
+                                  Navigator.pushNamed(context, '/gdansk');
+                                },
                               ),
-                              InkWell(
-                                onTap: () => Navigator.pushNamed(context, '/warszawa'),
-                                child: BuildOption(title: 'Budowa w Warszawie'),
+                              BuildOption(
+                                title: 'Budowa w Warszawie',
+                                onTap: () {
+                                  Navigator.pushNamed(context, '/warszawa');
+                                },
                               ),
-                              InkWell(
-                                onTap: () => Navigator.pushNamed(context, '/krakow'),
-                                child: BuildOption(title: 'Budowa w Krakowie'),
+                              BuildOption(
+                                title: 'Budowa w Krakowie',
+                                onTap: () {
+                                  Navigator.pushNamed(context, '/krakow');
+                                },
                               ),
                             ],
                           ),
                         ),
-                        SizedBox(height: 10),
-                        Divider(thickness: 1, color: Colors.white, height: 10),
+                        const SizedBox(height: 10),
+                        const Divider(thickness: 1, color: Colors.white, height: 10),
                       ],
                     ),
                   ),
@@ -111,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Expanded(
                           child: ListView(
                             padding: EdgeInsets.zero,
-                            children: [
+                            children: const [
                               NotificationItem(title: 'Powiadomienie 1: Nowa aktualizacja budowy w Gdańsku'),
                               NotificationItem(title: 'Powiadomienie 2: Termin zakończenia budowy w Warszawie przesunięty'),
                               NotificationItem(title: 'Powiadomienie 3: Zmiana w planie budowy w Krakowie'),

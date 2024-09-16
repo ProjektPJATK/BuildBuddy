@@ -1,10 +1,11 @@
 // lib/screens/splash_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/animation.dart';
 import '../widgets/login_form.dart';
 import '../styles.dart'; // Import stylów
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -27,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     _animation = Tween<Offset>(
       begin: Offset.zero,
-      end: Offset(0, -1.8),
+      end: const Offset(0, -1.8),
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,

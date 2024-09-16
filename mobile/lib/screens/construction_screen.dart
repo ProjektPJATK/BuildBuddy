@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/notification_item.dart';
+import '../widgets/bottom_navigation.dart'; // Import the BottomNavigation widget
 
 class ConstructionScreen extends StatelessWidget {
   @override
@@ -21,124 +21,99 @@ class ConstructionScreen extends StatelessWidget {
             color: Colors.black.withOpacity(0.75), // Adjust transparency here
           ),
           Align(
-            alignment: Alignment.topCenter, // Wyśrodkowanie logo
+            alignment: Alignment.topCenter, // Center the logo
             child: Padding(
-              padding: const EdgeInsets.only(top: 30), // Margines od góry
+              padding: const EdgeInsets.only(top: 30), // Top padding for the logo
               child: SizedBox(
-                width: 45, // Zmniejszone wymiary logo
+                width: 45, // Adjusted logo size
                 height: 45,
                 child: Image.asset('assets/logo_small.png'),
               ),
             ),
           ),
-          // White semi-transparent background for the chat section
-          Container(
-            margin: const EdgeInsets.only(top: 120), // Start chat background below the logo
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.7), // Set transparency for chat background
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30),
-                topRight: Radius.circular(30),
+          // Main chat container with a white background and proper layout
+          Positioned(
+            top: 120, // Start chat background below the logo
+            left: 0,
+            right: 0,
+            bottom: 0, // Extend the container to the bottom of the screen
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.7), // Set transparency for chat background
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              child: Column(
+                children: [
+                  SizedBox(height: 20), // Spacer between logo and chat section
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.all(10),
+                      children: [
+                        buildChatBubble(
+                          message: 'Cześć. Jak idą dzisiaj prace?',
+                          isSentByMe: true,
+                          time: '9:50 AM',
+                          sender: '',
+                        ),
+                        buildChatBubble(
+                          message: 'Cześć. Wyślę zdjęcia niedługo.',
+                          isSentByMe: false,
+                          sender: 'MARTA',
+                          time: '10:00 AM',
+                        ),
+                        buildChatBubble(
+                          message: 'Ok. Czekam.',
+                          isSentByMe: true,
+                          time: '10:05 AM',
+                          sender: '',
+                        ),
+                        buildChatBubble(
+                          message: 'Skrzynka elektryczna będzie dzisiaj gotowa.',
+                          isSentByMe: false,
+                          sender: 'ANDRZEJ',
+                          time: '10:35 AM',
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Message input field
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    color: Colors.white.withOpacity(0.9), // Slightly transparent input field background
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.camera_alt),
+                          onPressed: () {},
+                        ),
+                        Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Napisz wiadomość...',
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.send),
+                          onPressed: () {},
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          Column(
-            children: [
-              // Logo at the top of the screen
-              Padding(
-                padding: const EdgeInsets.only(top: 40), // Top padding for safe area
-                child: Center(
-                  child: SizedBox(
-                    width: 80,
-                    height: 80,
-          
-                  ),
-                ),
-              ),
-              SizedBox(height: 20), // Spacer between logo and chat section
-              // Chat section
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(10),
-                  children: [
-                    buildChatBubble(
-                      message: 'Cześć. Jak idą dzisiaj prace?',
-                      isSentByMe: true,
-                      time: '9:50 AM',
-                      sender: '',
-                    ),
-                    buildChatBubble(
-                      message: 'Cześć. Wyślę zdjęcia niedługo.',
-                      isSentByMe: false,
-                      sender: 'MARTA',
-                      time: '10:00 AM',
-                    ),
-                    buildChatBubble(
-                      message: 'Ok. Czekam.',
-                      isSentByMe: true,
-                      time: '10:05 AM',
-                      sender: '',
-                    ),
-                    buildChatBubble(
-                      message: 'Skrzynka elektryczna będzie dzisiaj gotowa.',
-                      isSentByMe: false,
-                      sender: 'ANDRZEJ',
-                      time: '10:35 AM',
-                    ),
-                  ],
-                ),
-              ),
-              // Message input field
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                color: Colors.white.withOpacity(0.9), // Slightly transparent input field background
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.camera_alt),
-                      onPressed: () {},
-                    ),
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Napisz wiadomość...',
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.send),
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey, 
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '',
-          ),
-        ],
+      bottomNavigationBar: BottomNavigation(
+        onTap: (int index) {
+          // Define navigation logic here based on the index
+        },
       ),
     );
   }
