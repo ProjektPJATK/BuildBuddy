@@ -41,12 +41,12 @@ class LoginForm extends StatelessWidget {
           },
           child: const Text('Zaloguj się'),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         TextButton(
           onPressed: () {
             Navigator.pushNamed(context, '/register');
           },
-          child: Text(
+          child: const Text(
             'Nie masz konta? Zarejestruj się',
             style: TextStyle(color: Colors.white),
           ),

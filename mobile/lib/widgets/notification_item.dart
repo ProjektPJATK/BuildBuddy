@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class NotificationItem extends StatelessWidget {
   final String title;
 
-  NotificationItem({required this.title});
+  const NotificationItem({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -16,13 +16,13 @@ class NotificationItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.7), // Tło dla powiadomień
           borderRadius: BorderRadius.circular(8),
-          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4.0)], // Opcjonalny cień
+          boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4.0)], // Opcjonalny cień
         ),
         child: ListTile(
           contentPadding: EdgeInsets.zero, // Usunięcie domyślnego paddingu ListTile
           title: Text(
             title,
-            style: TextStyle(fontSize: 12), // Zmniejszona czcionka
+            style: const TextStyle(fontSize: 12), // Zmniejszona czcionka
           ),
         ),
       ),

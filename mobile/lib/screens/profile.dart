@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/bottom_navigation.dart'; // Import the BottomNavigation widget
 
 class UserProfileScreen extends StatelessWidget {
   @override
@@ -39,7 +40,6 @@ class UserProfileScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         SizedBox(height: 30), // Padding from top of card
-                        
                         // Profile Name and Picture section
                         Column(
                           children: [
@@ -56,13 +56,11 @@ class UserProfileScreen extends StatelessWidget {
                             // Profile Image
                             CircleAvatar(
                               radius: 50, // Adjust the size of the profile image
-                              backgroundImage: AssetImage('assets\profile_picture.jpg'), // Replace with the uploaded profile picture
+                              backgroundImage: AssetImage('assets/profile_picture.jpg'), // Replace with the uploaded profile picture
                             ),
                           ],
                         ),
-                        
                         SizedBox(height: 30), // Space below profile image and name
-
                         // Profile details
                         profileItem(
                           icon: Icons.person,
@@ -101,8 +99,7 @@ class UserProfileScreen extends StatelessWidget {
                             ),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                             child: Text(
                               'EDYTUJ PROFIL',
                               style: TextStyle(
@@ -122,28 +119,10 @@ class UserProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '',
-          ),
-        ],
+      bottomNavigationBar: BottomNavigation(
+        onTap: (int index) {
+          // Define navigation logic here based on the index
+        },
       ),
     );
   }
