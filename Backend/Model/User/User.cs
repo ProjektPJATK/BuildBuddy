@@ -9,9 +9,9 @@ public class User
     public string Password { get; set; }
     public int TeamId { get; set; }
     public int ImageId { get; set; }
+    public string UserImageUrl { get; set; }
 
     public virtual ICollection<TeamUser> Team { get; set; }
-    public virtual UserImage UserImage { get; set; }
     public virtual Calendar Calendars { get; set; }
     public virtual ICollection<UserConversation> UserConversations { get; set; }
     public virtual ICollection<Message> Message { get; set; }
