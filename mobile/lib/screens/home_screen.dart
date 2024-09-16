@@ -1,7 +1,9 @@
 // lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
+
 import '../widgets/build_option.dart';
 import '../widgets/notification_item.dart';
+import 'profile.dart';
 import '../widgets/bottom_navigation.dart';
 import '../app_state.dart' as appState;
 import '../styles.dart'; // Import stylów
@@ -121,6 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
+
                 BottomNavigation(
                   onTap: (index) {
                     if (index == 0) {
