@@ -1,42 +1,116 @@
-﻿using Backend.Dto;
+﻿using Backend.DbContext;
+using Backend.Dto;
 using Backend.Interface.Calendar;
+using Backend.Model;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Backend.Service.Calendar;
-
-public class CalendarService : ICalendarService
+namespace Backend.Service.Calendar
 {
-    public Task<IEnumerable<CalendarDto>> GetAllCalendarsAsync()
+    public class CalendarService : ICalendarService
     {
-        throw new NotImplementedException();
-    }
+        private readonly AppDbContext _dbContext;
 
-    public Task<CalendarDto> GetCalendarByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
+        public CalendarService(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
-    public Task<CalendarDto> CreateCalendarAsync(CalendarDto conversationDto)
-    {
-        throw new NotImplementedException();
-    }
+        public async Task<IEnumerable<CalendarDto>> GetAllCalendarsAsync()
+        {
+            return await _dbContext.Calendars
+                .Select(c => new CalendarDto
+                {
+                    Name = c.Name,
+                    Description = c.Description,
+                    Timezone = c.Timezone,
+                })
+                .ToListAsync();
+        }
 
-    public Task UpdateCalendarAsync(int id, CalendarDto conversationDto)
-    {
-        throw new NotImplementedException();
-    }
+        public async Task<CalendarDto> GetCalendarByIdAsync(int id)
+        {
+            var calendar = await _dbContext.Calendars
+                .FirstOrDefaultAsync(c => c.Id == id);
 
-    public Task DeleteCalendarAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
+            if (calendar == null)
+            {
+                return null;
+            }
 
-    public Task AddTaskToCalendarAsync(int calendarId, int taskId)
-    {
-        throw new NotImplementedException();
-    }
+            return new CalendarDto
+            {
+                Name = calendar.Name,
+                Description = calendar.Description,
+                Timezone = calendar.Timezone
+            };
+        }
 
-    public Task RemoveTaskFromCalendarAsync(int calendarId, int taskId)
-    {
-        throw new NotImplementedException();
+        public async Task<CalendarDto> CreateCalendarAsync(CalendarDto calendarDto)
+        {
+            var calendar = new Model.Calendar
+            {
+                Name = calendarDto.Name,
+                Description = calendarDto.Description,
+                Timezone = calendarDto.Timezone
+            };
+
+            _dbContext.Calendars.Add(calendar);
+            await _dbContext.SaveChangesAsync();
+
+            calendarDto.Id = calendar.Id; 
+
+            return calendarDto;
+        }
+
+        public async Task UpdateCalendarAsync(int id, CalendarDto calendarDto)
+        {
+            var calendar = await _dbContext.Calendars.FirstOrDefaultAsync(c => c.Id == id);
+
+            if (calendar != null)
+            {
+                calendar.Name = calendarDto.Name;
+                calendar.Description = calendarDto.Description;
+                calendar.Timezone = calendarDto.Timezone;
+
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeleteCalendarAsync(int id)
+        {
+            var calendar = await _dbContext.Calendars.FirstOrDefaultAsync(c => c.Id == id);
+            if (calendar != null)
+            {
+                _dbContext.Calendars.Remove(calendar);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task AddTaskToCalendarAsync(int calendarId, int taskId)
+        {
+            var calendar = await _dbContext.Calendars.Include(c => c.CalendarTasks)
+                .FirstOrDefaultAsync(c => c.Id == calendarId);
+
+            if (calendar != null && !calendar.CalendarTasks.Any(ct => ct.TaskId == taskId))
+            {
+                calendar.CalendarTasks.Add(new CalendarTask { CalendarId = calendarId, TaskId = taskId });
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task RemoveTaskFromCalendarAsync(int calendarId, int taskId)
+        {
+            var calendarTask = await _dbContext.CalendarTasks
+                .FirstOrDefaultAsync(ct => ct.CalendarId == calendarId && ct.TaskId == taskId);
+
+            if (calendarTask != null)
+            {
+                _dbContext.CalendarTasks.Remove(calendarTask);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
     }
 }

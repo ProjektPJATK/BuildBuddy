@@ -1,42 +1,131 @@
-﻿using Backend.Dto;
+﻿using Backend.DbContext;
+using Backend.Dto;
 using Backend.Interface.User;
+using Backend.Model;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Backend.Service.User;
-
-public class UserService : IUserService
+namespace Backend.Service.User
 {
-    public Task<UserDto> GetUserByIdAsync(int userId)
+    public class UserService : IUserService
     {
-        throw new NotImplementedException();
-    }
+        private readonly AppDbContext _dbContext;
 
-    public Task<IEnumerable<UserDto>> GetAllUsersAsync()
-    {
-        throw new NotImplementedException();
-    }
+        public UserService(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
-    public Task<UserDto> CreateUserAsync(UserDto userDto)
-    {
-        throw new NotImplementedException();
-    }
+        public async Task<UserDto> GetUserByIdAsync(int userId)
+        {
+            var user = await _dbContext.Users
+                .FirstOrDefaultAsync(u => u.Id == userId);
 
-    public Task UpdateUserAsync(int userId, UserDto userDto)
-    {
-        throw new NotImplementedException();
-    }
+            if (user == null)
+            {
+                return null;
+            }
 
-    public Task DeleteUserAsync(int userId)
-    {
-        throw new NotImplementedException();
-    }
+            return new UserDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Surname = user.Surname,
+                TelephoneNr = user.TelephoneNr,
+                UserImageUrl = user.UserImageUrl,
+            };
+        }
 
-    public Task<IEnumerable<ConversationDto>> GetUserConversationsAsync(int userId)
-    {
-        throw new NotImplementedException();
-    }
+        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        {
+            return await _dbContext.Users
+                .Select(user => new UserDto
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Surname = user.Surname,
+                    TelephoneNr = user.TelephoneNr,
+                    UserImageUrl = user.UserImageUrl,
+                })
+                .ToListAsync();
+        }
 
-    public Task<IEnumerable<TeamDto>> GetUserTeamsAsync(int userId)
-    {
-        throw new NotImplementedException();
+        public async Task<UserDto> CreateUserAsync(UserDto userDto)
+        {
+            var user = new Model.User
+            {
+                Name = userDto.Name,
+                Surname = userDto.Surname,
+                TelephoneNr = userDto.TelephoneNr,
+                Password = userDto.Password,
+                UserImageUrl = userDto.UserImageUrl,
+            };
+
+            _dbContext.Users.Add(user);
+            await _dbContext.SaveChangesAsync();
+
+            userDto.Id = user.Id;
+            return userDto;
+        }
+
+        public async Task UpdateUserAsync(int userId, UserDto userDto)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user != null)
+            {
+                user.Name = userDto.Name;
+                user.Surname = userDto.Surname;
+                user.TelephoneNr = userDto.TelephoneNr;
+                user.Password = userDto.Password;
+                user.UserImageUrl = userDto.UserImageUrl;
+
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeleteUserAsync(int userId)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user != null)
+            {
+                _dbContext.Users.Remove(user);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task<IEnumerable<ConversationDto>> GetUserConversationsAsync(int userId)
+        {
+            return await _dbContext.UserConversations
+                .Where(uc => uc.UserId == userId)
+                .Select(uc => new ConversationDto
+                {
+                    Id = uc.Conversation.Id,
+                    Name = uc.Conversation.Name
+                })
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<TeamDto>> GetUserTeamsAsync(int userId)
+        {
+            var user = await _dbContext.Users
+                .Include(u => u.Team)
+                .ThenInclude(tu => tu.Team)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            return user.Team.Select(tu => new TeamDto
+            {
+                Id = tu.Team.Id,
+                Name = tu.Team.Name,
+                ConversationId = tu.Team.ConversationId ?? 0
+            });
+        }
     }
 }

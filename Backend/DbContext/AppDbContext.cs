@@ -9,11 +9,13 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<Team> Teams { get; set; }
-    public DbSet<TeamUser> TeamUsers { get; set; }
     public DbSet<Conversation> Conversations { get; set; }
     public DbSet<UserConversation> UserConversations { get; set; }
     public DbSet<Message> Messages { get; set; }
     public DbSet<Calendar> Calendars { get; set; }
     public DbSet<CalendarTask> CalendarTasks { get; set; }
     public DbSet<Tasks> Tasks { get; set; }
+    public DbSet<TaskActualization> TaskActualizations { get; set; }
+    public DbSet<Item> Items { get; set; }
+    public DbSet<Place> Places { get; set; }
 }

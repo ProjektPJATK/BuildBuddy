@@ -8,7 +8,7 @@ public class Tasks
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public bool AllDay { get; set; }
-    public int PlaceId {get; set;}
+    public int? PlaceId {get; set;}
     
     public virtual ICollection<CalendarTask> CalendarTasks { get; set; }
     public virtual TaskActualization TaskActualization { get; set; }

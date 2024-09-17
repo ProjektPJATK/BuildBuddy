@@ -1,32 +1,93 @@
-﻿using Backend.Dto;
+﻿using Backend.DbContext;
+using Backend.Dto;
 using Backend.Interface.Team;
+using Backend.Model;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Backend.Service.Team;
-
-public class PlaceService : IPlaceService
+namespace Backend.Service.Team
 {
-    public Task<IEnumerable<PlaceDto>> GetAllPlacesAsync()
+    public class PlaceService : IPlaceService
     {
-        throw new NotImplementedException();
-    }
+        private readonly AppDbContext _dbContext;
 
-    public Task<PlaceDto> GetPlaceByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
+        public PlaceService(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
-    public Task<PlaceDto> CreatePlaceAsync(PlaceDto conversationDto)
-    {
-        throw new NotImplementedException();
-    }
+        public async Task<IEnumerable<PlaceDto>> GetAllPlacesAsync()
+        {
+            return await _dbContext.Places
+                .Select(place => new PlaceDto
+                {
+                    Id = place.Id,
+                    Address = place.Address,
+                    InventoryId = place.InventoryId,
+                    TeamId = place.TeamId ?? 0
+                })
+                .ToListAsync();
+        }
 
-    public Task UpdatePlaceAsync(int id, PlaceDto conversationDto)
-    {
-        throw new NotImplementedException();
-    }
+        public async Task<PlaceDto> GetPlaceByIdAsync(int id)
+        {
+            var place = await _dbContext.Places
+                .FirstOrDefaultAsync(p => p.Id == id);
 
-    public Task DeletePlaceAsync(int id)
-    {
-        throw new NotImplementedException();
+            if (place == null)
+            {
+                return null;
+            }
+
+            return new PlaceDto
+            {
+                Id = place.Id,
+                Address = place.Address,
+                InventoryId = place.InventoryId,
+                TeamId = place.TeamId ?? 0
+            };
+        }
+
+        public async Task<PlaceDto> CreatePlaceAsync(PlaceDto placeDto)
+        {
+            var place = new Place
+            {
+                Address = placeDto.Address,
+                InventoryId = placeDto.InventoryId,
+                TeamId = placeDto.TeamId
+            };
+
+            _dbContext.Places.Add(place);
+            await _dbContext.SaveChangesAsync();
+
+            placeDto.Id = place.Id;
+            return placeDto;
+        }
+
+        public async Task UpdatePlaceAsync(int id, PlaceDto placeDto)
+        {
+            var place = await _dbContext.Places.FirstOrDefaultAsync(p => p.Id == id);
+
+            if (place != null)
+            {
+                place.Address = placeDto.Address;
+                place.InventoryId = placeDto.InventoryId;
+                place.TeamId = placeDto.TeamId;
+                
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeletePlaceAsync(int id)
+        {
+            var place = await _dbContext.Places.FirstOrDefaultAsync(p => p.Id == id);
+            if (place != null)
+            {
+                _dbContext.Places.Remove(place);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
     }
 }
