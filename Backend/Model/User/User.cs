@@ -8,6 +8,8 @@ public class User
     public int TelephoneNr { get; set; }
     public string Password { get; set; }
     public string UserImageUrl { get; set; }
+    
+    public int TeamId { get; set; }
 
     public virtual ICollection<TeamUser> Team { get; set; }
     public virtual Calendar Calendars { get; set; }

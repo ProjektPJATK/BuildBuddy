@@ -24,10 +24,10 @@ namespace Backend.Service.Tasks
                 .Select(ta => new TaskActualizationDto
                 {
                     Id = ta.Id,
-                    ImageId = ta.ImageId,
                     Message = ta.Message,
                     IsDone = ta.IsDone,
-                    TaskImageUrl = ta.TaskImageUrl 
+                    TaskImageUrl = ta.TaskImageUrl,
+                    TaskId = ta.TaskId
                 })
                 .ToListAsync();
         }
@@ -45,10 +45,10 @@ namespace Backend.Service.Tasks
             return new TaskActualizationDto
             {
                 Id = taskActualization.Id,
-                ImageId = taskActualization.ImageId,
                 Message = taskActualization.Message,
                 IsDone = taskActualization.IsDone,
-                TaskImageUrl = taskActualization.TaskImageUrl 
+                TaskImageUrl = taskActualization.TaskImageUrl,
+                TaskId = taskActualization.TaskId
             };
         }
 
@@ -56,10 +56,10 @@ namespace Backend.Service.Tasks
         {
             var taskActualization = new TaskActualization
             {
-                ImageId = taskActualizationDto.ImageId,
                 Message = taskActualizationDto.Message,
                 IsDone = taskActualizationDto.IsDone,
-                TaskImageUrl = taskActualizationDto.TaskImageUrl 
+                TaskImageUrl = taskActualizationDto.TaskImageUrl,
+                TaskId = taskActualizationDto.TaskId
             };
 
             _dbContext.TaskActualizations.Add(taskActualization);
@@ -76,10 +76,10 @@ namespace Backend.Service.Tasks
 
             if (taskActualization != null)
             {
-                taskActualization.ImageId = taskActualizationDto.ImageId;
                 taskActualization.Message = taskActualizationDto.Message;
                 taskActualization.IsDone = taskActualizationDto.IsDone;
                 taskActualization.TaskImageUrl = taskActualizationDto.TaskImageUrl;
+                taskActualization.TaskId = taskActualizationDto.TaskId;
 
                 await _dbContext.SaveChangesAsync();
             }
@@ -87,7 +87,7 @@ namespace Backend.Service.Tasks
 
         public async Task DeleteTaskActualizationAsync(int id)
         {
-            var taskActualization = await _dbContext.TaskActualizations // Assuming TaskActualizations is the correct DbSet
+            var taskActualization = await _dbContext.TaskActualizations
                 .FirstOrDefaultAsync(ta => ta.Id == id);
 
             if (taskActualization != null)

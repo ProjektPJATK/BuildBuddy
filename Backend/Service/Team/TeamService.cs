@@ -25,7 +25,7 @@ namespace Backend.Service.Team
                 {
                     Id = team.Id,
                     Name = team.Name,
-                    ConversationId = team.ConversationId ?? 0
+                    PlaceId = team.PlaceId
                 })
                 .ToListAsync();
         }
@@ -44,7 +44,7 @@ namespace Backend.Service.Team
             {
                 Id = team.Id,
                 Name = team.Name,
-                ConversationId = team.ConversationId ?? 0
+                PlaceId = team.PlaceId
             };
         }
 
@@ -53,7 +53,7 @@ namespace Backend.Service.Team
             var team = new Model.Team
             {
                 Name = teamDto.Name,
-                ConversationId = teamDto.ConversationId
+                PlaceId = teamDto.PlaceId
             };
 
             _dbContext.Teams.Add(team);
@@ -70,7 +70,7 @@ namespace Backend.Service.Team
             if (team != null)
             {
                 team.Name = teamDto.Name;
-                team.ConversationId = teamDto.ConversationId;
+                team.PlaceId = teamDto.PlaceId;
 
                 await _dbContext.SaveChangesAsync();
             }

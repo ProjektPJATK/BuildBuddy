@@ -8,6 +8,6 @@ public class TaskDto
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public bool AllDay { get; set; }
-    public int PlaceId {get; set;}
+    public int? PlaceId {get; set;}
     
 }

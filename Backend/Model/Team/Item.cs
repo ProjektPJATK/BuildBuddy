@@ -8,5 +8,5 @@ public class Item
     public string Metrics { get; set; }
     public double QuantityLeft { get; set; }
 
-    public virtual Place Place { get; set; }
+    public virtual Place? Place { get; set; }
 }

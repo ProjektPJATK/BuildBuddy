@@ -35,6 +35,7 @@ namespace Backend.Service.User
                 Surname = user.Surname,
                 TelephoneNr = user.TelephoneNr,
                 UserImageUrl = user.UserImageUrl,
+                TeamId = user.TeamId
             };
         }
 
@@ -48,6 +49,7 @@ namespace Backend.Service.User
                     Surname = user.Surname,
                     TelephoneNr = user.TelephoneNr,
                     UserImageUrl = user.UserImageUrl,
+                    TeamId = user.TeamId
                 })
                 .ToListAsync();
         }
@@ -61,6 +63,7 @@ namespace Backend.Service.User
                 TelephoneNr = userDto.TelephoneNr,
                 Password = userDto.Password,
                 UserImageUrl = userDto.UserImageUrl,
+                TeamId = userDto.TeamId
             };
 
             _dbContext.Users.Add(user);
@@ -81,6 +84,7 @@ namespace Backend.Service.User
                 user.TelephoneNr = userDto.TelephoneNr;
                 user.Password = userDto.Password;
                 user.UserImageUrl = userDto.UserImageUrl;
+                user.TeamId = userDto.TeamId;
 
                 await _dbContext.SaveChangesAsync();
             }
@@ -124,7 +128,6 @@ namespace Backend.Service.User
             {
                 Id = tu.Team.Id,
                 Name = tu.Team.Name,
-                ConversationId = tu.Team.ConversationId ?? 0
             });
         }
     }

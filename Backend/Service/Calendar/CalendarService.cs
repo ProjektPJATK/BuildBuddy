@@ -26,6 +26,7 @@ namespace Backend.Service.Calendar
                     Name = c.Name,
                     Description = c.Description,
                     Timezone = c.Timezone,
+                    UserId = c.UserId
                 })
                 .ToListAsync();
         }
@@ -44,7 +45,8 @@ namespace Backend.Service.Calendar
             {
                 Name = calendar.Name,
                 Description = calendar.Description,
-                Timezone = calendar.Timezone
+                Timezone = calendar.Timezone,
+                UserId = calendar.UserId
             };
         }
 
@@ -54,7 +56,8 @@ namespace Backend.Service.Calendar
             {
                 Name = calendarDto.Name,
                 Description = calendarDto.Description,
-                Timezone = calendarDto.Timezone
+                Timezone = calendarDto.Timezone,
+                UserId = calendarDto.UserId
             };
 
             _dbContext.Calendars.Add(calendar);
@@ -74,6 +77,7 @@ namespace Backend.Service.Calendar
                 calendar.Name = calendarDto.Name;
                 calendar.Description = calendarDto.Description;
                 calendar.Timezone = calendarDto.Timezone;
+                calendar.UserId = calendarDto.UserId;
 
                 await _dbContext.SaveChangesAsync();
             }
