@@ -26,7 +26,6 @@ namespace Backend.Service.Team
                     Id = place.Id,
                     Address = place.Address,
                     InventoryId = place.InventoryId,
-                    TeamId = place.TeamId ?? 0
                 })
                 .ToListAsync();
         }
@@ -46,7 +45,6 @@ namespace Backend.Service.Team
                 Id = place.Id,
                 Address = place.Address,
                 InventoryId = place.InventoryId,
-                TeamId = place.TeamId ?? 0
             };
         }
 
@@ -56,7 +54,6 @@ namespace Backend.Service.Team
             {
                 Address = placeDto.Address,
                 InventoryId = placeDto.InventoryId,
-                TeamId = placeDto.TeamId
             };
 
             _dbContext.Places.Add(place);
@@ -74,7 +71,6 @@ namespace Backend.Service.Team
             {
                 place.Address = placeDto.Address;
                 place.InventoryId = placeDto.InventoryId;
-                place.TeamId = placeDto.TeamId;
                 
                 await _dbContext.SaveChangesAsync();
             }

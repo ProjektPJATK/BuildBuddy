@@ -28,7 +28,6 @@ namespace Backend.Service.Team
                     QuantityMax = item.QuantityMax,
                     Metrics = item.Metrics,
                     QuantityLeft = item.QuantityLeft,
-                    PlaceId = item.PlaceId ?? 0
                 })
                 .ToListAsync();
         }
@@ -50,7 +49,6 @@ namespace Backend.Service.Team
                 QuantityMax = item.QuantityMax,
                 Metrics = item.Metrics,
                 QuantityLeft = item.QuantityLeft,
-                PlaceId = item.PlaceId ?? 0
             };
         }
 
@@ -62,7 +60,6 @@ namespace Backend.Service.Team
                 QuantityMax = itemDto.QuantityMax,
                 Metrics = itemDto.Metrics,
                 QuantityLeft = itemDto.QuantityLeft,
-                PlaceId = itemDto.PlaceId.HasValue && itemDto.PlaceId.Value != 0 ? itemDto.PlaceId : null // Set to null if PlaceId is not valid
             };
 
             _dbContext.Items.Add(item);
@@ -82,7 +79,6 @@ namespace Backend.Service.Team
                 item.QuantityMax = itemDto.QuantityMax;
                 item.Metrics = itemDto.Metrics;
                 item.QuantityLeft = itemDto.QuantityLeft;
-                item.PlaceId = itemDto.PlaceId;
 
                 await _dbContext.SaveChangesAsync();
             }
