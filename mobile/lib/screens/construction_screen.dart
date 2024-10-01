@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../widgets/bottom_navigation.dart'; // Import the BottomNavigation widget
 
 class ConstructionScreen extends StatelessWidget {
+  const ConstructionScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -9,7 +11,7 @@ class ConstructionScreen extends StatelessWidget {
         children: [
           // Background Image with transparency
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/background.png'), // Replace with your background image
                 fit: BoxFit.cover,
@@ -40,14 +42,14 @@ class ConstructionScreen extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.7), // Set transparency for chat background
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
                 ),
               ),
               child: Column(
                 children: [
-                  SizedBox(height: 20), // Spacer between logo and chat section
+                  const SizedBox(height: 20), // Spacer between logo and chat section
                   Expanded(
                     child: ListView(
                       padding: const EdgeInsets.all(10),
@@ -86,10 +88,10 @@ class ConstructionScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         IconButton(
-                          icon: Icon(Icons.camera_alt),
+                          icon: const Icon(Icons.camera_alt),
                           onPressed: () {},
                         ),
-                        Expanded(
+                        const Expanded(
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: 'Napisz wiadomość...',
@@ -98,7 +100,7 @@ class ConstructionScreen extends StatelessWidget {
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.send),
+                          icon: const Icon(Icons.send),
                           onPressed: () {},
                         ),
                       ],

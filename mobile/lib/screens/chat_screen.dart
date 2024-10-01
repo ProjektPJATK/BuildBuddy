@@ -1,98 +1,99 @@
 import 'package:flutter/material.dart';
 import '../widgets/bottom_navigation.dart'; // Import the BottomNavigation widget
+import '../app_state.dart' as appState; // Import appState to manage the current page state
 
 class ChatScreen extends StatelessWidget {
+  const ChatScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
+    // Set the current page to 'chat' when this screen is built
+    appState.currentPage = 'chat';
+
     return Scaffold(
       body: Stack(
         children: [
-          // Background Image with transparency
+          // Background Image
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/background.png'), // Replace with your background image
                 fit: BoxFit.cover,
               ),
             ),
           ),
-          // Semi-transparent overlay to darken the background slightly
+          // Semi-transparent filter for the whole page
           Container(
-            color: Colors.black.withOpacity(0.75), // Adjust transparency here
+            color: Colors.black.withOpacity(0.75), // Adjust the opacity to match your design
           ),
-          // Main chat container with a white background and proper layout
-          Positioned(
-            top: 0, // Start chat background at the top of the screen
-            left: 0,
-            right: 0,
-            bottom: 0, // Extend the container to the bottom of the screen
-            child: Container(
-              color: Colors.white.withOpacity(0.7), // Set transparency for chat background
-              child: Column(
-                children: [
-                  SizedBox(height: 20), // Spacer between top and chat section
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.all(10),
-                      children: [
-                        buildChatBubble(
-                          message: 'Cześć. Jak idą dzisiaj prace?',
-                          isSentByMe: true,
-                          time: '9:50 AM',
-                          sender: '',
-                        ),
-                        buildChatBubble(
-                          message: 'Cześć. Wyślę zdjęcia niedługo.',
-                          isSentByMe: false,
-                          sender: 'MARTA',
-                          time: '10:00 AM',
-                        ),
-                        buildChatBubble(
-                          message: 'Ok. Czekam.',
-                          isSentByMe: true,
-                          time: '10:05 AM',
-                          sender: '',
-                        ),
-                        buildChatBubble(
-                          message: 'Skrzynka elektryczna będzie dzisiaj gotowa.',
-                          isSentByMe: false,
-                          sender: 'MARTA',
-                          time: '10:35 AM',
-                        ),
-                      ],
-                    ),
+          // Main content area
+          Column(
+            children: [
+              Expanded(
+                child: Container(
+                  color: Colors.transparent, // Ensure content background is consistent
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListView(
+                    padding: const EdgeInsets.only(bottom: 100), // Add bottom padding for input field
+                    children: [
+                      buildChatBubble(
+                        message: 'Cześć. Jak idą dzisiaj prace?',
+                        isSentByMe: true,
+                        time: '9:50 AM',
+                        sender: '',
+                      ),
+                      buildChatBubble(
+                        message: 'Cześć. Wyślę zdjęcia niedługo.',
+                        isSentByMe: false,
+                        sender: 'MARTA',
+                        time: '10:00 AM',
+                      ),
+                      buildChatBubble(
+                        message: 'Ok. Czekam.',
+                        isSentByMe: true,
+                        time: '10:05 AM',
+                        sender: '',
+                      ),
+                      buildChatBubble(
+                        message: 'Skrzynka elektryczna będzie dzisiaj gotowa.',
+                        isSentByMe: false,
+                        sender: 'MARTA',
+                        time: '10:35 AM',
+                      ),
+                    ],
                   ),
-                  // Message input field
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    color: Colors.white.withOpacity(0.9), // Slightly transparent input field background
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.camera_alt),
-                          onPressed: () {},
-                        ),
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Napisz wiadomość...',
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.send),
-                          onPressed: () {},
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              // Message input field
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                color: Colors.white.withOpacity(0.9), // Adjust transparency for input field
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.camera_alt),
+                      onPressed: () {},
+                    ),
+                    const Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Napisz wiadomość...',
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
+      // Ensure bottom navigation has no background
       bottomNavigationBar: BottomNavigation(
         onTap: (int index) {
           if (index == 0) {
@@ -105,7 +106,7 @@ class ChatScreen extends StatelessWidget {
             Navigator.pushNamed(context, '/profile');
           }
         },
-        noBackground: true, // Ustawiamy brak tła na pasku nawigacyjnym
+        noBackground: true, // Always use true to keep the background transparent
       ),
     );
   }

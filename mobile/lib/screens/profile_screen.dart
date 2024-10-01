@@ -4,6 +4,8 @@ import '../app_state.dart' as appState;
 import '../styles.dart'; // Import stylów
 
 class UserProfileScreen extends StatelessWidget {
+  const UserProfileScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     appState.currentPage = 'profile'; // Ustawiamy aktualną stronę na profil
@@ -29,12 +31,12 @@ class UserProfileScreen extends StatelessWidget {
                     color: AppStyles.transparentWhite, // Białe tło z przezroczystością
                     child: Column(
                       children: [
-                        SizedBox(height: 50), // Margines od góry na status bar
+                        const SizedBox(height: 50), // Margines od góry na status bar
                         // Profile Name and Picture section
                         Column(
                           children: [
                             // Name above the profile image
-                            Text(
+                            const Text(
                               'Jan Kowalski',
                               style: TextStyle(
                                 fontSize: 24,
@@ -42,7 +44,7 @@ class UserProfileScreen extends StatelessWidget {
                                 color: Colors.black,
                               ),
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             // Profile Image
                             CircleAvatar(
                               radius: 50, // Rozmiar zdjęcia profilowego
@@ -54,14 +56,14 @@ class UserProfileScreen extends StatelessWidget {
                                   width: 100,
                                   height: 100,
                                   errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                                    return Icon(Icons.person, size: 50, color: Colors.grey); // Ikona zastępcza
+                                    return const Icon(Icons.person, size: 50, color: Colors.grey); // Ikona zastępcza
                                   },
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 30), // Space below profile image and name
+                        const SizedBox(height: 30), // Space below profile image and name
                         // Profile details
                         profileItem(
                           icon: Icons.person,
@@ -86,9 +88,9 @@ class UserProfileScreen extends StatelessWidget {
                         profileItem(
                           icon: Icons.people,
                           title: 'Zespoły',
-                          trailing: Icon(Icons.edit, color: Color(0xFF424242)),
+                          trailing: const Icon(Icons.edit, color: Color(0xFF424242)),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         // Edit Profile button
                         ElevatedButton(
                           onPressed: () {},
@@ -99,8 +101,8 @@ class UserProfileScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                             child: Text(
                               'EDYTUJ PROFIL',
                               style: TextStyle(
@@ -111,7 +113,7 @@ class UserProfileScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: 20), // Dodajemy odstęp na dole zawartości
+                        const SizedBox(height: 20), // Dodajemy odstęp na dole zawartości
                       ],
                     ),
                   ),
@@ -145,12 +147,12 @@ class UserProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         children: [
-          Icon(icon, size: 28, color: Color(0xFF424242)), // Set icon color to #424242
-          SizedBox(width: 20),
+          Icon(icon, size: 28, color: const Color(0xFF424242)), // Set icon color to #424242
+          const SizedBox(width: 20),
           Expanded(
             child: Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF424242), // Set text color to #424242

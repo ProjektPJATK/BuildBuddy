@@ -17,10 +17,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       initialRoute: '/',
       routes: {
-        '/': (context) =>  SplashScreen(),
+        '/': (context) =>  const SplashScreen(),
         '/home': (context) =>  HomeScreen(),
         '/chat': (context) => ChatScreen(),
-         '/calendar': (context) =>  CalendarScreen(), // Ekran kalendarza
+         '/calendar': (context) =>  const CalendarScreen(), // Ekran kalendarza
          '/profile': (context) => UserProfileScreen(),
       },
     );
