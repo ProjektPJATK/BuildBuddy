@@ -115,7 +115,7 @@ namespace Backend.Service.User
         public async Task<IEnumerable<TeamDto>> GetUserTeamsAsync(int userId)
         {
             var user = await _dbContext.Users
-                .Include(u => u.Team)
+                .Include(u => u.TeamUsers)
                 .ThenInclude(tu => tu.Team)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
@@ -124,7 +124,7 @@ namespace Backend.Service.User
                 return null;
             }
 
-            return user.Team.Select(tu => new TeamDto
+            return user.TeamUsers.Select(tu => new TeamDto
             {
                 Id = tu.Team.Id,
                 Name = tu.Team.Name,

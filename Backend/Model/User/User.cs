@@ -11,7 +11,7 @@ public class User
     
     public int TeamId { get; set; }
 
-    public virtual ICollection<TeamUser> Team { get; set; }
+    public virtual ICollection<TeamUser> TeamUsers  { get; set; }
     public virtual Calendar Calendars { get; set; }
     public virtual ICollection<UserConversation> UserConversations { get; set; }
     public virtual ICollection<Message> Message { get; set; }
