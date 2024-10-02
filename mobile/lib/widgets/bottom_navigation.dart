@@ -17,7 +17,7 @@ class BottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: noBackground ? Colors.transparent : Colors.white.withOpacity(0.7),
+      color: noBackground ? Colors.transparent : Colors.white.withOpacity(0.7), // Właściwe białe tło z przezroczystością
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
