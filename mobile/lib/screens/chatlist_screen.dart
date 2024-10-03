@@ -78,7 +78,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
                               IconButton(
                                 icon: Icon(Icons.add_circle, color: Colors.black),
                                 onPressed: () {
-                                  // Add functionality here
+                                  // Navigate to NewMessageScreen when pressed
+                                  Navigator.pushNamed(context, '/newMessage');
                                 },
                               ),
                             ],
