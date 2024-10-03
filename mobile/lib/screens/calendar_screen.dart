@@ -138,16 +138,39 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         style: AppStyles.headerStyle,
                       ),
                       const SizedBox(height: 8), // Odstęp
-                      Expanded(
+                    Expanded(
                         child: ListView(
                           padding: EdgeInsets.zero,
-                          children: const [
-                            TaskItem('Kurier przywiezie płytki'),
-                            TaskItem('Szpachlowanie gładzi'),
-                            TaskItem('Montaż płyt meblowych'),
+                          children: [
+                            TaskItem(
+                              title: 'Kurier przywiezie płytki',
+                              description: 'Płytki dotrą na budowę.',
+                              startTime: '10:00 AM',
+                              endTime: '11:00 AM',
+                              createdBy: 'Jan Kowalski',
+                              taskDate: '12.09.2023',
+                            ),
+                            TaskItem(
+                              title: 'Szpachlowanie gładzi',
+                              description: 'Szpachlowanie ścian w salonie.',
+                              startTime: '12:00 PM',
+                              endTime: '02:00 PM',
+                              createdBy: 'Anna Wiśniewska',
+                              taskDate: '13.09.2023',
+                            ),
+                            TaskItem(
+                              title: 'Montaż płyt meblowych',
+                              description: 'Montaż nowych płyt w kuchni.',
+                              startTime: '03:00 PM',
+                              endTime: '04:30 PM',
+                              createdBy: 'Piotr Malinowski',
+                              taskDate: '14.09.2023',
+                            ),
                           ],
                         ),
                       ),
+
+
                     ],
                   ),
                 ),
@@ -166,7 +189,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   if (index == 0) {
                     Navigator.pushNamed(context, '/calendar');
                   } else if (index == 1) {
-                    Navigator.pushNamed(context, '/chat');
+                    Navigator.pushNamed(context, '/chats');
                   } else if (index == 2) {
                     Navigator.pushNamed(context, '/home');
                   } else if (index == 3) {

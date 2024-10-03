@@ -123,7 +123,7 @@ class UserProfileScreen extends StatelessWidget {
                   if (index == 0) {
                     Navigator.pushNamed(context, '/calendar');
                   } else if (index == 1) {
-                    Navigator.pushNamed(context, '/chat');
+                    Navigator.pushNamed(context, '/chats');
                   } else if (index == 2) {
                     Navigator.pushNamed(context, '/home');
                   } else if (index == 3) {

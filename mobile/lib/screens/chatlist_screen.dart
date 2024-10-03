@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/bottom_navigation.dart'; // Import the BottomNavigation widget
 import '../app_state.dart' as appState;
-import '../styles.dart'; // Import your styles
+import '../styles.dart';
+import 'newMessage_screen.dart'; // Import your styles
 
 class ChatListScreen extends StatefulWidget {
   @override
@@ -17,7 +18,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
   void initState() {
     super.initState();
     filteredChatNames = chatNames;
-    appState.currentPage = 'chat'; // Set current page to 'chat'
+    appState.currentPage = 'chats'; // Set current page to 'chat'
   }
 
   // Filter chat list based on search query
@@ -76,7 +77,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
                           IconButton(
                             icon: Icon(Icons.add_circle, color: Colors.black),
                             onPressed: () {
-                              // Navigate to message creation screen
+                            Navigator.push(
+                           context,
+                                MaterialPageRoute(builder: (context) => NewMessageScreen()),
+                             );
                             },
                           ),
                         ],
@@ -117,7 +121,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   if (index == 0) {
                     Navigator.pushNamed(context, '/calendar'); // Calendar
                   } else if (index == 1) {
-                    Navigator.pushNamed(context, '/chat'); // Chat
+                    Navigator.pushNamed(context, '/chats'); // Chat
                   } else if (index == 2) {
                     Navigator.pushNamed(context, '/home'); // Home
                   } else if (index == 3) {

@@ -9,7 +9,7 @@ class BottomNavigation extends StatelessWidget {
 
   final List<Map<String, dynamic>> _navItems = [
     {'icon': Icons.calendar_today, 'label': 'Kalendarz', 'page': 'calendar'},
-    {'icon': Icons.chat, 'label': 'Czat', 'page': 'chat'},
+    {'icon': Icons.chat, 'label': 'Czat', 'page': 'chats'},
     {'icon': Icons.home, 'label': 'Home', 'page': 'home'}, // Home na trzecim miejscu
     {'icon': Icons.person, 'label': 'Profil', 'page': 'profile'},
   ];

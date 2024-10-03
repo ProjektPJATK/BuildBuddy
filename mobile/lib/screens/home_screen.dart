@@ -131,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (index == 0) {
                       Navigator.pushNamed(context, '/calendar'); // Kalendarz
                     } else if (index == 1) {
-                      Navigator.pushNamed(context, '/chat'); // Czat
+                      Navigator.pushNamed(context, '/chats'); // Czat
                     } else if (index == 2) {
                       Navigator.pushNamed(context, '/home'); // Home
                     } else if (index == 3) {
