@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/bottom_navigation.dart'; // Import the BottomNavigation widget
+import '../widgets/bottom_navigation.dart';
 
 class ChatScreen extends StatelessWidget {
   @override
@@ -11,26 +11,36 @@ class ChatScreen extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/background.png'), // Replace with your background image
+                image: AssetImage('assets/background.png'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
           // Semi-transparent overlay to darken the background slightly
           Container(
-            color: Colors.black.withOpacity(0.75), // Adjust transparency here
+            color: Colors.black.withOpacity(0.75),
           ),
           // Main chat container with a white background and proper layout
           Positioned(
-            top: 0, // Start chat background at the top of the screen
+            top: 0,
             left: 0,
             right: 0,
-            bottom: 0, // Extend the container to the bottom of the screen
+            bottom: 0,
             child: Container(
-              color: Colors.white.withOpacity(0.7), // Set transparency for chat background
+              color: Colors.white.withOpacity(0.7),
               child: Column(
                 children: [
-                  SizedBox(height: 20), // Spacer between top and chat section
+                  // Back button at the top
+                  AppBar(
+                    leading: IconButton(
+                      icon: Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () {
+                        Navigator.pop(context); // Cofanie do poprzedniego ekranu
+                      },
+                    ),
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                  ),
                   Expanded(
                     child: ListView(
                       padding: const EdgeInsets.all(10),
@@ -65,7 +75,7 @@ class ChatScreen extends StatelessWidget {
                   // Message input field
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    color: Colors.white.withOpacity(0.9), // Slightly transparent input field background
+                    color: Colors.white.withOpacity(0.9),
                     child: Row(
                       children: [
                         IconButton(
@@ -92,20 +102,6 @@ class ChatScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigation(
-        onTap: (int index) {
-          if (index == 0) {
-            Navigator.pushNamed(context, '/calendar');
-          } else if (index == 1) {
-            Navigator.pushNamed(context, '/chats');
-          } else if (index == 2) {
-            Navigator.pushNamed(context, '/home');
-          } else if (index == 3) {
-            Navigator.pushNamed(context, '/profile');
-          }
-        },
-        noBackground: true, // Ustawiamy brak tła na pasku nawigacyjnym
       ),
     );
   }
@@ -136,7 +132,7 @@ class ChatScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: isSentByMe
                   ? Colors.white.withOpacity(0.8)
-                  : Colors.grey[700]!.withOpacity(0.8), // Set transparency for chat bubbles
+                  : Colors.grey[700]!.withOpacity(0.8),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(

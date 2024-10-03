@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../app_state.dart' as appState;
 import '../styles.dart'; // Import your styles
 
 class NewMessageScreen extends StatefulWidget {

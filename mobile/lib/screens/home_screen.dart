@@ -3,7 +3,7 @@ import '../widgets/build_option.dart';
 import '../widgets/notification_item.dart';
 import '../widgets/bottom_navigation.dart';
 import '../app_state.dart' as appState;
-import '../styles.dart'; // Import stylów
+import '../styles.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          // Screen content
+          // Main screen content
           Positioned(
             top: 100,
             left: 0,
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
-                      color: AppStyles.transparentWhite,
+                      color: AppStyles.transparentWhite, // Białe przezroczyste tło
                       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                     ),
                     child: Column(
@@ -74,7 +74,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               BuildOption(
                                 title: 'Budowa w Gdańsku',
                                 onTap: () {
-                                  Navigator.pushNamed(context, '/gdansk');
+                                  appState.selectedConstructionName = 'Budowa w Gdańsku';
+                                  appState.isConstructionContext = true;
+                                  Navigator.pushNamed(context, '/construction_home');
                                 },
                               ),
                               BuildOption(
@@ -101,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   flex: 4,
                   child: Container(
-                    color: AppStyles.transparentWhite,
+                    color: AppStyles.transparentWhite, // Białe przezroczyste tło dla powiadomień
                     child: Column(
                       children: [
                         Container(
@@ -126,18 +128,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
+                // Bottom Navigation w głównym kontenerze
                 BottomNavigation(
-                  onTap: (index) {
-                    if (index == 0) {
-                      Navigator.pushNamed(context, '/calendar'); // Kalendarz
-                    } else if (index == 1) {
-                      Navigator.pushNamed(context, '/chats'); // Czat
-                    } else if (index == 2) {
-                      Navigator.pushNamed(context, '/home'); // Home
-                    } else if (index == 3) {
-                      Navigator.pushNamed(context, '/profile'); // Profil
-                    }
-                  },
+                  onTap: (_) {},
                 ),
               ],
             ),
