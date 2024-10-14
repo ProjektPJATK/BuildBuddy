@@ -67,5 +67,28 @@ namespace Backend.Controller.User
             var teams = await _userService.GetUserTeamsAsync(id);
             return Ok(teams);
         }
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(UserDto userDto)
+        {
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
+            userDto.Password = hashedPassword;
+
+            var createdUser = await _userService.CreateUserAsync(userDto);
+            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
+        }
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDto loginDto)
+        {
+            var user = await _userService.GetUserByEmailAsync(loginDto.Email);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.Password))
+            {
+                return Unauthorized();
+            }
+
+            var token = _userService.GenerateJwtToken(user);
+            return Ok(new { token });
+        }
+
+
     }
 }
