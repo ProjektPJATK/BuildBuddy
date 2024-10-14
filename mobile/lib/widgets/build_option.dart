@@ -2,33 +2,35 @@ import 'package:flutter/material.dart';
 
 class BuildOption extends StatelessWidget {
   final String title;
+  final VoidCallback onTap;
 
-  BuildOption({required this.title});
+  const BuildOption({super.key, required this.title, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.center, // Wyśrodkowanie elementu
+      alignment: Alignment.center,
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.85, // Szerokość 85% szerokości ekranu
-        margin: const EdgeInsets.symmetric(vertical: 4.0), // Zmniejszenie przerwy między budowami
-        padding: const EdgeInsets.all(6.0), // Zmniejszony padding
+        width: MediaQuery.of(context).size.width * 0.85,
+        margin: const EdgeInsets.symmetric(vertical: 4.0),
+        padding: const EdgeInsets.all(6.0),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.7), // Tło dla opcji budowy
+          color: Colors.white.withOpacity(0.7),
           borderRadius: BorderRadius.circular(8),
-          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4.0)], // Opcjonalny cień
+          boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4.0)],
         ),
-        child: Container(
-          height: 50, // Ustawienie wysokości dla każdego elementu budowy
+        child: SizedBox(
+          height: 50, 
           child: ListTile(
-            contentPadding: EdgeInsets.zero, // Usunięcie domyślnego paddingu ListTile
+            contentPadding: EdgeInsets.zero,
             title: Text(
               title,
-              style: TextStyle(fontSize: 12), // Zmniejszona czcionka
+              style: const TextStyle(
+                fontSize: 12, // Zmniejszona czcionka, bez dodatkowych stylów
+                color: Colors.black, 
+              ),
             ),
-            onTap: () {
-              // Akcja po kliknięciu
-            },
+            onTap: onTap,
           ),
         ),
       ),
