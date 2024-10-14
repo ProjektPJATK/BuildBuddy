@@ -160,17 +160,18 @@ namespace Backend.Service.User
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"] ?? string.Empty);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[] 
-                { 
+                Subject = new ClaimsIdentity(new[]
+                {
                     new Claim("id", user.Id.ToString()),
                     new Claim("mail", user.Mail)
                 }),
                 Expires = DateTime.UtcNow.AddHours(2),
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Issuer"], 
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-
     }
 }

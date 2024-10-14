@@ -1,11 +1,13 @@
 ﻿using Backend.Dto;
 using Backend.Interface.Team;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controller.Team
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ItemController : ControllerBase
     {
         private readonly IItemService _itemService;
