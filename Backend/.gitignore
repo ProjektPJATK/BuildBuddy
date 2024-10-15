@@ -1,0 +1,13 @@
+﻿/obj/
+/bin/
+*.cache
+.idea/
+*.iml
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+project.assets.json
+project.nuget.cache
+*.nuget.g.targets
+*.nuget.g.props

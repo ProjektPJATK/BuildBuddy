@@ -1,25 +1,59 @@
-import 'package:flutter/material.dart';
 
-// Definicja klasy TaskItem
+import 'package:flutter/material.dart';
+import '../screens/taskDetail_screen.dart'; // Import TaskDetailScreen
+
 class TaskItem extends StatelessWidget {
   final String title;
-  const TaskItem(this.title, {super.key});
+  final String description;
+  final String startTime;
+  final String endTime;
+  final String createdBy;
+  final String taskDate;
+
+  TaskItem({
+    required this.title,
+    this.description = '',
+    this.startTime = '',
+    this.endTime = '',
+    this.createdBy = '',
+    required this.taskDate,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TaskDetailScreen(
+              title: title,
+              description: description,
+              startTime: startTime,
+              endTime: endTime,
+              createdBy: createdBy,
+              taskDate: taskDate,
+            ),
+          ),
+        );
+      },
       child: Container(
+        margin: EdgeInsets.symmetric(vertical: 4.0),
+        padding: EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.7), // Opcjonalnie: Zmniejszona przezroczystość
+          color: Colors.white.withOpacity(0.7),
           borderRadius: BorderRadius.circular(8),
         ),
-        padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            const Icon(Icons.circle, size: 8, color: Colors.black),
-            const SizedBox(width: 8),
-            Text(title, style: const TextStyle(fontSize: 14)),
+            Icon(Icons.task, color: Colors.black),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
           ],
         ),
       ),

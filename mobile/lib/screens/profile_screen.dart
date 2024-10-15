@@ -121,18 +121,7 @@ class UserProfileScreen extends StatelessWidget {
               ),
               // Pasek nawigacyjny na dole
               BottomNavigation(
-                onTap: (int index) {
-                  if (index == 0) {
-                    Navigator.pushNamed(context, '/calendar');
-                  } else if (index == 1) {
-                    Navigator.pushNamed(context, '/chat');
-                  } else if (index == 2) {
-                    Navigator.pushNamed(context, '/home');
-                  } else if (index == 3) {
-                    Navigator.pushNamed(context, '/profile');
-                  }
-                },
-                noBackground: false, // Tło dla paska, tak jak w HomeScreen
+                onTap: (_) {}, // Pusta funkcja, aby uniknąć błędu 'null'
               ),
             ],
           ),
