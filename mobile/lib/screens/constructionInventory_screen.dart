@@ -117,8 +117,19 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 style: TextStyle(color: Colors.lightBlue),
               ),
               onPressed: () {
-                _updateItem(item['id'], int.parse(remainingController.text));
-                Navigator.of(context).pop();
+                final int newRemaining = int.parse(remainingController.text);
+                final int purchased = item['purchased'];
+
+                // Validate if remaining value is less than or equal to purchased value
+                if (newRemaining > purchased) {
+                  // Show error message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Pozostałe nie może być większe niż kupione!')),
+                  );
+                } else {
+                  _updateItem(item['id'], newRemaining); // Update the item
+                  Navigator.of(context).pop();
+                }
               },
             ),
           ],
@@ -153,7 +164,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
 
-    if (response.statusCode == 204) { // Handle 204 response for success
+    if (response.statusCode == 204) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Item updated successfully')),
       );
