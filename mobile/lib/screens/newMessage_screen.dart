@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../styles.dart'; // Import your styles
 
 class NewMessageScreen extends StatefulWidget {
+  const NewMessageScreen({super.key});
+
   @override
   _NewMessageScreenState createState() => _NewMessageScreenState();
 }
@@ -36,7 +38,7 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
                 child: Align(
                   alignment: Alignment.topLeft,
                   child: IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.black),
+                    icon: const Icon(Icons.arrow_back, color: Colors.black),
                     onPressed: () {
                       Navigator.pop(context); // Powrót do poprzedniego ekranu
                     },
@@ -109,13 +111,13 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
                           onPressed: () {
                             // Logika wysyłania wiadomości
                           },
-                          child: Text('Wyślij'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
+                          child: Text('Wyślij'),
                         ),
                       ),
                     ],
@@ -133,7 +135,7 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
 class RecipientSelectionScreen extends StatefulWidget {
   final List<String> initialSelectedRecipients;
 
-  RecipientSelectionScreen(this.initialSelectedRecipients);
+  const RecipientSelectionScreen(this.initialSelectedRecipients, {super.key});
 
   @override
   _RecipientSelectionScreenState createState() => _RecipientSelectionScreenState();
@@ -187,7 +189,7 @@ class _RecipientSelectionScreenState extends State<RecipientSelectionScreen> {
                 child: Align(
                   alignment: Alignment.topLeft,
                   child: IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.black),
+                    icon: const Icon(Icons.arrow_back, color: Colors.black),
                     onPressed: () {
                       Navigator.pop(context, selectedRecipients); // Powrót do ekranu wiadomości
                     },
@@ -208,20 +210,20 @@ class _RecipientSelectionScreenState extends State<RecipientSelectionScreen> {
                       borderRadius: BorderRadius.circular(25.0),
                       borderSide: BorderSide.none,
                     ),
-                    prefixIcon: Icon(Icons.search),
+                    prefixIcon: const Icon(Icons.search),
                   ),
                 ),
               ),
               // Lista odbiorców
               Expanded(
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: ListView.builder(
                     itemCount: displayedRecipients.length,
                     itemBuilder: (context, index) {
                       String recipient = displayedRecipients[index];
                       return Container(
-                        margin: EdgeInsets.symmetric(vertical: 4.0),
+                        margin: const EdgeInsets.symmetric(vertical: 4.0),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.7), // Białe tło z przezroczystością
                           borderRadius: BorderRadius.circular(8),
@@ -229,7 +231,7 @@ class _RecipientSelectionScreenState extends State<RecipientSelectionScreen> {
                         child: CheckboxListTile(
                           title: Text(
                             recipient,
-                            style: TextStyle(color: Colors.black),
+                            style: const TextStyle(color: Colors.black),
                           ),
                           value: selectedRecipients.contains(recipient),
                           onChanged: (bool? value) {

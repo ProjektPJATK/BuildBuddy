@@ -6,6 +6,7 @@ import 'package:mobile/screens/constructionTeam_screen.dart';
 import 'screens/chatList_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/splash_screen.dart';
+
 import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/newMessage_screen.dart';
@@ -20,19 +21,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: '/',
+      initialRoute: '/',  // Start at the SplashScreen
       routes: {
-        '/': (context) =>  SplashScreen(),
-        '/home': (context) =>  HomeScreen(),
+        '/': (context) => const SplashScreen(), // Show splash screen first
+        '/home': (context) => HomeScreen(),
         '/chats': (context) => ChatListScreen(),
-         '/calendar': (context) =>  CalendarScreen(), // Ekran kalendarza
-         '/profile': (context) => UserProfileScreen(),
-         '/newMessage': (context) => NewMessageScreen(),
-          '/construction_home': (context) => ConstructionHomeScreen(),
-          '/construction_team': (context) => TeamScreen(),
-          '/construction_inventory': (context) => InventoryScreen(),
-          '/chat': (context) => ChatScreen(),
-
+        '/calendar': (context) => const CalendarScreen(), // Calendar screen
+        '/profile': (context) => const UserProfileScreen(),
+        '/newMessage': (context) => NewMessageScreen(),
+        '/construction_home': (context) => ConstructionHomeScreen(),
+        '/construction_team': (context) => TeamScreen(),
+        '/construction_inventory': (context) => InventoryScreen(),
+        '/chat': (context) => ChatScreen(),
       },
     );
   }

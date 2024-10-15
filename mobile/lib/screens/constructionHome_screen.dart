@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../widgets/bottom_navigation.dart';
 import '../app_state.dart' as appState;
-import '../styles.dart';
+import '../styles.dart'; // Import the AppStyles
 
 class ConstructionHomeScreen extends StatefulWidget {
+  const ConstructionHomeScreen({super.key});
+
   @override
   _ConstructionHomeScreenState createState() => _ConstructionHomeScreenState();
 }
@@ -25,7 +27,7 @@ class _ConstructionHomeScreenState extends State<ConstructionHomeScreen> {
           Container(
             decoration: AppStyles.backgroundDecoration,
           ),
-          // Czarny filtr z przezroczystością
+          // Black filter with opacity
           Container(
             color: AppStyles.filterColor.withOpacity(0.75),
           ),
@@ -45,7 +47,7 @@ class _ConstructionHomeScreenState extends State<ConstructionHomeScreen> {
                       style: AppStyles.headerStyle.copyWith(color: Colors.black, fontSize: 22),
                     ),
                     IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.black),
+                      icon: const Icon(Icons.arrow_back, color: Colors.black),
                       onPressed: () {
                         appState.isConstructionContext = false;
                         appState.selectedConstructionName = '';
@@ -63,30 +65,28 @@ class _ConstructionHomeScreenState extends State<ConstructionHomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Szczegóły budowy:', style: AppStyles.headerStyle),
-                      SizedBox(height: 8),
-                      Text(
+                      const Text('Szczegóły budowy:', style: AppStyles.headerStyle),
+                      const SizedBox(height: 8),
+                      const Text(
                         'Opis inwestycji i wszelkie istotne informacje dotyczące tej budowy.',
                         style: AppStyles.textStyle,
                       ),
-                      Spacer(),
+                      const Spacer(),
                       // Button to navigate to chat, placed just above the bottom navigation
                       Align(
                         alignment: Alignment.bottomCenter,
                         child: Padding(
-                          padding: const EdgeInsets.only(bottom: 0.0), // Zmniejszony padding do 0
+                          padding: const EdgeInsets.only(bottom: 0.0), // Reduced bottom padding to 0
                           child: ElevatedButton.icon(
                             onPressed: () {
                               Navigator.pushNamed(context, '/chat');
                             },
-                            icon: Icon(Icons.chat, color: Colors.black),
-                            label: Text('Przejdź do czatu', style: TextStyle(color: Colors.black)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey[700]!.withOpacity(0.3), // Bardziej przezroczyste tło
-                              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 60.0),
-                              textStyle: TextStyle(fontSize: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
+                            icon: const Icon(Icons.chat, color: Colors.white), // White icon for consistency
+                            label: const Text('Przejdź do czatu', style: TextStyle(color: Colors.white)),
+                            style: AppStyles.buttonStyle().copyWith(
+                              backgroundColor: MaterialStateProperty.all(Colors.grey[700]!.withOpacity(0.3)),
+                              padding: MaterialStateProperty.all(
+                                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 60.0),
                               ),
                             ),
                           ),

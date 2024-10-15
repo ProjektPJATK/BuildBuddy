@@ -4,7 +4,7 @@ import '../app_state.dart' as appState;
 class BottomNavigation extends StatelessWidget {
   final Function(int)? onTap;
 
-  BottomNavigation({super.key, this.onTap});
+  const BottomNavigation({super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
