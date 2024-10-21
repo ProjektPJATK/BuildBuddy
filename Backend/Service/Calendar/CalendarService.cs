@@ -95,16 +95,18 @@ namespace Backend.Service.Calendar
 
         public async Task AddTaskToCalendarAsync(int calendarId, int taskId)
         {
-            var calendar = await _dbContext.Calendars.Include(c => c.CalendarTasks)
+            var calendar = await _dbContext.Calendars
+                .Include(c => c.CalendarTasks)
                 .FirstOrDefaultAsync(c => c.Id == calendarId);
 
-            if (calendar != null && !calendar.CalendarTasks.Any(ct => ct.TaskId == taskId))
+            var task = await _dbContext.Tasks.FindAsync(taskId);
+
+            if (calendar != null && task != null && !calendar.CalendarTasks.Any(ct => ct.TaskId == taskId))
             {
-                calendar.CalendarTasks.Add(new CalendarTask { CalendarId = calendarId, TaskId = taskId });
+                calendar.CalendarTasks.Add(new CalendarTask { CalendarId = calendarId, TaskId = taskId, Calendar = calendar, Tasks = task});
                 await _dbContext.SaveChangesAsync();
             }
         }
-
         public async Task RemoveTaskFromCalendarAsync(int calendarId, int taskId)
         {
             var calendarTask = await _dbContext.CalendarTasks
