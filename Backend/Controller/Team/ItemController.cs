@@ -7,7 +7,6 @@ namespace Backend.Controller.Team
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class ItemController : ControllerBase
     {
         private readonly IItemService _itemService;
@@ -54,6 +53,18 @@ namespace Backend.Controller.Team
         {
             await _itemService.DeleteItemAsync(id);
             return NoContent();
+        }
+        [HttpGet("place/{placeId}")]
+        public async Task<IActionResult> GetItemsByPlace(int placeId)
+        {
+            var items = await _itemService.GetAllItemsByPlaceAsync(placeId);
+        
+            if (items == null || !items.Any())
+            {
+                return NotFound("No items found for the specified place.");
+            }
+
+            return Ok(items);
         }
     }
 }

@@ -7,5 +7,6 @@ public class ItemDto
     public double QuantityMax { get; set; }
     public string Metrics { get; set; }
     public double QuantityLeft { get; set; }
+    public int? PlaceId { get; set; }
 
 }

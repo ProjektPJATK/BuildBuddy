@@ -101,5 +101,22 @@ namespace Backend.Service.Tasks
                 await _dbContext.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<TaskDto>> GetAllTasksByCalendarIdAsync(int calendarId)
+        {
+            return await _dbContext.CalendarTasks
+                .Where(ct => ct.CalendarId == calendarId)
+                .Select(ct => new TaskDto
+                {
+                    Id = ct.Tasks.Id,
+                    Name = ct.Tasks.Name,
+                    Message = ct.Tasks.Message,
+                    StartTime = ct.Tasks.StartTime,
+                    EndTime = ct.Tasks.EndTime,
+                    AllDay = ct.Tasks.AllDay,
+                    PlaceId = ct.Tasks.PlaceId ?? 0
+                })
+                .ToListAsync();
+        }
     }
 }
