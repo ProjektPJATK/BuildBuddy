@@ -12,4 +12,5 @@ public interface ICalendarService
     
     Task AddTaskToCalendarAsync(int calendarId, int taskId);
     Task RemoveTaskFromCalendarAsync(int calendarId, int taskId);
+    Task<IEnumerable<CalendarDto>> GetCalendarByUserIdAsync(int userId);
 }

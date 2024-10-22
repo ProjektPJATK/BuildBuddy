@@ -7,6 +7,7 @@ public class Item
     public double QuantityMax { get; set; }
     public string Metrics { get; set; }
     public double QuantityLeft { get; set; }
+    public int? PlaceId { get; set; }
 
     public virtual Place? Place { get; set; }
 }
