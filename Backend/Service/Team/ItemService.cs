@@ -3,9 +3,6 @@ using Backend.Dto;
 using Backend.Interface.Team;
 using Backend.Model;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Backend.Service.Team
 {
@@ -28,6 +25,7 @@ namespace Backend.Service.Team
                     QuantityMax = item.QuantityMax,
                     Metrics = item.Metrics,
                     QuantityLeft = item.QuantityLeft,
+                    PlaceId = item.PlaceId
                 })
                 .ToListAsync();
         }
@@ -49,6 +47,7 @@ namespace Backend.Service.Team
                 QuantityMax = item.QuantityMax,
                 Metrics = item.Metrics,
                 QuantityLeft = item.QuantityLeft,
+                PlaceId = item.PlaceId
             };
         }
 
@@ -60,6 +59,7 @@ namespace Backend.Service.Team
                 QuantityMax = itemDto.QuantityMax,
                 Metrics = itemDto.Metrics,
                 QuantityLeft = itemDto.QuantityLeft,
+                PlaceId = itemDto.PlaceId
             };
 
             _dbContext.Items.Add(item);
@@ -79,6 +79,7 @@ namespace Backend.Service.Team
                 item.QuantityMax = itemDto.QuantityMax;
                 item.Metrics = itemDto.Metrics;
                 item.QuantityLeft = itemDto.QuantityLeft;
+                item.PlaceId = itemDto.PlaceId;
 
                 await _dbContext.SaveChangesAsync();
             }
@@ -92,6 +93,21 @@ namespace Backend.Service.Team
                 _dbContext.Items.Remove(item);
                 await _dbContext.SaveChangesAsync();
             }
+        }
+        public async Task<IEnumerable<ItemDto>> GetAllItemsByPlaceAsync(int placeId)
+        {
+            return await _dbContext.Items
+                .Where(item => item.PlaceId == placeId)
+                .Select(item => new ItemDto
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    QuantityMax = item.QuantityMax,
+                    Metrics = item.Metrics,
+                    QuantityLeft = item.QuantityLeft,
+                    PlaceId = item.PlaceId
+                })
+                .ToListAsync();
         }
     }
 }

@@ -118,5 +118,19 @@ namespace Backend.Service.Calendar
                 await _dbContext.SaveChangesAsync();
             }
         }
+        public async Task<IEnumerable<CalendarDto>> GetCalendarByUserIdAsync(int userId)
+        {
+            return await _dbContext.Calendars
+                .Where(c => c.UserId == userId)
+                .Select(c => new CalendarDto
+                {
+                    Name = c.Name,
+                    Description = c.Description,
+                    Timezone = c.Timezone,
+                    UserId = c.UserId
+                })
+                .ToListAsync();
+        }
+
     }
 }

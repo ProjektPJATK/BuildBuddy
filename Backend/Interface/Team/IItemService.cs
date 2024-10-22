@@ -9,4 +9,5 @@ public interface IItemService
     Task<ItemDto> CreateItemAsync(ItemDto conversationDto);
     Task UpdateItemAsync(int id, ItemDto conversationDto);
     Task DeleteItemAsync(int id);
+    Task<IEnumerable<ItemDto>> GetAllItemsByPlaceAsync(int placeId);
 }

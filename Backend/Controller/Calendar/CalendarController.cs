@@ -67,5 +67,19 @@ namespace Backend.Controller.Calendar
             await _calendarService.RemoveTaskFromCalendarAsync(calendarId, taskId);
             return NoContent();
         }
+        
+        [HttpGet("getByUserId/{userId}")]
+        public async Task<IActionResult> GetCalendarByUserId(int userId)
+        {
+            var calendars = await _calendarService.GetCalendarByUserIdAsync(userId);
+
+            if (calendars == null || !calendars.Any())
+            {
+                return NotFound("No calendars found for the given user.");
+            }
+
+            return Ok(calendars);
+        }
+        
     }
 }
