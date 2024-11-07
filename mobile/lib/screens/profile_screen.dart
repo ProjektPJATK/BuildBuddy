@@ -87,6 +87,91 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
+  // Show Edit Profile dialog
+  void _showEditProfileDialog() {
+    final nameController = TextEditingController(text: name);
+    final surnameController = TextEditingController(text: surname);
+    final emailController = TextEditingController(text: email);
+    final phoneController = TextEditingController(text: phone);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black.withOpacity(0.8), // Dark background
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          contentPadding: const EdgeInsets.all(16.0),
+          title: const Text(
+            'Edytuj Profil',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildStyledTextField(controller: nameController, hintText: 'Imię'),
+                const SizedBox(height: 12),
+                _buildStyledTextField(controller: surnameController, hintText: 'Nazwisko'),
+                const SizedBox(height: 12),
+                _buildStyledTextField(
+                  controller: emailController,
+                  hintText: 'Adres e-mail',
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 12),
+                _buildStyledTextField(
+                  controller: phoneController,
+                  hintText: 'Numer telefonu',
+                  keyboardType: TextInputType.phone,
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog without saving
+              },
+              style: AppStyles.textButtonStyle(),
+              child: const Text('Anuluj', style: TextStyle(color: Colors.white)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  name = nameController.text;
+                  surname = surnameController.text;
+                  email = emailController.text;
+                  phone = phoneController.text;
+                });
+                Navigator.of(context).pop(); // Close the dialog and save changes locally
+              },
+              style: AppStyles.buttonStyle().copyWith(
+                padding: MaterialStateProperty.all(
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                ),
+                backgroundColor: MaterialStateProperty.all(Colors.blueAccent),
+              ),
+              child: const Text('Zapisz', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Helper method to build styled text fields for the dialog
+  Widget _buildStyledTextField({
+    required TextEditingController controller,
+    required String hintText,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      style: const TextStyle(color: Colors.white), // White text color
+      decoration: AppStyles.inputFieldStyle(hintText: hintText),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     appState.currentPage = 'profile'; // Set the current page to 'profile'
@@ -148,22 +233,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               ),
                               const SizedBox(height: 30), // Space between profile image and details
                               // Profile Details
-                              profileItem(
-                                icon: Icons.person,
-                                title: '$name $surname',
-                              ),
-                              profileItem(
-                                icon: Icons.cake,
-                                title: 'Urodziny',
-                              ),
-                              profileItem(
-                                icon: Icons.phone,
-                                title: phone ?? 'N/A',
-                              ),
-                              profileItem(
-                                icon: Icons.email,
-                                title: email ?? 'N/A',
-                              ),
+                              profileItem(icon: Icons.person, title: '$name $surname'),
+                              profileItem(icon: Icons.cake, title: 'Urodziny'),
+                              profileItem(icon: Icons.phone, title: phone ?? 'N/A'),
+                              profileItem(icon: Icons.email, title: email ?? 'N/A'),
                               profileItem(
                                 icon: Icons.people,
                                 title: 'Zespoły',
@@ -177,43 +250,43 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          // Edit profile functionality
-                                        },
-                                        style: AppStyles.buttonStyle().copyWith(
-                                          padding: MaterialStateProperty.all(
-                                            const EdgeInsets.symmetric(vertical: 10),
+                                      child: Transform.scale(
+                                        scale: 0.9, // Scale down to 80% of original size
+                                        child: ElevatedButton(
+                                          onPressed: _showEditProfileDialog, // Show edit profile dialog
+                                          style: AppStyles.buttonStyle().copyWith(
+                                            padding: MaterialStateProperty.all(
+                                              const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                                            ),
                                           ),
-                                          textStyle: MaterialStateProperty.all(
-                                            const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'EDYTUJ PROFIL',
-                                          style: TextStyle(
-                                            color: Colors.black,
+                                          child: const Text(
+                                            'EDYTUJ PROFIL',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 16), // Space between buttons
+                                    const SizedBox(width: 12), // Reduced space between buttons
                                     Expanded(
-                                      child: ElevatedButton(
-                                        onPressed: () => _logout(context), // Call logout function
-                                        style: AppStyles.buttonStyle().copyWith(
-                                          backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 39, 177, 241)),
-                                          padding: MaterialStateProperty.all(
-                                            const EdgeInsets.symmetric(vertical: 10),
+                                      child: Transform.scale(
+                                        scale: 0.9, // Scale down to 80% of original size
+                                        child: ElevatedButton(
+                                          onPressed: () => _logout(context), // Call logout function
+                                          style: AppStyles.buttonStyle().copyWith(
+                                            backgroundColor: MaterialStateProperty.all(
+                                              const Color.fromARGB(255, 39, 177, 241),
+                                            ),
+                                            padding: MaterialStateProperty.all(
+                                              const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                                            ),
                                           ),
-                                          textStyle: MaterialStateProperty.all(
-                                            const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'WYLOGUJ SIĘ',
-                                          style: TextStyle(
-                                            color: Colors.white,
+                                          child: const Text(
+                                            'WYLOGUJ SIĘ',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -228,9 +301,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       ),
                     ),
                     // Bottom Navigation Bar
-                    BottomNavigation(
-                      onTap: (_) {}, // Empty function to avoid 'null' error
-                    ),
+                    BottomNavigation(onTap: (_) {}), // Empty function to avoid 'null' error
                   ],
                 ),
         ],

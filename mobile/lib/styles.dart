@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 class AppStyles {
+  // Define a constant blue color to use throughout the app
+  static const Color primaryBlue = Color.fromARGB(255, 39, 177, 241);
+
   // Background image decoration
   static const BoxDecoration backgroundDecoration = BoxDecoration(
     image: DecorationImage(
@@ -53,6 +56,9 @@ class AppStyles {
       ),
     );
   }
+
+  // Cursor color for TextField
+  static Color get cursorColor => primaryBlue;
 
   // Button style (e.g., for login or register button)
   static ButtonStyle buttonStyle() {

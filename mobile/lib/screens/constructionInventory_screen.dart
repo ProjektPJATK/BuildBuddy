@@ -93,36 +93,39 @@ class _InventoryScreenState extends State<InventoryScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Edytuj Pozostałe'),
-          content: TextField(
-            controller: remainingController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Pozostałe',
+          backgroundColor: Colors.black.withOpacity(0.8), // Dark background with 0.8 opacity
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // Rounded corners
+          title: const Text(
+            'Edytuj Pozostałe',
+            style: TextStyle(color: Colors.white), // White text color for the title
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: remainingController,
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(color: Colors.white), // White text color
+                  decoration: AppStyles.inputFieldStyle(hintText: 'Pozostałe'), // Consistent input style
+                ),
+              ],
             ),
           ),
           actions: [
             TextButton(
-              child: const Text(
-                'Anuluj',
-                style: TextStyle(color: Colors.lightBlue),
-              ),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Close dialog without saving
               },
+              style: AppStyles.textButtonStyle(),
+              child: const Text('Anuluj', style: TextStyle(color: Colors.white)),
             ),
-            TextButton(
-              child: const Text(
-                'Zapisz',
-                style: TextStyle(color: Colors.lightBlue),
-              ),
+            ElevatedButton(
               onPressed: () {
                 final int newRemaining = int.parse(remainingController.text);
                 final int purchased = item['purchased'];
 
                 // Validate if remaining value is less than or equal to purchased value
                 if (newRemaining > purchased) {
-                  // Show error message
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Pozostałe nie może być większe niż kupione!')),
                   );
@@ -131,6 +134,11 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   Navigator.of(context).pop();
                 }
               },
+              style: AppStyles.buttonStyle().copyWith(
+                padding: MaterialStateProperty.all(const EdgeInsets.symmetric(horizontal: 20, vertical: 8)),
+                backgroundColor: MaterialStateProperty.all(Colors.blueAccent),
+              ),
+              child: const Text('Zapisz', style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -152,7 +160,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
-        'id': itemId, // Ensure all necessary fields are included
+        'id': itemId,
         'name': inventoryItems.firstWhere((item) => item['id'] == itemId)['name'],
         'quantityMax': inventoryItems.firstWhere((item) => item['id'] == itemId)['purchased'],
         'metrics': 'some metrics', // Replace with actual metrics field
@@ -160,17 +168,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
       }),
     );
 
-    // Log the response to debug errors
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
     if (response.statusCode == 204) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Item updated successfully')),
       );
       await _fetchInventoryItems(); // Re-fetch the inventory items automatically to refresh the UI
     } else {
-      // Show the error message received from the server
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to update item: ${response.body}')),
       );
