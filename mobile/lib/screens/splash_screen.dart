@@ -1,7 +1,7 @@
-// lib/screens/splash_screen.dart
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Import for SharedPreferences
 import '../widgets/login_form.dart';
-import '../styles.dart'; // Import stylów
+import '../styles.dart'; // Import styles
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    
+
     _controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -34,11 +34,29 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       curve: Curves.easeInOut,
     ));
 
-    _controller.forward().then((_) {
-      setState(() {
-        _showLoginForm = true;
+    // Call the function to check if the user is logged in
+    _checkLoginStatus();
+  }
+
+  // Check if the user is already logged in by checking the stored token
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token != null && token.isNotEmpty) {
+      // Token found, print the console message
+      print('zalogowano cie debilku'); // Add your message here
+      
+      // If token exists, automatically navigate to the home screen
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      // If no token is found, continue with the splash screen animation and show login form
+      _controller.forward().then((_) {
+        setState(() {
+          _showLoginForm = true;
+        });
       });
-    });
+    }
   }
 
   @override
@@ -56,15 +74,15 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     return Scaffold(
       body: Stack(
         children: [
-          // Tło
+          // Background
           Container(
             decoration: AppStyles.backgroundDecoration,
           ),
-          // Filtr
+          // Semi-transparent filter
           Container(
-            color: AppStyles.filterColor.withOpacity(0.9),
+            color: AppStyles.filterColor.withOpacity(0.7),
           ),
-          // Logo na środku
+          // Logo in the center
           Center(
             child: SlideTransition(
               position: _animation,
@@ -75,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               ),
             ),
           ),
-          // Formularz logowania
+          // Show the login form after animation is done, if the user is not logged in
           if (_showLoginForm)
             Align(
               alignment: Alignment.bottomCenter,

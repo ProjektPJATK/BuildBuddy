@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatelessWidget {
+  const ChatScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -8,7 +10,7 @@ class ChatScreen extends StatelessWidget {
         children: [
           // Background Image with transparency
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/background.png'),
                 fit: BoxFit.cover,
@@ -32,7 +34,7 @@ class ChatScreen extends StatelessWidget {
                   // Back button at the top
                   AppBar(
                     leading: IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.white),
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
                       onPressed: () {
                         Navigator.pop(context); // Cofanie do poprzedniego ekranu
                       },
@@ -78,10 +80,10 @@ class ChatScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         IconButton(
-                          icon: Icon(Icons.camera_alt),
+                          icon: const Icon(Icons.camera_alt),
                           onPressed: () {},
                         ),
-                        Expanded(
+                        const Expanded(
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: 'Napisz wiadomość...',
@@ -90,7 +92,7 @@ class ChatScreen extends StatelessWidget {
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.send),
+                          icon: const Icon(Icons.send),
                           onPressed: () {},
                         ),
                       ],

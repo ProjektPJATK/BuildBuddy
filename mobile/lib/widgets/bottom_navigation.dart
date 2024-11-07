@@ -11,7 +11,7 @@ import '../app_state.dart' as appState;
 class BottomNavigation extends StatelessWidget {
   final Function(int)? onTap;
 
-  BottomNavigation({super.key, this.onTap});
+  const BottomNavigation({super.key, this.onTap});
 
   // Funkcja tworząca animację przesuwania i fade-in/out w stylu Messenger
   PageRouteBuilder<dynamic> _createPageRoute(

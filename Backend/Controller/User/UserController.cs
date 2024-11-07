@@ -86,9 +86,7 @@ namespace Backend.Controller.User
             }
 
             var token = _userService.GenerateJwtToken(user);
-            return Ok(new { token });
+            return Ok(new { token, user.Id });
         }
-
-
     }
 }
