@@ -110,15 +110,32 @@ namespace Backend.Service.Team
                 .Include(t => t.TeamUsers)
                 .FirstOrDefaultAsync(t => t.Id == teamId);
 
-            if (team != null)
+            var teamUser = team?.TeamUsers.FirstOrDefault(tu => tu.UserId == userId);
+            if (teamUser != null)
             {
-                var teamUser = team.TeamUsers.FirstOrDefault(tu => tu.UserId == userId);
-                if (teamUser != null)
-                {
-                    team.TeamUsers.Remove(teamUser);
-                    await _dbContext.SaveChangesAsync();
-                }
+                team.TeamUsers.Remove(teamUser);
+                await _dbContext.SaveChangesAsync();
             }
+        }
+
+        public async Task<List<TeamDto>> GetTeamsByUserId(int userId)
+        {
+            var userExists = await _dbContext.Users.AnyAsync(u => u.Id == userId);
+            if (!userExists)
+            {
+                return null;
+            }
+            var teams = await _dbContext.Teams
+                .Where(t => t.TeamUsers.Any(tu => tu.UserId == userId))
+                .Select(t => new TeamDto
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    PlaceId = t.PlaceId,
+                })
+                .ToListAsync();
+
+            return teams;
         }
     }
 }

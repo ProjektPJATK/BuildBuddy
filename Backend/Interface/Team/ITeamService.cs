@@ -5,6 +5,7 @@ namespace Backend.Interface.Team;
 public interface ITeamService
 {
     Task<IEnumerable<TeamDto>> GetAllTeamsAsync();
+    Task<List<TeamDto>> GetTeamsByUserId(int userId);
     Task<TeamDto> GetTeamByIdAsync(int id);
     Task<TeamDto> CreateTeamAsync(TeamDto conversationDto);
     Task UpdateTeamAsync(int id, TeamDto conversationDto);
