@@ -4,6 +4,8 @@ import '../app_state.dart' as appState;
 import '../styles.dart';
 
 class ChatListScreen extends StatefulWidget {
+  const ChatListScreen({super.key});
+
   @override
   _ChatListScreenState createState() => _ChatListScreenState();
 }
@@ -71,12 +73,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
                                       borderRadius: BorderRadius.circular(25.0),
                                       borderSide: BorderSide.none,
                                     ),
-                                    prefixIcon: Icon(Icons.search),
+                                    prefixIcon: const Icon(Icons.search),
                                   ),
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.add_circle, color: Colors.black),
+                                icon: const Icon(Icons.add_circle, color: Colors.black),
                                 onPressed: () {
                                   // Add functionality here
                                 },
@@ -87,7 +89,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         // List of chats
                         Expanded(
                           child: ListView.builder(
-                            padding: EdgeInsets.symmetric(horizontal: 8.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             itemCount: filteredChatNames.length,
                             itemBuilder: (context, index) {
                               return Container(
@@ -100,7 +102,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                                 child: ListTile(
                                   title: Text(
                                     filteredChatNames[index],
-                                    style: TextStyle(color: Colors.black),
+                                    style: const TextStyle(color: Colors.black),
                                   ),
                                   onTap: () {
                                     // Navigate to the specific chat screen

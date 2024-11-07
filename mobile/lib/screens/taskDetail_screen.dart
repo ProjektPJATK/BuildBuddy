@@ -1,6 +1,5 @@
-// lib/screens/task_detail_screen.dart
-
 import 'package:flutter/material.dart';
+import '../styles.dart'; // Import the AppStyles
 
 class TaskDetailScreen extends StatelessWidget {
   final String title;
@@ -10,7 +9,8 @@ class TaskDetailScreen extends StatelessWidget {
   final String createdBy;
   final String taskDate;
 
-  TaskDetailScreen({
+  const TaskDetailScreen({
+    super.key, 
     required this.title,
     this.description = '',
     this.startTime = '',
@@ -26,14 +26,14 @@ class TaskDetailScreen extends StatelessWidget {
         children: [
           // Background
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/background.png'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
-          // Czarny filtr z przezroczystością 0.75
+          // Semi-transparent black filter
           Container(
             color: Colors.black.withOpacity(0.75),
           ),
@@ -44,14 +44,14 @@ class TaskDetailScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 50, left: 16),
                 child: IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
-                  padding: EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(8),
@@ -61,56 +61,52 @@ class TaskDetailScreen extends StatelessWidget {
                     children: [
                       Text(
                         'Nazwa: $title',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       if (taskDate.isNotEmpty)
                         Text(
                           'Data: $taskDate',
-                          style: TextStyle(fontSize: 16, color: Colors.black),
+                          style: const TextStyle(fontSize: 16, color: Colors.black),
                         ),
                       if (description.isNotEmpty)
                         Text(
                           'Opis: $description',
-                          style: TextStyle(fontSize: 16, color: Colors.black),
+                          style: const TextStyle(fontSize: 16, color: Colors.black),
                         ),
                       if (startTime.isNotEmpty) ...[
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           'Czas rozpoczęcia: $startTime',
-                          style: TextStyle(fontSize: 16, color: Colors.black),
+                          style: const TextStyle(fontSize: 16, color: Colors.black),
                         ),
                       ],
                       if (endTime.isNotEmpty) ...[
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           'Czas zakończenia: $endTime',
-                          style: TextStyle(fontSize: 16, color: Colors.black),
+                          style: const TextStyle(fontSize: 16, color: Colors.black),
                         ),
                       ],
                       if (createdBy.isNotEmpty) ...[
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           'Wystawione przez: $createdBy',
-                          style: TextStyle(fontSize: 16, color: Colors.black),
+                          style: const TextStyle(fontSize: 16, color: Colors.black),
                         ),
                       ],
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
+                      // Updated Button to use AppStyles.buttonStyle()
                       ElevatedButton(
                         onPressed: () {
                           // Action for adding an update
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        child: Text(
+                        style: AppStyles.buttonStyle(), // Using buttonStyle from AppStyles
+                        child: const Text(
                           'Dodaj aktualizację',
                           style: TextStyle(color: Colors.white),
                         ),

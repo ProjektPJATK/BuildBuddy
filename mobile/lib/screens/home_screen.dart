@@ -6,6 +6,8 @@ import '../app_state.dart' as appState;
 import '../styles.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -54,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   flex: 4,
                   child: Container(
                     padding: const EdgeInsets.all(12.0),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppStyles.transparentWhite, // Białe przezroczyste tło
                       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                     ),
@@ -62,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Container(
                           padding: const EdgeInsets.only(bottom: 4.0),
-                          child: Text(
+                          child: const Text(
                             'Wybierz budowę',
                             style: AppStyles.headerStyle,
                           ),
@@ -108,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Container(
                           padding: const EdgeInsets.only(bottom: 4.0),
-                          child: Text(
+                          child: const Text(
                             'Powiadomienia',
                             style: AppStyles.headerStyle,
                           ),

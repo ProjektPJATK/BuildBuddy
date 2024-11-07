@@ -4,6 +4,8 @@ import '../app_state.dart' as appState;
 import '../styles.dart';
 
 class TeamScreen extends StatefulWidget {
+  const TeamScreen({super.key});
+
   @override
   _TeamScreenState createState() => _TeamScreenState();
 }
@@ -66,7 +68,7 @@ class _TeamScreenState extends State<TeamScreen> {
                             title: Text(teamMembers[index]['name']!),
                             subtitle: Text('${teamMembers[index]['role']}'),
                             trailing: IconButton(
-                              icon: Icon(Icons.phone),
+                              icon: const Icon(Icons.phone),
                               onPressed: () {
                                 // Action for calling team member
                               },
