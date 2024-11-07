@@ -25,7 +25,7 @@ class _LoginFormState extends State<LoginForm> {
     return "http://$backendIP:$backendPort/api/User/login"; // Adjusted endpoint
   }
 
-  // Perform login and save token to SharedPreferences
+  // Perform login and save token and user ID to SharedPreferences
   Future<void> _login(BuildContext context) async {
     final login = _loginController.text.trim();
     final password = _passwordController.text.trim();
@@ -59,11 +59,13 @@ class _LoginFormState extends State<LoginForm> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data['token'];
+        final userId = data['id']; // Extract the user ID
 
-        // Check if token is valid (basic validation)
-        if (token.isNotEmpty) {
+        // Check if token and userId are valid (basic validation)
+        if (token.isNotEmpty && userId != null) {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('token', token); // Save the token in SharedPreferences
+          await prefs.setInt('userId', userId); // Save the user ID in SharedPreferences
 
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Login successful')),
@@ -72,7 +74,7 @@ class _LoginFormState extends State<LoginForm> {
           widget.onLogin(); // Call onLogin callback after successful login
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Invalid token received.')),
+            const SnackBar(content: Text('Invalid token or user ID received.')),
           );
         }
       } else {
@@ -177,4 +179,3 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 }
-

@@ -46,6 +46,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     final url = getBackendUrl();
+    final completePhoneNumber = '$_selectedCountryCode${_telephoneNrController.text}'; // Combine country code with phone number
 
     try {
       final response = await http.post(
@@ -59,7 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           "name": _nameController.text,
           "surname": _surnameController.text,
           "mail": _emailController.text,
-          "telephoneNr": int.tryParse(_telephoneNrController.text) ?? 0,
+          "telephoneNr": completePhoneNumber, // Use the combined phone number here
           "password": _passwordController.text,
           "userImageUrl": "string",
           "teamId": 0
@@ -234,13 +235,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget _buildPhoneNumberField() {
     return Padding(
-      
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Row(
-        
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        
           GestureDetector(
             onTap: () {
               showCountryPicker(
@@ -254,12 +252,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               );
             },
             child: Container(
-              
               height: 56, // Match the height of the TextFormField
               width: 70, // Width to match the design proportionally
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                
                 color: Colors.transparent, // Ensures it matches the background
                 border: Border.all(color: Colors.white),
                 borderRadius: BorderRadius.circular(20), // Same corner radius as TextFormField
