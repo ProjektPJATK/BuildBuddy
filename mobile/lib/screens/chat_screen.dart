@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../widgets/bottom_navigation.dart';
 
 class ChatScreen extends StatelessWidget {
   @override
