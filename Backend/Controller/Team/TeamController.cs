@@ -67,5 +67,23 @@ namespace Backend.Controller.Team
             await _teamService.RemoveUserFromTeamAsync(teamId, userId);
             return NoContent();
         }
+        
+        [HttpGet("{id}/teams")]
+        public async Task<ActionResult<IEnumerable<TeamDto>>> GetUserTeams(int id)
+        {
+            var teams = await _teamService.GetTeamsByUserId(id);
+
+            if (teams == null)
+            {
+                return NotFound($"User with ID {id} does not exist.");
+            }
+
+            if (!teams.Any())
+            {
+                return NotFound($"User with ID {id} has no teams associated.");
+            }
+
+            return Ok(teams);
+        }
     }
 }
