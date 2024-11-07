@@ -10,7 +10,7 @@ class TaskItem extends StatelessWidget {
   final String createdBy;
   final String taskDate;
 
-  TaskItem({
+  const TaskItem({super.key, 
     required this.title,
     this.description = '',
     this.startTime = '',
@@ -38,20 +38,20 @@ class TaskItem extends StatelessWidget {
         );
       },
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 4.0),
-        padding: EdgeInsets.all(12.0),
+        margin: const EdgeInsets.symmetric(vertical: 4.0),
+        padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.7),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           children: [
-            Icon(Icons.task, color: Colors.black),
-            SizedBox(width: 8),
+            const Icon(Icons.task, color: Colors.black),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(color: Colors.black),
+                style: const TextStyle(color: Colors.black),
               ),
             ),
           ],
