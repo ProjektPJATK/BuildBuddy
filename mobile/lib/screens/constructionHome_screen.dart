@@ -34,27 +34,14 @@ class _ConstructionHomeScreenState extends State<ConstructionHomeScreen> {
           // Main content
           Column(
             children: [
-              // Full header with background and title
+              // Full header with background and title (without back arrow)
               Container(
                 width: double.infinity,
                 color: AppStyles.transparentWhite,
                 padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      appState.selectedConstructionName,
-                      style: AppStyles.headerStyle.copyWith(color: Colors.black, fontSize: 22),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () {
-                        appState.isConstructionContext = false;
-                        appState.selectedConstructionName = '';
-                        Navigator.pushNamed(context, '/home');
-                      },
-                    ),
-                  ],
+                child: Text(
+                  appState.selectedConstructionName,
+                  style: AppStyles.headerStyle.copyWith(color: Colors.black, fontSize: 22),
                 ),
               ),
               // Full background for details section

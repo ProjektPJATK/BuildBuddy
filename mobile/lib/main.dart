@@ -3,7 +3,7 @@ import 'package:mobile/screens/chat_screen.dart';
 import 'package:mobile/screens/constructionHome_screen.dart';
 import 'package:mobile/screens/constructionInventory_screen.dart';
 import 'package:mobile/screens/constructionTeam_screen.dart';
-import 'package:mobile/widgets/register_form.dart';
+import 'package:mobile/screens/register_screen.dart';
 import 'screens/chatList_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/splash_screen.dart';
@@ -13,11 +13,11 @@ import 'screens/profile_screen.dart';
 import 'screens/newMessage_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const BuildBuddyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class BuildBuddyApp extends StatelessWidget {
+  const BuildBuddyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
