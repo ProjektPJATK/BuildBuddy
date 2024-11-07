@@ -13,25 +13,29 @@ class BottomNavigation extends StatelessWidget {
 
   const BottomNavigation({super.key, this.onTap});
 
-  // Funkcja tworząca animację przesuwania z zachowaniem kierunku
+  // Funkcja tworząca animację przesuwania i fade-in/out w stylu Messenger
   PageRouteBuilder<dynamic> _createPageRoute(
       BuildContext context, String route, bool isRight) {
     return PageRouteBuilder(
+      transitionDuration: const Duration(milliseconds: 200), // Szybsza animacja
       pageBuilder: (context, animation, secondaryAnimation) {
         return _getDestinationScreen(route);
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const curve = Curves.ease;
-        var tween = Tween(
-          begin: Offset(isRight ? 1.0 : -1.0, 0.0), // Zależnie od kierunku
+        const curve = Curves.easeInOut;
+        var slideTween = Tween(
+          begin: Offset(isRight ? 0.1 : -0.1, 0), // Małe przesunięcie
           end: Offset.zero,
         ).chain(CurveTween(curve: curve));
-
-        var offsetAnimation = animation.drive(tween);
-
+        
+        var fadeTween = Tween<double>(begin: 0.2, end: 1.0); // Fade-in/out
+        
         return SlideTransition(
-          position: offsetAnimation,
-          child: child,
+          position: animation.drive(slideTween),
+          child: FadeTransition(
+            opacity: animation.drive(fadeTween),
+            child: child,
+          ),
         );
       },
     );
@@ -89,8 +93,7 @@ class BottomNavigation extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(navItems.length, (index) {
               final item = navItems[index];
-              final bool isCurrentPage =
-                  appState.currentPage == item['route'].replaceAll('/', '');
+              final bool isCurrentPage = appState.currentPage == item['route'].replaceAll('/', '');
 
               return Expanded(
                 child: GestureDetector(
