@@ -38,6 +38,7 @@ namespace Backend.Service.User
                 Mail = user.Mail,
                 TelephoneNr = user.TelephoneNr,
                 UserImageUrl = user.UserImageUrl,
+                PreferredLanguage = user.PreferredLanguage,
                 TeamId = user.TeamId
             };
         }
@@ -55,6 +56,7 @@ namespace Backend.Service.User
                 TelephoneNr = user.TelephoneNr,
                 Password = user.Password,
                 UserImageUrl = user.UserImageUrl,
+                PreferredLanguage = user.PreferredLanguage,
                 TeamId = user.TeamId
             };
         }
@@ -71,6 +73,7 @@ namespace Backend.Service.User
                     Password = user.Password,
                     TelephoneNr = user.TelephoneNr,
                     UserImageUrl = user.UserImageUrl,
+                    PreferredLanguage = user.PreferredLanguage,
                     TeamId = user.TeamId
                 })
                 .ToListAsync();
@@ -86,6 +89,7 @@ namespace Backend.Service.User
                 Mail = userDto.Mail,
                 Password = userDto.Password,
                 UserImageUrl = userDto.UserImageUrl,
+                PreferredLanguage = userDto.PreferredLanguage,
                 TeamId = userDto.TeamId
             };
 
@@ -108,6 +112,7 @@ namespace Backend.Service.User
                 user.Mail = userDto.Mail;
                 user.Password = userDto.Password;
                 user.UserImageUrl = userDto.UserImageUrl;
+                user.PreferredLanguage = userDto.PreferredLanguage;
                 user.TeamId = userDto.TeamId;
 
                 await _dbContext.SaveChangesAsync();

@@ -10,6 +10,8 @@ public class User
     public string Password { get; set; }
     public string UserImageUrl { get; set; }
     public int TeamId { get; set; }
+    public string PreferredLanguage { get; set; }
+    
 
     public virtual ICollection<TeamUser> TeamUsers  { get; set; }
     public virtual Calendar Calendars { get; set; }

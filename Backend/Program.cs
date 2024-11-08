@@ -1,14 +1,19 @@
 using System.Text;
+using Amazon.Runtime;
+using Amazon.Translate;
 using Backend.DbContext;
 using Backend.Interface.Calendar;
+using Backend.Interface.Communication;
 using Backend.Interface.Tasks;
 using Backend.Interface.Team;
 using Backend.Interface.User;
 using Backend.Model;
 using Backend.Service.Calendar;
+using Backend.Service.Communication;
 using Backend.Service.Tasks;
 using Backend.Service.Team;
 using Backend.Service.User;
+using Backend.SignaRHub;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,6 +23,16 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var configuration = builder.Configuration;
 
+builder.Services.AddSignalR();
+
+var awsAccessKey = builder.Configuration["AWS:AccessKey"];
+var awsSecretKey = builder.Configuration["AWS:SecretKey"];
+var awsRegion = builder.Configuration["AWS:Region"];
+
+builder.Services.AddSingleton<IAmazonTranslate>(new AmazonTranslateClient(
+    new BasicAWSCredentials(awsAccessKey, awsSecretKey),
+    Amazon.RegionEndpoint.GetBySystemName(awsRegion)
+));
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -73,6 +88,9 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IPlaceService, PlaceService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IConversationService, ConversationService>();
+
+
 
 
 var app = builder.Build();
@@ -83,10 +101,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
 app.UseHttpsRedirection();
 app.MapControllers();
-
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ChatHub>("/chatHub");
+});
 app.Run();
