@@ -13,22 +13,21 @@ class BottomNavigation extends StatelessWidget {
 
   const BottomNavigation({super.key, this.onTap});
 
-  // Funkcja tworząca animację przesuwania i fade-in/out w stylu Messenger
   PageRouteBuilder<dynamic> _createPageRoute(
       BuildContext context, String route, bool isRight) {
     return PageRouteBuilder(
-      transitionDuration: const Duration(milliseconds: 200), // Szybsza animacja
+      transitionDuration: const Duration(milliseconds: 200),
       pageBuilder: (context, animation, secondaryAnimation) {
         return _getDestinationScreen(route);
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const curve = Curves.easeInOut;
         var slideTween = Tween(
-          begin: Offset(isRight ? 0.1 : -0.1, 0), // Małe przesunięcie
+          begin: Offset(isRight ? 0.1 : -0.1, 0),
           end: Offset.zero,
         ).chain(CurveTween(curve: curve));
         
-        var fadeTween = Tween<double>(begin: 0.2, end: 1.0); // Fade-in/out
+        var fadeTween = Tween<double>(begin: 0.2, end: 1.0);
         
         return SlideTransition(
           position: animation.drive(slideTween),
@@ -41,7 +40,6 @@ class BottomNavigation extends StatelessWidget {
     );
   }
 
-  // Funkcja zwracająca odpowiedni ekran na podstawie trasy
   Widget _getDestinationScreen(String route) {
     switch (route) {
       case '/calendar':
@@ -55,21 +53,25 @@ class BottomNavigation extends StatelessWidget {
       case '/chats':
         return ChatListScreen();
       case '/home':
+        appState.isConstructionContext = false;
         return HomeScreen();
       case '/profile':
         return UserProfileScreen();
       default:
-        return HomeScreen(); // Domyślny ekran
+        return HomeScreen();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> navItems = appState.isConstructionContext
+    final bool isConstructionMode = appState.isConstructionContext;
+
+    final List<Map<String, dynamic>> navItems = isConstructionMode
         ? [
             {'icon': Icons.calendar_today, 'label': 'Kalendarz', 'route': '/calendar'},
             {'icon': Icons.people, 'label': 'Zespół', 'route': '/construction_team'},
-            {'icon': Icons.home, 'label': 'Budowa', 'route': '/construction_home'},
+            {'icon': Icons.home, 'label': 'Home', 'route': '/home'},
+            {'icon': Icons.construction, 'label': 'Budowa', 'route': '/construction_home'},
             {'icon': Icons.inventory, 'label': 'Inwentarz', 'route': '/construction_inventory'},
           ]
         : [
@@ -97,6 +99,7 @@ class BottomNavigation extends StatelessWidget {
 
               return Expanded(
                 child: GestureDetector(
+                  behavior: HitTestBehavior.opaque, // Powiększenie obszaru klikalnego bez zmiany wizualnej
                   onTap: () {
                     if (!isCurrentPage) {
                       bool isRight = index > navItems.indexWhere((navItem) =>
@@ -104,39 +107,35 @@ class BottomNavigation extends StatelessWidget {
 
                       appState.currentPage = item['route'].replaceAll('/', '');
 
-                      Navigator.of(context).push(
-                        _createPageRoute(context, item['route'], isRight),
-                      );
+                      if (isConstructionMode && item['route'] == '/home') {
+                        appState.isConstructionContext = false;
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                        );
+                      } else {
+                        Navigator.of(context).push(
+                          _createPageRoute(context, item['route'], isRight),
+                        );
+                      }
                     }
                   },
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (child, animation) {
-                      return FadeTransition(opacity: animation, child: child);
-                    },
-                    child: Container(
-                      key: ValueKey(isCurrentPage),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      color: Colors.transparent,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            item['icon'],
-                            size: 20,
-                            color: isCurrentPage ? Colors.white : Colors.black,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            item['label'],
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isCurrentPage ? Colors.white : Colors.black,
-                            ),
-                          ),
-                        ],
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        item['icon'],
+                        size: 20,
+                        color: isCurrentPage ? Colors.white : Colors.black,
                       ),
-                    ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item['label'],
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isCurrentPage ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );
