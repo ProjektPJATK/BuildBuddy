@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'employees_screen.dart';
+import 'projects_screens.dart';
+import 'reports_screens.dart';
+import 'tasks_screen.dart';
 
-class HomePage extends StatelessWidget {
+class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -31,12 +35,22 @@ class HomePage extends StatelessWidget {
                   ),
                   Positioned(
                     top: 20,
-                    right: 20,
-                    child: IconButton(
-                      icon: Icon(Icons.logout, color: Colors.white),
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/');
-                      },
+                    right: 80,
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.settings, color: Colors.white, size: 32),
+                          onPressed: () {
+                            // Navigation to settings screen if required
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.logout, color: Colors.white, size: 32),
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(context, '/');
+                          },
+                        ),
+                      ],
                     ),
                   ),
                   Padding(
@@ -44,10 +58,42 @@ class HomePage extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Expanded(child: _buildButton(context, 'Pracownicy', Icons.people, Colors.blue)),
-                        Expanded(child: _buildButton(context, 'Zadania', Icons.task, Colors.green)),
-                        Expanded(child: _buildButton(context, 'Budowy', Icons.apartment, Colors.orange)),
-                        Expanded(child: _buildButton(context, 'Raporty', Icons.report, Colors.red)),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => EmployeesScreen()),
+                            ),
+                            child: _buildButton(context, 'Employees', Icons.people, Colors.blue),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => TasksScreen()),
+                            ),
+                            child: _buildButton(context, 'Tasks', Icons.task, Colors.green),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => ProjectsScreen()),
+                            ),
+                            child: _buildButton(context, 'Projects', Icons.apartment, Colors.orange),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => ReportsScreen()),
+                            ),
+                            child: _buildButton(context, 'Reports', Icons.report, Colors.red),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -76,7 +122,7 @@ class HomePage extends StatelessWidget {
 
   Widget _buildButton(BuildContext context, String title, IconData icon, Color color) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8.0), // Dodatkowy odstęp między przyciskami
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
       height: 100,
       decoration: BoxDecoration(
         color: color.withOpacity(0.8),
