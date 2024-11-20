@@ -30,8 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+     
   table_calendar: ^3.0.0
-
+  permission_handler: ^10.4.3
+ 
  
   country_picker: ^2.0.17
 
@@ -44,6 +46,7 @@ dependencies:
   intl: any
   shared_preferences: ^2.3.2
   http: ^1.2.2
+  image_picker: ^1.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
