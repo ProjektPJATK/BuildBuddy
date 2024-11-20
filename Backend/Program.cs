@@ -34,6 +34,16 @@ builder.Services.AddSingleton<IAmazonTranslate>(new AmazonTranslateClient(
     Amazon.RegionEndpoint.GetBySystemName(awsRegion)
 ));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddEndpointsApiExplorer();
@@ -94,6 +104,7 @@ builder.Services.AddScoped<IConversationService, ConversationService>();
 
 
 var app = builder.Build();
+app.UseCors("AllowAll");
 
 if (app.Environment.IsDevelopment())
 {
@@ -101,14 +112,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 app.UseHttpsRedirection();
 app.MapControllers();
 app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapHub<ChatHub>("/chatHub");
-});
+
+
+app.MapHub<ChatHub>("/chat-hub");
+
 app.Run();

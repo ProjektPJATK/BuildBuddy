@@ -15,6 +15,24 @@ namespace Backend.Controller.Communication;
         {
             _conversationService = conversationService;
         }
+        
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllConversations()
+        {
+            var conversations = await _conversationService.GetAllConversationsAsync();
+            return Ok(conversations);
+        }
+
+        [HttpGet("{conversationId}")]
+        public async Task<IActionResult> GetConversationById(int conversationId)
+        {
+            var conversation = await _conversationService.GetConversationByIdAsync(conversationId);
+            if (conversation == null)
+            {
+                return NotFound();
+            }
+            return Ok(conversation);
+        }
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateConversation(int user1Id, int user2Id)
