@@ -1,5 +1,6 @@
 using System.Text;
 using Amazon.Runtime;
+using Amazon.S3;
 using Amazon.Translate;
 using Backend.DbContext;
 using Backend.Interface.Calendar;
@@ -14,6 +15,7 @@ using Backend.Service.Tasks;
 using Backend.Service.Team;
 using Backend.Service.User;
 using Backend.SignaRHub;
+using Backend.StorageService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -29,7 +31,13 @@ var awsAccessKey = builder.Configuration["AWS:AccessKey"];
 var awsSecretKey = builder.Configuration["AWS:SecretKey"];
 var awsRegion = builder.Configuration["AWS:Region"];
 
+builder.Services.Configure<AwsOptions>(builder.Configuration.GetSection("AWS"));
+
 builder.Services.AddSingleton<IAmazonTranslate>(new AmazonTranslateClient(
+    new BasicAWSCredentials(awsAccessKey, awsSecretKey),
+    Amazon.RegionEndpoint.GetBySystemName(awsRegion)
+));
+builder.Services.AddSingleton<IAmazonS3>(new AmazonS3Client(
     new BasicAWSCredentials(awsAccessKey, awsSecretKey),
     Amazon.RegionEndpoint.GetBySystemName(awsRegion)
 ));
@@ -99,6 +107,7 @@ builder.Services.AddScoped<IPlaceService, PlaceService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
+builder.Services.AddScoped<IStorageService, StorageService>();
 
 
 
