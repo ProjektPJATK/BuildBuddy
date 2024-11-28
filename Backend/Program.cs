@@ -18,7 +18,6 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var configuration = builder.Configuration;
 
-// Dodanie CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins", policy =>
@@ -102,5 +101,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.Urls.Add("http://localhost:5007");
+app.Urls.Add("http://*:5007");
 app.Run();
