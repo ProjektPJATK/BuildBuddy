@@ -18,6 +18,18 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var configuration = builder.Configuration;
 
+// Dodanie CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .SetIsOriginAllowed(_ => true) // Obsługuje wszystkie originy
+              .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
+    });
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -44,8 +56,8 @@ builder.Services.AddSwaggerGen(c =>
             }
         }, new List<string>()
     }});
-});builder.Services.AddControllers();
-
+});
+builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -65,7 +77,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
  
-
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<ICalendarService, CalendarService>();
 builder.Services.AddScoped<ITaskActualizationService, TaskActualizationService>();
@@ -73,7 +84,6 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IPlaceService, PlaceService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IUserService, UserService>();
-
 
 var app = builder.Build();
 
@@ -84,9 +94,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.MapControllers();
+
+// Włączenie CORS
+app.UseCors("AllowAllOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllers();
+app.Urls.Add("http://localhost:5007");
 app.Run();
