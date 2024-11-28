@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class EmployeeScreen extends StatelessWidget {
+class EmployeeDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> employee;
 
-  const EmployeeScreen({Key? key, required this.employee}) : super(key: key);
+  const EmployeeDetailsScreen({Key? key, required this.employee}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -25,7 +25,7 @@ class _TasksScreenState extends State<TasksScreen> {
     final client = HttpClient(); // Tworzenie klienta HTTP
     try {
       // Tworzenie żądania
-      final request = await client.getUrl(Uri.parse('http://10.0.2.2:5007/api/Task'));
+      final request = await client.getUrl(Uri.parse('http://localhost:5007/api/Task'));
       request.headers.set('Accept', 'application/json');
       request.headers.set('Authorization', 'Bearer YOUR_TOKEN_HERE'); // Wstaw token tutaj
 
