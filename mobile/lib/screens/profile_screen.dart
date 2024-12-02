@@ -177,6 +177,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     appState.currentPage = 'profile'; // Set the current page to 'profile'
 
     return Scaffold(
+      resizeToAvoidBottomInset: false, // Ensure layout is consistent
       body: Stack(
         children: [
           // Background
@@ -188,13 +189,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             color: AppStyles.filterColor.withOpacity(0.75), // Apply darker filter
           ),
           // Screen content
-          isLoading
-              ? const Center(child: CircularProgressIndicator()) // Show loading indicator while loading
-              : Column(
-                  children: [
-                    // Profile section
-                    Expanded(
-                      child: SingleChildScrollView(
+          Column(
+            children: [
+              Expanded(
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator()) // Show loading indicator while loading
+                    : SingleChildScrollView(
                         child: Container(
                           color: AppStyles.transparentWhite, // Semi-transparent white background
                           child: Column(
@@ -251,27 +251,29 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   children: [
                                     Expanded(
                                       child: Transform.scale(
-                                        scale: 0.9, // Scale down to 80% of original size
+                                        scale: 0.9, // Scale down to 90% of original size
                                         child: ElevatedButton(
                                           onPressed: _showEditProfileDialog, // Show edit profile dialog
                                           style: AppStyles.buttonStyle().copyWith(
                                             padding: MaterialStateProperty.all(
-                                              const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                                              const EdgeInsets.symmetric(horizontal: 16, vertical: 10), // Adjust button padding
                                             ),
                                           ),
                                           child: const Text(
                                             'EDYTUJ PROFIL',
                                             style: TextStyle(
+                                              fontSize: 14, // Smaller font size
+                                              fontWeight: FontWeight.bold,
                                               color: Colors.black,
                                             ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 12), // Reduced space between buttons
+                                    const SizedBox(width: 10), // Space between buttons
                                     Expanded(
                                       child: Transform.scale(
-                                        scale: 0.9, // Scale down to 80% of original size
+                                        scale: 0.9, // Scale down to 90% of original size
                                         child: ElevatedButton(
                                           onPressed: () => _logout(context), // Call logout function
                                           style: AppStyles.buttonStyle().copyWith(
@@ -279,12 +281,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                               const Color.fromARGB(255, 39, 177, 241),
                                             ),
                                             padding: MaterialStateProperty.all(
-                                              const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                                              const EdgeInsets.symmetric(horizontal: 16, vertical: 10), // Adjust button padding
                                             ),
                                           ),
                                           child: const Text(
                                             'WYLOGUJ SIĘ',
                                             style: TextStyle(
+                                              fontSize: 14, // Smaller font size
+                                              fontWeight: FontWeight.bold,
                                               color: Colors.white,
                                             ),
                                           ),
@@ -299,11 +303,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           ),
                         ),
                       ),
-                    ),
-                    // Bottom Navigation Bar
-                    BottomNavigation(onTap: (_) {}), // Empty function to avoid 'null' error
-                  ],
-                ),
+              ),
+              // Bottom Navigation Bar
+              BottomNavigation(onTap: (_) {}),
+            ],
+          ),
         ],
       ),
     );

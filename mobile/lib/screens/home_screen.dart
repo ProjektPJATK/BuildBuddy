@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../widgets/build_option.dart';
 import '../widgets/notification_item.dart';
 import '../widgets/bottom_navigation.dart';
-import '../app_state.dart' as appState;
 import '../styles.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -13,10 +16,79 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<dynamic> teams = [];
+  bool isLoading = true;
+  bool hasError = false;
+  int? userId;
+
+  // Determine backend URL
+  String getBackendUrl() {
+    const backendIP = "10.0.2.2"; // Replace for Android emulator or with your IP
+    const backendPort = "5007";
+    return "http://$backendIP:$backendPort/api/Team/$userId/teams";
+  }
+
   @override
   void initState() {
     super.initState();
-    appState.currentPage = 'home'; // Ustawiamy stronę Home jako aktualną
+    _initializeUser();
+  }
+
+  // Initialize userId from SharedPreferences and fetch teams
+  Future<void> _initializeUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userId = prefs.getInt('userId');
+    });
+    if (userId != null) {
+      fetchTeams();
+    } else {
+      setState(() {
+        hasError = true;
+        isLoading = false;
+      });
+    }
+  }
+
+  // Fetch team data from backend
+  Future<void> fetchTeams() async {
+    setState(() {
+      isLoading = true;
+      hasError = false;
+    });
+
+    final url = getBackendUrl();
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token', // Pass token for authentication
+          'accept': '*/*',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          teams = json.decode(response.body);
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          hasError = true;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching teams: $e');
+      setState(() {
+        hasError = true;
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -57,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(12.0),
                     decoration: const BoxDecoration(
-                      color: AppStyles.transparentWhite, // Białe przezroczyste tło
+                      color: AppStyles.transparentWhite,
                       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                     ),
                     child: Column(
@@ -70,31 +142,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         Expanded(
-                          child: ListView(
-                            padding: EdgeInsets.zero,
-                            children: [
-                              BuildOption(
-                                title: 'Budowa w Gdańsku',
-                                onTap: () {
-                                  appState.selectedConstructionName = 'Budowa w Gdańsku';
-                                  appState.isConstructionContext = true;
-                                  Navigator.pushNamed(context, '/construction_home');
-                                },
-                              ),
-                              BuildOption(
-                                title: 'Budowa w Warszawie',
-                                onTap: () {
-                                  Navigator.pushNamed(context, '/warszawa');
-                                },
-                              ),
-                              BuildOption(
-                                title: 'Budowa w Krakowie',
-                                onTap: () {
-                                  Navigator.pushNamed(context, '/krakow');
-                                },
-                              ),
-                            ],
-                          ),
+                          child: isLoading
+                              ? const Center(child: CircularProgressIndicator())
+                              : hasError
+                                  ? const Center(child: Text('Błąd podczas ładowania danych.'))
+                                  : ListView.builder(
+                                      padding: EdgeInsets.zero,
+                                      itemCount: teams.length,
+                                      itemBuilder: (context, index) {
+                                        final team = teams[index];
+                                        return BuildOption(
+                                          title: team['name'],
+                                          onTap: () {
+                                            Navigator.pushNamed(context, '/construction_home', arguments: {
+                                              'teamId': team['id'],
+                                            });
+                                          },
+                                        );
+                                      },
+                                    ),
                         ),
                         const SizedBox(height: 10),
                         const Divider(thickness: 1, color: Colors.white, height: 10),
@@ -105,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   flex: 4,
                   child: Container(
-                    color: AppStyles.transparentWhite, // Białe przezroczyste tło dla powiadomień
+                    color: AppStyles.transparentWhite,
                     child: Column(
                       children: [
                         Container(
@@ -130,7 +196,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                // Bottom Navigation w głównym kontenerze
                 BottomNavigation(
                   onTap: (_) {},
                 ),
