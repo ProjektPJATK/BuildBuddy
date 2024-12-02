@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/screens/ConstructionCalendar_screen.dart';
 import 'package:mobile/screens/chat_screen.dart';
 import 'package:mobile/screens/constructionHome_screen.dart';
 import 'package:mobile/screens/constructionInventory_screen.dart';
@@ -33,6 +34,7 @@ class BuildBuddyApp extends StatelessWidget {
         '/construction_home': (context) => ConstructionHomeScreen(),
         '/construction_team': (context) => TeamScreen(),
         '/construction_inventory': (context) => InventoryScreen(),
+        '/construction_calendar': (context) => const ConstructionCalendarScreen(),
         '/chat': (context) => ChatScreen(),
         '/register': (context) => RegisterScreen(onRegister: () {}),
       },

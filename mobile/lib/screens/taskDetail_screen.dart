@@ -1,7 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../styles.dart'; // Import the AppStyles
-
 
 class TaskDetailScreen extends StatelessWidget {
   final String title;
@@ -27,7 +28,6 @@ class TaskDetailScreen extends StatelessWidget {
     this.imageUrl = '',
   });
 
-  // Function to show the "Dodaj Aktualizację" popup dialog
   void _showAddUpdateDialog(BuildContext context) {
     final TextEditingController komentarzController = TextEditingController();
     XFile? selectedImage; // Store the selected image
@@ -37,7 +37,10 @@ class TaskDetailScreen extends StatelessWidget {
       final XFile? pickedImage = await picker.pickImage(
         source: ImageSource.gallery,
       );
-      selectedImage = pickedImage;
+      if (pickedImage != null) {
+        selectedImage = pickedImage;
+        (context as Element).markNeedsBuild(); // Refresh the widget
+      }
     }
 
     void _takePhoto() async {
@@ -45,79 +48,141 @@ class TaskDetailScreen extends StatelessWidget {
       final XFile? pickedImage = await picker.pickImage(
         source: ImageSource.camera,
       );
-      selectedImage = pickedImage;
+      if (pickedImage != null) {
+        selectedImage = pickedImage;
+        (context as Element).markNeedsBuild(); // Refresh the widget
+      }
+    }
+
+    void _showImageDialog(BuildContext context, String imagePath) {
+      showDialog(
+        context: context,
+        builder: (_) => Dialog(
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Image.file(
+              File(imagePath),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      );
     }
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.black.withOpacity(0.8),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text(
-            'Dodaj Aktualizację',
-            style: TextStyle(color: Colors.white),
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: komentarzController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: AppStyles.inputFieldStyle(hintText: 'Dodaj komentarz'),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              backgroundColor: Colors.black.withOpacity(0.8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: const Text(
+                'Dodaj Aktualizację',
+                style: TextStyle(color: Colors.white),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: komentarzController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: AppStyles.inputFieldStyle(hintText: 'Dodaj komentarz'),
+                    ),
+                    const SizedBox(height: 10),
+                    // Display selected image miniature
+                    if (selectedImage != null)
+                      GestureDetector(
+                        onTap: () => _showImageDialog(context, selectedImage!.path),
+                        child: Image.file(
+                          File(selectedImage!.path),
+                          height: 100,
+                          width: 100,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            final picker = ImagePicker();
+                            final XFile? image =
+                                await picker.pickImage(source: ImageSource.gallery);
+                            if (image != null) {
+                              setState(() {
+                                selectedImage = image;
+                              });
+                            }
+                          },
+                          style: AppStyles.buttonStyle().copyWith(
+                            padding: MaterialStateProperty.all(
+                                const EdgeInsets.symmetric(horizontal: 10, vertical: 5)),
+                          ),
+                          child: const Text(
+                            'Dodaj Zdjęcie',
+                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final picker = ImagePicker();
+                            final XFile? photo =
+                                await picker.pickImage(source: ImageSource.camera);
+                            if (photo != null) {
+                              setState(() {
+                                selectedImage = photo;
+                              });
+                            }
+                          },
+                          style: AppStyles.buttonStyle().copyWith(
+                            padding: MaterialStateProperty.all(
+                                const EdgeInsets.symmetric(horizontal: 10, vertical: 5)),
+                          ),
+                          child: const Text(
+                            'Zrób Zdjęcie',
+                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _selectImage,
-                  style: AppStyles.buttonStyle(),
-                  child: const Text(
-                    'Dodaj Zdjęcie',
-                    style: TextStyle(color: Colors.white),
-                  ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  style: AppStyles.textButtonStyle(),
+                  child: const Text('Anuluj', style: TextStyle(color: Colors.white)),
                 ),
-                const SizedBox(height: 10), // Space between buttons
                 ElevatedButton(
-                  onPressed: _takePhoto,
-                  style: AppStyles.buttonStyle(),
-                  child: const Text(
-                    'Zrób Zdjęcie',
-                    style: TextStyle(color: Colors.white),
+                  onPressed: () {
+                    if (komentarzController.text.isNotEmpty || selectedImage != null) {
+                      // Add your logic to handle komentarz and image upload
+                      print('Komentarz: ${komentarzController.text}');
+                      if (selectedImage != null) {
+                        print('Image Path: ${selectedImage!.path}');
+                      }
+                      Navigator.of(context).pop(); // Close the dialog after saving
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Dodaj komentarz lub zdjęcie'),
+                        ),
+                      );
+                    }
+                  },
+                  style: AppStyles.buttonStyle().copyWith(
+                    backgroundColor: MaterialStateProperty.all(Colors.blueAccent),
                   ),
+                  child: const Text('Zapisz', style: TextStyle(color: Colors.white)),
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              style: AppStyles.textButtonStyle(),
-              child: const Text('Anuluj', style: TextStyle(color: Colors.white)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (komentarzController.text.isNotEmpty || selectedImage != null) {
-                  // Add your logic to handle komentarz and image upload
-                  print('Komentarz: ${komentarzController.text}');
-                  if (selectedImage != null) {
-                    print('Image Path: ${selectedImage!.path}');
-                  }
-                  Navigator.of(context).pop(); // Close the dialog after saving
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Dodaj komentarz lub zdjęcie'),
-                    ),
-                  );
-                }
-              },
-              style: AppStyles.buttonStyle().copyWith(
-                backgroundColor: MaterialStateProperty.all(Colors.blueAccent),
-              ),
-              child: const Text('Zapisz', style: TextStyle(color: Colors.white)),
-            ),
-          ],
+            );
+          },
         );
       },
     );

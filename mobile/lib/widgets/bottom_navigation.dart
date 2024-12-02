@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/ConstructionCalendar_screen.dart';
 import '../screens/calendar_screen.dart';
 import '../screens/constructionTeam_screen.dart';
 import '../screens/constructionHome_screen.dart';
@@ -44,6 +45,8 @@ class BottomNavigation extends StatelessWidget {
     switch (route) {
       case '/calendar':
         return CalendarScreen();
+        case '/construction_calendar':
+        return  ConstructionCalendarScreen();
       case '/construction_team':
         return TeamScreen();
       case '/construction_home':
@@ -68,7 +71,7 @@ class BottomNavigation extends StatelessWidget {
 
     final List<Map<String, dynamic>> navItems = isConstructionMode
         ? [
-            {'icon': Icons.calendar_today, 'label': 'Kalendarz', 'route': '/calendar'},
+            {'icon': Icons.calendar_today, 'label': 'Kalendarz', 'route': '/construction_calendar'},
             {'icon': Icons.people, 'label': 'Zespół', 'route': '/construction_team'},
             {'icon': Icons.home, 'label': 'Home', 'route': '/home'},
             {'icon': Icons.construction, 'label': 'Budowa', 'route': '/construction_home'},

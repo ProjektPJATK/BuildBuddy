@@ -30,8 +30,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
   Future<void> _fetchInventoryItems() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
+    int? placeId = prefs.getInt('placeId'); // Retrieve the placeId
 
-    if (token == null) {
+    if (token == null || placeId == null) {
       setState(() {
         _isLoading = false;
         _isError = true;
@@ -41,7 +42,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:5007/api/Item'),
+        Uri.parse('http://10.0.2.2:5007/api/Item/place/$placeId'), // Fetch items by placeId
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
@@ -57,6 +58,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
               'name': item['name'],
               'purchased': item['quantityMax'],
               'remaining': item['quantityLeft'],
+              'metrics': item['metrics'], // Include metrics field
             };
           }).toList();
           filteredItems = inventoryItems;
@@ -85,7 +87,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
     });
   }
 
-  // Open a dialog to edit "Pozostałe" value
   Future<void> _openEditDialog(Map<String, dynamic> item) async {
     TextEditingController remainingController = TextEditingController(text: item['remaining'].toString());
 
@@ -93,50 +94,55 @@ class _InventoryScreenState extends State<InventoryScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.black.withOpacity(0.8), // Dark background with 0.8 opacity
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // Rounded corners
+          backgroundColor: Colors.black.withOpacity(0.8),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: const Text(
             'Edytuj Pozostałe',
-            style: TextStyle(color: Colors.white), // White text color for the title
+            style: TextStyle(color: Colors.white),
           ),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextField(
-                  controller: remainingController,
-                  keyboardType: TextInputType.number,
-                  style: const TextStyle(color: Colors.white), // White text color
-                  decoration: AppStyles.inputFieldStyle(hintText: 'Pozostałe'), // Consistent input style
-                ),
-              ],
+          content: TextField(
+            controller: remainingController,
+            keyboardType: TextInputType.number,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'Pozostałe',
+              hintStyle: const TextStyle(color: Colors.white70),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: const BorderSide(color: Colors.white),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: const BorderSide(color: Colors.blue),
+              ),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close dialog without saving
+                Navigator.of(context).pop();
               },
-              style: AppStyles.textButtonStyle(),
               child: const Text('Anuluj', style: TextStyle(color: Colors.white)),
             ),
             ElevatedButton(
               onPressed: () {
                 final int newRemaining = int.parse(remainingController.text);
-                final int purchased = item['purchased'];
 
-                // Validate if remaining value is less than or equal to purchased value
-                if (newRemaining > purchased) {
+                if (newRemaining > item['purchased']) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Pozostałe nie może być większe niż kupione!')),
                   );
                 } else {
-                  _updateItem(item['id'], newRemaining); // Update the item
+                  _updateItem(item['id'], newRemaining, item['name'], item['metrics']);
                   Navigator.of(context).pop();
                 }
               },
-              style: AppStyles.buttonStyle().copyWith(
-                padding: MaterialStateProperty.all(const EdgeInsets.symmetric(horizontal: 20, vertical: 8)),
-                backgroundColor: MaterialStateProperty.all(Colors.blueAccent),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue, // Blue background for "Zapisz" button
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
               child: const Text('Zapisz', style: TextStyle(color: Colors.white)),
             ),
@@ -146,12 +152,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Update the item on the server
-  Future<void> _updateItem(int itemId, int newRemaining) async {
+  Future<void> _updateItem(int itemId, int newRemaining, String name, String metrics) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
+    int? placeId = prefs.getInt('placeId'); // Retrieve the placeId
 
-    if (token == null) return;
+    if (token == null || placeId == null) return;
 
     final response = await http.put(
       Uri.parse('http://10.0.2.2:5007/api/Item/$itemId'),
@@ -161,10 +167,11 @@ class _InventoryScreenState extends State<InventoryScreen> {
       },
       body: jsonEncode({
         'id': itemId,
-        'name': inventoryItems.firstWhere((item) => item['id'] == itemId)['name'],
+        'name': name, // Include the required Name field
         'quantityMax': inventoryItems.firstWhere((item) => item['id'] == itemId)['purchased'],
-        'metrics': 'some metrics', // Replace with actual metrics field
-        'quantityLeft': newRemaining, // Update this field with the new remaining value
+        'metrics': metrics, // Include the required Metrics field
+        'quantityLeft': newRemaining, // Only update the quantityLeft value
+        'placeId': placeId, // Add the placeId field
       }),
     );
 
@@ -172,7 +179,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Item updated successfully')),
       );
-      await _fetchInventoryItems(); // Re-fetch the inventory items automatically to refresh the UI
+      await _fetchInventoryItems(); // Refresh the inventory items after update
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to update item: ${response.body}')),
@@ -185,15 +192,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background
           Container(
             decoration: AppStyles.backgroundDecoration,
           ),
-          // Filter
           Container(
             color: AppStyles.filterColor.withOpacity(0.75),
           ),
-          // Main content with semi-transparent white background covering the entire screen
           Positioned(
             top: 0,
             left: 0,
@@ -201,7 +205,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
             bottom: 0,
             child: Column(
               children: [
-                // Full header background
                 Container(
                   color: AppStyles.transparentWhite,
                   width: double.infinity,
@@ -211,7 +214,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     style: AppStyles.headerStyle.copyWith(color: Colors.black, fontSize: 22),
                   ),
                 ),
-                // Search bar with background
                 Container(
                   color: AppStyles.transparentWhite,
                   padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
@@ -230,14 +232,13 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     ),
                   ),
                 ),
-                // Inventory list or loading/error state
                 Expanded(
                   child: Container(
                     color: AppStyles.transparentWhite,
                     child: _isLoading
-                        ? const Center(child: CircularProgressIndicator()) // Show loading indicator
+                        ? const Center(child: CircularProgressIndicator())
                         : _isError
-                            ? const Center(child: Text('Error fetching inventory items')) // Show error message
+                            ? const Center(child: Text('Error fetching inventory items'))
                             : ListView.builder(
                                 padding: const EdgeInsets.all(8),
                                 itemCount: filteredItems.length,
@@ -261,7 +262,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                               ),
                   ),
                 ),
-                // Bottom Navigation
                 BottomNavigation(
                   onTap: (_) {},
                 ),
