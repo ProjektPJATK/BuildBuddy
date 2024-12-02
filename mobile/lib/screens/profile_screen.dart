@@ -196,6 +196,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ? const Center(child: CircularProgressIndicator()) // Show loading indicator while loading
                     : SingleChildScrollView(
                         child: Container(
+                        
                           color: AppStyles.transparentWhite, // Semi-transparent white background
                           child: Column(
                             children: [
@@ -298,7 +299,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 20), // Space at the bottom
+                              const SizedBox(height: 30), // Space at the bottom
                             ],
                           ),
                         ),
