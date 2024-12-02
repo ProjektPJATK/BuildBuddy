@@ -91,6 +91,19 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Save teamId and placeId to SharedPreferences with console logs
+  Future<void> _saveSelectedTeam(int teamId, int placeId) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Save the teamId and placeId
+    await prefs.setInt('teamId', teamId);
+    await prefs.setInt('placeId', placeId);
+
+    // Console logs to debug
+    print('Saved teamId: $teamId');
+    print('Saved placeId: $placeId');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -153,9 +166,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                         final team = teams[index];
                                         return BuildOption(
                                           title: team['name'],
-                                          onTap: () {
+                                          onTap: () async {
+                                            // Save the selected team's data
+                                            await _saveSelectedTeam(team['id'], team['placeId']);
+
+                                            // Navigate to the next screen
                                             Navigator.pushNamed(context, '/construction_home', arguments: {
                                               'teamId': team['id'],
+                                              'placeId': team['placeId'],
                                             });
                                           },
                                         );

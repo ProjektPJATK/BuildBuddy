@@ -7,14 +7,16 @@ import '../app_state.dart' as appState;
 import '../styles.dart';
 import '../widgets/task_item.dart';
 
-class CalendarScreen extends StatefulWidget {
-  const CalendarScreen({super.key});
+class ConstructionCalendarScreen extends StatefulWidget {
+  const ConstructionCalendarScreen({super.key});
 
   @override
-  _CalendarScreenState createState() => _CalendarScreenState();
+  _ConstructionCalendarScreenState createState() =>
+      _ConstructionCalendarScreenState();
 }
 
-class _CalendarScreenState extends State<CalendarScreen> {
+class _ConstructionCalendarScreenState
+    extends State<ConstructionCalendarScreen> {
   DateTime? _selectedDay;
   DateTime _focusedDay = DateTime.now();
 
@@ -22,7 +24,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   final List<Map<String, dynamic>> _tasks = [
     {
       "id": 0,
-      "name": "Przywóz materiałów",
+      "name": "Piwo materiałów",
       "message": "Kurier przywiezie materiały na budowę.",
       "startTime": DateTime.parse("2024-12-02T10:00:00.000Z"),
       "endTime": DateTime.parse("2024-12-04T18:00:00.000Z"),
@@ -57,20 +59,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
     appState.currentPage = 'calendar'; // Set the current page to calendar
   }
 
-  // Filter tasks based on the selected day
-  List<Map<String, dynamic>> _getTasksForSelectedDay() {
-    return _tasks.where((task) {
+  // Get tasks for the selected day and sort by start time
+  List<Map<String, dynamic>> _getSortedTasksForSelectedDay() {
+    final tasksForDay = _tasks.where((task) {
       final start = task['startTime'] as DateTime;
       final end = task['endTime'] as DateTime;
       return _selectedDay != null &&
           _selectedDay!.isAfter(start.subtract(const Duration(days: 1))) &&
           _selectedDay!.isBefore(end.add(const Duration(days: 1)));
     }).toList();
+
+    // Sort tasks by start time
+    tasksForDay.sort((a, b) => (a['startTime'] as DateTime)
+        .compareTo(b['startTime'] as DateTime));
+
+    return tasksForDay;
   }
 
   @override
   Widget build(BuildContext context) {
-    final tasksForSelectedDay = _getTasksForSelectedDay();
+    final sortedTasksForSelectedDay = _getSortedTasksForSelectedDay();
 
     return Scaffold(
       body: Stack(
@@ -124,11 +132,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       _focusedDay = focusedDay;
                     },
                     calendarStyle: const CalendarStyle(
-                      defaultTextStyle: TextStyle(color: Colors.black, fontSize: 12),
-                      weekendTextStyle: TextStyle(color: Colors.black, fontSize: 12),
-                      outsideTextStyle: TextStyle(color: Colors.grey, fontSize: 12),
-                      todayTextStyle: TextStyle(color: Colors.white, fontSize: 12),
-                      selectedTextStyle: TextStyle(color: Colors.white, fontSize: 12),
+                      defaultTextStyle:
+                          TextStyle(color: Colors.black, fontSize: 12),
+                      weekendTextStyle:
+                          TextStyle(color: Colors.black, fontSize: 12),
+                      outsideTextStyle:
+                          TextStyle(color: Colors.grey, fontSize: 12),
+                      todayTextStyle:
+                          TextStyle(color: Colors.white, fontSize: 12),
+                      selectedTextStyle:
+                          TextStyle(color: Colors.white, fontSize: 12),
                       todayDecoration: BoxDecoration(
                         color: Colors.blueAccent,
                         shape: BoxShape.circle,
@@ -169,20 +182,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         ),
                         const SizedBox(height: 8),
                         Expanded(
-                          child: tasksForSelectedDay.isEmpty
+                          child: sortedTasksForSelectedDay.isEmpty
                               ? const Center(child: Text('Brak zadań na ten dzień.'))
                               : ListView.builder(
                                   padding: EdgeInsets.zero,
-                                  itemCount: tasksForSelectedDay.length,
+                                  itemCount: sortedTasksForSelectedDay.length,
                                   itemBuilder: (context, index) {
-                                    final task = tasksForSelectedDay[index];
+                                    final task = sortedTasksForSelectedDay[index];
                                     return TaskItem(
                                       title: task['name'],
                                       description: task['message'],
-                                      startTime: DateFormat('HH:mm').format(task['startTime']),
-                                      endTime: DateFormat('HH:mm').format(task['endTime']),
+                                      startTime: DateFormat('HH:mm')
+                                          .format(task['startTime']),
+                                      endTime: DateFormat('HH:mm')
+                                          .format(task['endTime']),
                                       createdBy: 'System', // Placeholder
-                                      taskDate: DateFormat('dd.MM.yyyy').format(task['startTime']),
+                                      taskDate: DateFormat('dd.MM.yyyy')
+                                          .format(task['startTime']),
                                     );
                                   },
                                 ),
