@@ -53,16 +53,5 @@ namespace Backend.Controller.Tasks
             await _taskService.DeleteTaskAsync(id);
             return NoContent();
         }
-        
-        [HttpGet("calendar/{calendarId}/tasks")]
-        public async Task<IActionResult> GetTasksByCalendarId(int calendarId)
-        {
-            var tasks = await _taskService.GetAllTasksByCalendarIdAsync(calendarId);
-            if (tasks == null || !tasks.Any())
-            {
-                return NotFound();
-            }
-            return Ok(tasks);
-        }
     }
 }

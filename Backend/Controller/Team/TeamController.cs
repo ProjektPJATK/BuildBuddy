@@ -68,22 +68,16 @@ namespace Backend.Controller.Team
             return NoContent();
         }
         
-        [HttpGet("{id}/teams")]
-        public async Task<ActionResult<IEnumerable<TeamDto>>> GetUserTeams(int id)
+        [HttpGet("{teamId}/users")]
+        public async Task<IActionResult> GetUsersByTeamId(int teamId)
         {
-            var teams = await _teamService.GetTeamsByUserId(id);
-
-            if (teams == null)
+            var users = await _teamService.GetUsersByTeamId(teamId);
+            if (users == null || !users.Any())
             {
-                return NotFound($"User with ID {id} does not exist.");
+                return NotFound($"No users found for team with ID {teamId}.");
             }
 
-            if (!teams.Any())
-            {
-                return NotFound($"User with ID {id} has no teams associated.");
-            }
-
-            return Ok(teams);
+            return Ok(users);
         }
     }
 }
