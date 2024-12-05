@@ -141,24 +141,21 @@ namespace Backend.Service.User
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<TeamDto>> GetUserTeamsAsync(int userId)
+        public async Task<List<TeamDto>> GetTeamsByUserId(int userId)
         {
-            var user = await _dbContext.Users
-                .Include(u => u.TeamUsers)
-                .ThenInclude(tu => tu.Team)
-                .FirstOrDefaultAsync(u => u.Id == userId);
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            return user.TeamUsers.Select(tu => new TeamDto
-            {
-                Id = tu.Team.Id,
-                Name = tu.Team.Name,
-            });
+            var teams = await _dbContext.Teams
+                .Where(t => _dbContext.Users
+                    .Any(u => u.Id == userId && u.TeamId == t.Id))
+                .Select(t => new TeamDto
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    PlaceId = t.PlaceId
+                })
+                .ToListAsync();
+            return teams;
         }
+        
         public string GenerateJwtToken(UserDto user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();

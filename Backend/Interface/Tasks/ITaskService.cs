@@ -9,5 +9,4 @@ public interface ITaskService
     Task<TaskDto> CreateTaskAsync(TaskDto conversationDto);
     Task UpdateTaskAsync(int id, TaskDto conversationDto);
     Task DeleteTaskAsync(int id);
-    Task<IEnumerable<TaskDto>> GetAllTasksByCalendarIdAsync(int calendarId);
 }

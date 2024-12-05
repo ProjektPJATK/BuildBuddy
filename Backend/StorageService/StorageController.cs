@@ -20,7 +20,7 @@ public class StorageController : ControllerBase
             return BadRequest("Bad file");
 
         var fileName = $"task-{taskId}/{Guid.NewGuid()}-{file.FileName}";
-        using var stream = file.OpenReadStream();
+        var stream = file.OpenReadStream();
         var imageUrl = await _s3Service.UploadImageAsync(stream, fileName);
 
         return Ok(new { Url = imageUrl });

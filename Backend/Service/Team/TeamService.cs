@@ -118,24 +118,19 @@ namespace Backend.Service.Team
             }
         }
 
-        public async Task<List<TeamDto>> GetTeamsByUserId(int userId)
+        public async Task<List<UserDto>> GetUsersByTeamId(int teamId)
         {
-            var userExists = await _dbContext.Users.AnyAsync(u => u.Id == userId);
-            if (!userExists)
-            {
-                return null;
-            }
-            var teams = await _dbContext.Teams
-                .Where(t => t.TeamUsers.Any(tu => tu.UserId == userId))
-                .Select(t => new TeamDto
+            var users = await _dbContext.Users
+                .Where(u => u.TeamUsers.Any(tu => tu.TeamId == teamId))
+                .Select(u => new UserDto
                 {
-                    Id = t.Id,
-                    Name = t.Name,
-                    PlaceId = t.PlaceId,
+                    Id = u.Id,
+                    Name = u.Name,
+                    Surname = u.Surname,
+                    Mail = u.Mail
                 })
                 .ToListAsync();
-
-            return teams;
+            return users;
         }
     }
 }

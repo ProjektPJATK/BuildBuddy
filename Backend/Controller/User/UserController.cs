@@ -64,7 +64,12 @@ namespace Backend.Controller.User
         [HttpGet("{id}/teams")]
         public async Task<ActionResult<IEnumerable<TeamDto>>> GetUserTeams(int id)
         {
-            var teams = await _userService.GetUserTeamsAsync(id);
+            var teams = await _userService.GetTeamsByUserId(id);
+            if (teams.Count == 0)
+            {
+                return NotFound($"No teams found for user with ID {id}.");
+            }
+
             return Ok(teams);
         }
         [HttpPost("register")]
