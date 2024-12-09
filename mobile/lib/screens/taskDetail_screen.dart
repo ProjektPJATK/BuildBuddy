@@ -1,8 +1,8 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../styles.dart'; // Import the AppStyles
+import 'package:carousel_slider/carousel_slider.dart';
+import '../styles.dart'; // Import your custom styles
 
 class TaskDetailScreen extends StatelessWidget {
   final String title;
@@ -30,28 +30,31 @@ class TaskDetailScreen extends StatelessWidget {
 
   void _showAddUpdateDialog(BuildContext context) {
     final TextEditingController komentarzController = TextEditingController();
-    XFile? selectedImage; // Store the selected image
+    List<XFile> selectedImages = []; // Store multiple images
 
-    void _selectImage() async {
+    Future<void> _selectImage() async {
       final ImagePicker picker = ImagePicker();
-      final XFile? pickedImage = await picker.pickImage(
-        source: ImageSource.gallery,
-      );
-      if (pickedImage != null) {
-        selectedImage = pickedImage;
+      final List<XFile>? pickedImages = await picker.pickMultiImage();
+      if (pickedImages != null) {
+        selectedImages.addAll(pickedImages);
         (context as Element).markNeedsBuild(); // Refresh the widget
       }
     }
 
-    void _takePhoto() async {
+    Future<void> _takePhoto() async {
       final ImagePicker picker = ImagePicker();
       final XFile? pickedImage = await picker.pickImage(
         source: ImageSource.camera,
       );
       if (pickedImage != null) {
-        selectedImage = pickedImage;
+        selectedImages.add(pickedImage);
         (context as Element).markNeedsBuild(); // Refresh the widget
       }
+    }
+
+    void _removeImage(int index) {
+      selectedImages.removeAt(index);
+      (context as Element).markNeedsBuild(); // Refresh the widget
     }
 
     void _showImageDialog(BuildContext context, String imagePath) {
@@ -90,16 +93,43 @@ class TaskDetailScreen extends StatelessWidget {
                       decoration: AppStyles.inputFieldStyle(hintText: 'Dodaj komentarz'),
                     ),
                     const SizedBox(height: 10),
-                    // Display selected image miniature
-                    if (selectedImage != null)
-                      GestureDetector(
-                        onTap: () => _showImageDialog(context, selectedImage!.path),
-                        child: Image.file(
-                          File(selectedImage!.path),
-                          height: 100,
-                          width: 100,
-                          fit: BoxFit.cover,
+                    if (selectedImages.isNotEmpty)
+                      CarouselSlider(
+                        options: CarouselOptions(
+                          height: 200,
+                          enableInfiniteScroll: false,
+                          enlargeCenterPage: true,
                         ),
+                        items: selectedImages.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          XFile image = entry.value;
+
+                          return Stack(
+                            children: [
+                              GestureDetector(
+                                onTap: () => _showImageDialog(context, image.path),
+                                child: Image.file(
+                                  File(image.path),
+                                  height: 200,
+                                  width: 200,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Positioned(
+                                top: -10,
+                                right: -10,
+                                child: IconButton(
+                                  icon: const Icon(Icons.close, color: Colors.white),
+                                  onPressed: () {
+                                    setState(() {
+                                      _removeImage(index);
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          );
+                        }).toList(),
                       ),
                     const SizedBox(height: 10),
                     Row(
@@ -107,34 +137,22 @@ class TaskDetailScreen extends StatelessWidget {
                       children: [
                         ElevatedButton(
                           onPressed: () async {
-                            final picker = ImagePicker();
-                            final XFile? image =
-                                await picker.pickImage(source: ImageSource.gallery);
-                            if (image != null) {
-                              setState(() {
-                                selectedImage = image;
-                              });
-                            }
+                            await _selectImage();
+                            setState(() {}); // Refresh UI
                           },
                           style: AppStyles.buttonStyle().copyWith(
                             padding: MaterialStateProperty.all(
                                 const EdgeInsets.symmetric(horizontal: 10, vertical: 5)),
                           ),
                           child: const Text(
-                            'Dodaj Zdjęcie',
+                            'Dodaj Zdjęcia',
                             style: TextStyle(fontSize: 12, color: Colors.white),
                           ),
                         ),
                         ElevatedButton(
                           onPressed: () async {
-                            final picker = ImagePicker();
-                            final XFile? photo =
-                                await picker.pickImage(source: ImageSource.camera);
-                            if (photo != null) {
-                              setState(() {
-                                selectedImage = photo;
-                              });
-                            }
+                            await _takePhoto();
+                            setState(() {}); // Refresh UI
                           },
                           style: AppStyles.buttonStyle().copyWith(
                             padding: MaterialStateProperty.all(
@@ -160,11 +178,11 @@ class TaskDetailScreen extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    if (komentarzController.text.isNotEmpty || selectedImage != null) {
+                    if (komentarzController.text.isNotEmpty || selectedImages.isNotEmpty) {
                       // Add your logic to handle komentarz and image upload
                       print('Komentarz: ${komentarzController.text}');
-                      if (selectedImage != null) {
-                        print('Image Path: ${selectedImage!.path}');
+                      for (var image in selectedImages) {
+                        print('Image Path: ${image.path}');
                       }
                       Navigator.of(context).pop(); // Close the dialog after saving
                     } else {
@@ -273,9 +291,9 @@ class TaskDetailScreen extends StatelessWidget {
                             ],
                             if (komentarz.isNotEmpty) ...[
                               const SizedBox(height: 16),
-                              Text(
+                              const Text(
                                 'Komentarz:',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
