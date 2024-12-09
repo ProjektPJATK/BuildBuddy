@@ -3,6 +3,7 @@ import 'employees_screen.dart';
 import 'projects_screens.dart';
 import 'reports_screens.dart';
 import 'tasks_screen.dart';
+import 'settings_screen.dart'; // Dodaj import dla ekranu ustawień
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -41,7 +42,10 @@ class HomeScreen extends StatelessWidget {
                         IconButton(
                           icon: Icon(Icons.settings, color: Colors.white, size: 32),
                           onPressed: () {
-                            // Navigation to settings screen if required
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => SettingsScreen()),
+                            );
                           },
                         ),
                         IconButton(
