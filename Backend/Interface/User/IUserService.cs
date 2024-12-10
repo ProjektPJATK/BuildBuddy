@@ -11,6 +11,6 @@ public interface IUserService
     Task UpdateUserAsync(int userId, UserDto userDto);
     Task DeleteUserAsync(int userId);
     Task<IEnumerable<ConversationDto>> GetUserConversationsAsync(int userId);
-    Task<IEnumerable<TeamDto>> GetUserTeamsAsync(int userId);
+    Task<List<TeamDto>> GetTeamsByUserId(int userId);
     string GenerateJwtToken(UserDto user);
 }

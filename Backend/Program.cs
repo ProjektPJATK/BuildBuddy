@@ -5,7 +5,6 @@ using Backend.Interface.Tasks;
 using Backend.Interface.Team;
 using Backend.Interface.User;
 using Backend.Model;
-using Backend.Service.Calendar;
 using Backend.Service.Tasks;
 using Backend.Service.Team;
 using Backend.Service.User;
@@ -77,7 +76,6 @@ builder.Services.AddAuthentication(options =>
 });
  
 builder.Services.AddScoped<IItemService, ItemService>();
-builder.Services.AddScoped<ICalendarService, CalendarService>();
 builder.Services.AddScoped<ITaskActualizationService, TaskActualizationService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IPlaceService, PlaceService>();
