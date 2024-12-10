@@ -7,8 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.3"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BuildBuddy.Application.Abstractions\BuildBuddy.Application.Abstractions.csproj" />
+      <ProjectReference Include="..\BuildBuddy.Application\BuildBuddy.Application.csproj" />
     </ItemGroup>
 
 </Project>

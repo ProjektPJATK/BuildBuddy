@@ -1,6 +1,0 @@
-@BuildBuddy.WebApi_HostAddress = http://localhost:5159
-
-GET {{BuildBuddy.WebApi_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

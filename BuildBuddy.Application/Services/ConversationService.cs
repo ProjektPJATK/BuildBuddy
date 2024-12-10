@@ -57,10 +57,9 @@ public class ConversationService : IConversationService
     
     public async Task<List<ConversationDto>> GetAllConversationsAsync()
     {
-        var conversations = await _context.Conversations
-            .Include(c => c.UserConversations)
-            .ThenInclude(uc => uc.User)
-            .ToListAsync();
+        var conversations = await _context.Conversations.GetAsync(
+            includeProperties: "UserConversations.User"
+        );
 
         return conversations.Select(c => new ConversationDto
         {
@@ -83,19 +82,21 @@ public class ConversationService : IConversationService
 
     public async Task<ConversationDto> GetConversationByIdAsync(int conversationId)
     {
-        var conversation = await _context.Conversations
-            .Include(c => c.UserConversations)
-            .ThenInclude(uc => uc.User)
-            .FirstOrDefaultAsync(c => c.Id == conversationId);
+        var conversation = await _context.Conversations.GetAsync(
+            filter: c => c.Id == conversationId,
+            includeProperties: "UserConversations.User"
+        );
+
+        var entity = conversation.FirstOrDefault();
 
         if (conversation == null) return null;
 
         return new ConversationDto
         {
-            Id = conversation.Id,
-            Name = conversation.Name,
-            TeamId = conversation.TeamId,
-            Users = conversation.UserConversations.Select(uc => new UserDto
+            Id = entity.Id,
+            Name = entity.Name,
+            TeamId = entity.TeamId,
+            Users = entity.UserConversations.Select(uc => new UserDto
             {
                 Id = uc.User.Id,
                 Name = uc.User.Name,
