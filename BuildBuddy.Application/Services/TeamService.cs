@@ -83,10 +83,10 @@ namespace BuildBuddy.Application.Services
 
         public async Task AddUserToTeamAsync(int teamId, int userId)
         {
-            var team = await _dbContext.Teams.GetWithIncludesAsync(
-                t => t.Id == teamId,
-                t => t.TeamUsers
-            );
+            var team = (await _dbContext.Teams.GetAsync(
+                filter: t => t.Id == teamId,
+                includeProperties: "TeamUsers"
+            )).FirstOrDefault();
 
             if (team != null && !team.TeamUsers.Any(tu => tu.UserId == userId))
             {
@@ -102,10 +102,10 @@ namespace BuildBuddy.Application.Services
 
         public async Task RemoveUserFromTeamAsync(int teamId, int userId)
         {
-            var team = await _dbContext.Teams.GetWithIncludesAsync(
-                t => t.Id == teamId,
-                t => t.TeamUsers
-            );
+            var team = (await _dbContext.Teams.GetAsync(
+                filter: t => t.Id == teamId,
+                includeProperties: "TeamUser"
+                )).FirstOrDefault();
 
             var teamUser = team?.TeamUsers.FirstOrDefault(tu => tu.UserId == userId);
             if (teamUser != null)
@@ -117,16 +117,19 @@ namespace BuildBuddy.Application.Services
 
         public async Task<List<UserDto>> GetUsersByTeamId(int teamId)
         {
-            var users = await _dbContext.Teams.GetRelatedEntitiesAsync<TeamUser, UserDto>(
-                tu => tu.TeamId == teamId,
-                u => new UserDto
+            var users = await _dbContext.TeamUsers.GetAsync(
+                filter: tu => tu.TeamId == teamId,
+                mapper: tu => new UserDto
                 {
-                    Id = u.User.Id,
-                    Name = u.User.Name,
-                    Surname = u.User.Surname,
-                    Mail = u.User.Mail
-                }
-            );
+                    Id = tu.User.Id,
+                    Name = tu.User.Name,
+                    Surname = tu.User.Surname,
+                    Mail = tu.User.Mail,
+                    TelephoneNr = tu.User.TelephoneNr,
+                    UserImageUrl = tu.User.UserImageUrl,
+                    PreferredLanguage = tu.User.PreferredLanguage
+                },
+                includeProperties:"User");
             return users;
         }
     }

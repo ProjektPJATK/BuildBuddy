@@ -55,52 +55,6 @@ internal class MainRepository<TEntity, TId> : IRepository<TEntity, TId> where TE
             return _dbSet.FindAsync(id);
         }
         
-        public async Task<TEntity?> GetWithIncludesAsync<TInclude>(
-            Expression<Func<TEntity, bool>> filter,
-            Expression<Func<TEntity, TInclude>> include)
-        {
-            return await _dbSet
-                .Include(include)
-                .FirstOrDefaultAsync(filter);
-        }
-
-        public async Task<List<TDto>> GetRelatedEntitiesAsync<TJoinEntity, TDto>(
-            Expression<Func<TJoinEntity, bool>> filter,
-            Expression<Func<TJoinEntity, TDto>> mapper)
-            where TJoinEntity : class, IHaveId<int> 
-        {
-            return await _dbContext.Set<TJoinEntity>()
-                .Where(filter)
-                .Select(mapper)
-                .ToListAsync();
-        }
-        
-        public async Task<List<TDto>> GetRelatedEntitiesAsync<TSource, TTarget, TDto>(
-            Expression<Func<TSource, bool>> filterSource, 
-            Expression<Func<TSource, TTarget, bool>> relationCondition, 
-            Expression<Func<TSource, TDto>> mapper)
-            where TSource : class
-            where TTarget : class
-        {
-            return await _dbContext.Set<TSource>()
-                .Where(filterSource)
-                .Where(source =>
-                    _dbContext.Set<TTarget>().Any(target => relationCondition.Compile().Invoke(source, target)))
-                .Select(mapper)
-                .ToListAsync();
-        }
-
-        public async Task<TDto?> GetByFieldAsync<TDto>(
-            Expression<Func<TEntity, bool>> filter,
-            Expression<Func<TEntity, TDto>> mapper)
-        {
-            return await _dbSet
-                .Where(filter)
-                .Select(mapper)
-                .FirstOrDefaultAsync();
-        }
-        
-        
         
         public virtual void Insert(TEntity entity)
         {

@@ -39,12 +39,12 @@ namespace BuildBuddy.Application.Services
                 TelephoneNr = user.TelephoneNr,
                 UserImageUrl = user.UserImageUrl,
                 PreferredLanguage = user.PreferredLanguage,
-                TeamId = user.TeamId
+                //TeamId = user.TeamId
             };
         }
         public async Task<UserDto?> GetUserByEmailAsync(string email)
         {
-            return await _dbContext.Users.GetByFieldAsync(
+            var result = (await _dbContext.Users.GetAsync(
                 filter: u => u.Mail == email,
                 mapper: user => new UserDto
                 {
@@ -56,8 +56,8 @@ namespace BuildBuddy.Application.Services
                     Password = user.Password,
                     UserImageUrl = user.UserImageUrl,
                     PreferredLanguage = user.PreferredLanguage,
-                    TeamId = user.TeamId
-                });
+                })).FirstOrDefault();
+            return result;
         }
         
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
@@ -73,7 +73,7 @@ namespace BuildBuddy.Application.Services
                     TelephoneNr = user.TelephoneNr,
                     UserImageUrl = user.UserImageUrl,
                     PreferredLanguage = user.PreferredLanguage,
-                    TeamId = user.TeamId
+                    //TeamId = user.TeamId
                 });
         }
 
@@ -88,7 +88,7 @@ namespace BuildBuddy.Application.Services
                 Password = userDto.Password,
                 UserImageUrl = userDto.UserImageUrl,
                 PreferredLanguage = userDto.PreferredLanguage,
-                TeamId = userDto.TeamId
+                //TeamId = userDto.TeamId
             };
 
             _dbContext.Users.Insert(user);
@@ -111,7 +111,7 @@ namespace BuildBuddy.Application.Services
                 user.Password = userDto.Password;
                 user.UserImageUrl = userDto.UserImageUrl;
                 user.PreferredLanguage = userDto.PreferredLanguage;
-                user.TeamId = userDto.TeamId;
+                //user.TeamId = userDto.TeamId;
 
                 await _dbContext.SaveChangesAsync();
             }
@@ -129,29 +129,44 @@ namespace BuildBuddy.Application.Services
 
         public async Task<IEnumerable<ConversationDto>> GetUserConversationsAsync(int userId)
         {
-            return await _dbContext.UserConversations.GetRelatedEntitiesAsync<UserConversation, ConversationDto>(
-                uc => uc.UserId == userId,
-                uc => new ConversationDto
+            return await _dbContext.UserConversations.GetAsync(
+                mapper: uc => new ConversationDto
                 {
                     Id = uc.Conversation.Id,
                     Name = uc.Conversation.Name
-                }
-            );
+                },
+                filter: uc => uc.UserId == userId,
+                includeProperties: "Conversation");
         }
 
         public async Task<List<TeamDto>> GetTeamsByUserId(int userId)
         {
-            var teams = await _dbContext.Teams.GetRelatedEntitiesAsync<Team, User, TeamDto>(
-                filterSource: t => true,
-                relationCondition: (t, u) => u.Id == userId && u.TeamId == t.Id,
-                mapper: t => new TeamDto
+            var teams = await _dbContext.TeamUsers.GetAsync(
+                mapper: tu => new TeamDto
                 {
-                    Id = t.Id,
-                    Name = t.Name,
-                    PlaceId = t.PlaceId
-                });
-            return teams;
+                    Id = tu.Team.Id,
+                    Name = tu.Team.Name,
+                    PlaceId = tu.Team.PlaceId
+                },
+                filter: tu => tu.UserId == userId,
+                includeProperties: "Team" 
+            );
+            return teams; 
         }
+
+        // public async Task<List<TeamDto>> GetTeamsByUserId(int userId)
+        // {
+        //     var teams = await _dbContext.Teams.GetRelatedEntitiesAsync<Team, User, TeamDto>(
+        //         filterSource: t => true,
+        //         //relationCondition: (t, u) => u.Id == userId && u.TeamId == t.Id,
+        //         mapper: t => new TeamDto
+        //         {
+        //             Id = t.Id,
+        //             Name = t.Name,
+        //             PlaceId = t.PlaceId
+        //         });
+        //     return teams;
+        // }
         
         public string GenerateJwtToken(UserDto user)
         {

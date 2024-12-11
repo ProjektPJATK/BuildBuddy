@@ -9,6 +9,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBuildBuddyApp(this IServiceCollection services, string connectionString)
     {
         services.AddScoped<IItemService, ItemService>()
+            .AddScoped<IConversationService, ConversationService>()
             .AddScoped<ITaskActualizationService, TaskActualizationService>()
             .AddScoped<ITaskService, TaskService>()
             .AddScoped<IPlaceService, PlaceService>()
