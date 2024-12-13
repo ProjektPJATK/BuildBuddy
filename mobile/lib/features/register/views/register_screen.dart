@@ -7,7 +7,6 @@ import '../bloc/register_bloc.dart';
 import '../bloc/register_event.dart';
 import '../bloc/register_state.dart';
 
-
 class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -22,7 +21,13 @@ class RegisterScreen extends StatelessWidget {
             Navigator.pop(context);
           } else if (state is RegisterFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error)),
+              SnackBar(
+                content: Text(
+                  state.error,
+                  style: const TextStyle(color: Colors.red),
+                ),
+                duration: const Duration(seconds: 3),
+              ),
             );
           }
         },
@@ -75,7 +80,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           controller: _nameController,
                           labelText: 'Imię',
                           validator: (value) => value == null || value.isEmpty
-                              ? 'To pole jest wymagane'
+                              ? 'Imię jest wymagane. Proszę podać swoje imię.'
                               : null,
                         ),
                         const SizedBox(height: 12),
@@ -83,7 +88,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           controller: _surnameController,
                           labelText: 'Nazwisko',
                           validator: (value) => value == null || value.isEmpty
-                              ? 'To pole jest wymagane'
+                              ? 'Nazwisko jest wymagane.'
                               : null,
                         ),
                         const SizedBox(height: 12),
@@ -93,10 +98,10 @@ class _RegisterFormState extends State<RegisterForm> {
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'To pole jest wymagane';
+                              return 'Adres e-mail jest wymagany.';
                             }
                             if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                              return 'Niepoprawny adres e-mail';
+                              return 'Niepoprawny adres e-mail.';
                             }
                             return null;
                           },
@@ -116,9 +121,14 @@ class _RegisterFormState extends State<RegisterForm> {
                           controller: _passwordController,
                           labelText: 'Hasło',
                           obscureText: true,
-                          validator: (value) => value != null && value.length < 8
-                              ? 'Hasło musi mieć co najmniej 8 znaków'
-                              : null,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Hasło jest wymagane.';
+                            } else if (value.length < 8) {
+                              return 'Hasło musi zawierać co najmniej 8 znaków.';
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 12),
                         StyledTextField(
@@ -127,10 +137,10 @@ class _RegisterFormState extends State<RegisterForm> {
                           obscureText: true,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'To pole jest wymagane';
+                              return 'To pole jest wymagane.';
                             }
                             if (value != _passwordController.text) {
-                              return 'Hasła muszą być takie same';
+                              return 'Hasła muszą być takie same.';
                             }
                             return null;
                           },
@@ -142,7 +152,11 @@ class _RegisterFormState extends State<RegisterForm> {
                   BlocBuilder<RegisterBloc, RegisterState>(
                     builder: (context, state) {
                       if (state is RegisterLoading) {
-                        return const CircularProgressIndicator();
+                        return Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(AppStyles.primaryBlue),
+                          ),
+                        );
                       }
                       return ElevatedButton(
                         style: AppStyles.buttonStyle(),
@@ -164,7 +178,10 @@ class _RegisterFormState extends State<RegisterForm> {
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Masz już konto? Zaloguj się'),
+                    child: const Text(
+                      'Masz już konto? Zaloguj się',
+                      style: AppStyles.linkTextStyle,
+                    ),
                   ),
                 ],
               ),

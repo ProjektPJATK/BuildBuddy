@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\BuildBuddy.Storage.Repository.props" />
+</Project>

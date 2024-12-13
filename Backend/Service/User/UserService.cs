@@ -90,7 +90,7 @@ namespace Backend.Service.User
                 Password = userDto.Password,
                 UserImageUrl = userDto.UserImageUrl,
                 PreferredLanguage = userDto.PreferredLanguage,
-                TeamId = userDto.TeamId
+                //TeamId = userDto.TeamId
             };
 
             _dbContext.Users.Add(user);

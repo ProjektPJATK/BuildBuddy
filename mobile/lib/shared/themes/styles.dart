@@ -90,4 +90,15 @@ class AppStyles {
     fontSize: 24,
     fontWeight: FontWeight.bold,
   );
+
+
+  
+ 
+
+  // Link style for "Masz już konto? Zaloguj się" or similar text links
+  static const TextStyle linkTextStyle = TextStyle(
+    color: Colors.white, // Set text color to blue
+    fontWeight: FontWeight.bold,
+    fontSize: 14,
+  );
 }

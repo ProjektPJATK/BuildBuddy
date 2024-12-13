@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class RegisterService {
-  static const String backendIP = "10.0.2.2";
-  static const String backendPort = "5007";
+  static const String backendIP = "10.0.2.2"; // Emulator IP
+  static const String backendPort = "5159";
 
   static Future<bool> registerUser({
     required String name,
@@ -28,12 +28,32 @@ class RegisterService {
           "mail": email,
           "telephoneNr": telephoneNr,
           "password": password,
-          "userImageUrl": "string",
-          "teamId": 0,
+          "userImageUrl": "placeholder_image_url", // Placeholder for image
+          "preferredLanguage": "en", // Placeholder for language
         }),
       );
 
-      return response.statusCode == 200 || response.statusCode == 201;
+      // Debugging: Log response details
+      print('Request URL: $url');
+      print('Request Body: ${jsonEncode({
+        "id": 0,
+        "name": name,
+        "surname": surname,
+        "mail": email,
+        "telephoneNr": telephoneNr,
+        "password": password,
+        "userImageUrl": "placeholder_image_url",
+        "preferredLanguage": "en",
+      })}');
+      print('Response Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      } else {
+        print('Registration failed: ${response.body}');
+        return false;
+      }
     } catch (e) {
       print('Error during registration: $e');
       return false;
