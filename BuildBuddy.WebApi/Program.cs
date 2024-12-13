@@ -1,19 +1,19 @@
-﻿using System.Text;
-using Backend.DbContext;
-using Backend.Interface.Tasks;
-using Backend.Interface.Team;
-using Backend.Interface.User;
-using Backend.Service.Tasks;
-using Backend.Service.Team;
-using Backend.Service.User;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
+using BuildBuddy.Application;
+using BuildBuddy.Application.Abstractions;
+using BuildBuddy.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var configuration = builder.Configuration;
+
+
+
+builder.Services.AddBuildBuddyApp(configuration);
 
 builder.Services.AddCors(options =>
 {
@@ -27,8 +27,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -72,13 +70,6 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
     };
 });
- 
-builder.Services.AddScoped<IItemService, ItemService>();
-builder.Services.AddScoped<ITaskActualizationService, TaskActualizationService>();
-builder.Services.AddScoped<ITaskService, TaskService>();
-builder.Services.AddScoped<IPlaceService, PlaceService>();
-builder.Services.AddScoped<ITeamService, TeamService>();
-builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
@@ -97,5 +88,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.Urls.Add("http://*:5007");
+//app.Urls.Add("http://*:5007");
 app.Run();
