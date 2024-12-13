@@ -11,4 +11,5 @@ public interface IRepository<TEntity, TId> where TEntity : class
     ValueTask<TEntity?> GetByID(TId id);
     void Insert(TEntity entity);
     void Update(TEntity entityToUpdate);
+    Task SaveMessageAsync(TEntity message);
 }

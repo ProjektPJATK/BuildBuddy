@@ -16,6 +16,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<IPlaceService, PlaceService>()
             .AddScoped<ITeamService, TeamService>()
             .AddScoped<IUserService, UserService>()
+            .AddScoped<IChatService, ChatService>()
             .AddBuildBuddyData(configuration)
             .AddStorageServices(configuration);
         return services;

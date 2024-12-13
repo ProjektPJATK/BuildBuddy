@@ -75,7 +75,6 @@ public class ConversationService : IConversationService
                 TelephoneNr = uc.User.TelephoneNr,
                 UserImageUrl = uc.User.UserImageUrl,
                 PreferredLanguage = uc.User.PreferredLanguage,
-                //TeamId = uc.User.TeamId
             }).ToList()
         }).ToList();
     }
@@ -105,7 +104,6 @@ public class ConversationService : IConversationService
                 TelephoneNr = uc.User.TelephoneNr,
                 UserImageUrl = uc.User.UserImageUrl,
                 PreferredLanguage = uc.User.PreferredLanguage,
-                //TeamId = uc.User.TeamId
             }).ToList()
         };
     }
