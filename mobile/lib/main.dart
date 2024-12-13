@@ -15,7 +15,9 @@ import 'package:mobile/features/construction_team/views/team_screen.dart';
 import 'package:mobile/features/home/bloc/home_bloc.dart';
 import 'package:mobile/features/home/services/home_service.dart';
 import 'package:mobile/features/home/views/home_screen.dart';
-import 'package:mobile/features/localization/language_provider.dart';
+import 'package:mobile/features/profile/bloc/profile_bloc.dart';
+import 'package:mobile/features/profile/services/user_service.dart';
+import 'package:mobile/shared/localization/language_provider.dart';
 import 'package:mobile/features/login/services/login_service.dart';
 import 'package:mobile/features/login/views/login_screen.dart';
 import 'package:mobile/features/profile/views/user_profile_screen.dart';
@@ -45,9 +47,12 @@ void main() {
         BlocProvider<CalendarBloc>(
           create: (context) => CalendarBloc(calendarService: calendarService),
         ),
-         BlocProvider<HomeBloc>(
+        BlocProvider<HomeBloc>(
           create: (context) => HomeBloc(homeService:HomeService()),
-         ),
+        ),
+        BlocProvider<ProfileBloc>(
+          create: (context) => ProfileBloc(UserService()),
+        ),
       ],
       child: const BuildBuddyApp(),
     ),

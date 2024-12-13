@@ -1,0 +1,24 @@
+{
+  "Version": 1,
+  "Hash": "MoEY7yuNxu89HU+REbrsGQI6+y402aV1VpURm947ovw=",
+  "Source": "BuildBuddy.Application.Abstractions",
+  "BasePath": "_content/BuildBuddy.Application.Abstractions",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Contract\\BuildBuddy.Contract.csproj",
+      "Version": 2,
+      "Source": "BuildBuddy.Contract",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
