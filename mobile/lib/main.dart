@@ -25,29 +25,30 @@ import 'shared/themes/styles.dart';
 
 void main() {
   final languageProvider = LanguageProvider();
-  // Stwórz instancje wymaganych serwisów
   final loginService = LoginService();
   final inventoryService = InventoryService();
   final calendarService = CalendarService();
+  final homeService = HomeService();
 
   runApp(
     MultiBlocProvider(
       providers: [
-        // Rejestracja LoginBloc
+        // LoginBloc for managing login state
         BlocProvider<LoginBloc>(
           create: (context) => LoginBloc(loginService: loginService),
         ),
-        // Rejestracja InventoryBloc
+        // InventoryBloc for managing inventory state
         BlocProvider<InventoryBloc>(
           create: (context) => InventoryBloc(inventoryService: inventoryService),
         ),
-        // Rejestracja CalendarBloc
+        // CalendarBloc for calendar-related functionality
         BlocProvider<CalendarBloc>(
           create: (context) => CalendarBloc(calendarService: calendarService),
         ),
-         BlocProvider<HomeBloc>(
-          create: (context) => HomeBloc(homeService:HomeService()),
-         ),
+        // HomeBloc for managing the home screen's state
+        BlocProvider<HomeBloc>(
+          create: (context) => HomeBloc(homeService: homeService),
+        ),
       ],
       child: const BuildBuddyApp(),
     ),
@@ -60,12 +61,12 @@ class BuildBuddyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: '/', // Start at the SplashScreen
+      initialRoute: '/', // Start with the Login Screen
       routes: {
-        '/': (context) => const LoginScreen(), // Show splash screen first
+        '/': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
         '/chats': (context) => ChatListScreen(),
-        '/calendar': (context) => const CalendarScreen(), // Calendar screen
+        '/calendar': (context) => const CalendarScreen(),
         '/profile': (context) => const UserProfileScreen(),
         '/new_message': (context) => NewMessageScreen(),
         '/construction_home': (context) => ConstructionHomeScreen(),
@@ -77,45 +78,11 @@ class BuildBuddyApp extends StatelessWidget {
       },
       theme: ThemeData(
         primaryColor: AppStyles.primaryBlue,
-        // Set a global cursor color for all TextFields in the app
         textSelectionTheme: const TextSelectionThemeData(
-          cursorColor: AppStyles.primaryBlue, // Set the cursor color globally
-          selectionHandleColor: Color.fromARGB(255, 39, 177, 241),
+          cursorColor: AppStyles.primaryBlue, // Set global cursor color
+          selectionHandleColor: Color.fromARGB(255, 39, 177, 241), // Handle color
         ),
       ),
     );
   }
 }
-
-
-// przyklad uzycia jezyka
-//   import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-// import 'language_provider.dart';
-
-// class LoginScreen extends StatelessWidget {
-//   const LoginScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final languageProvider = Provider.of<LanguageProvider>(context);
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(languageProvider.translate('login')),
-//       ),
-//       body: Center(
-//         child: Text(languageProvider.translate('hello')),
-//       ),
-//     );
-//   }
-// }
-// przelaczanie
-// IconButton(
-//   icon: const Icon(Icons.language),
-//   onPressed: () {
-//     final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
-//     final newLang = languageProvider.currentLanguage == 'en' ? 'pl' : 'en';
-//     languageProvider.setLanguage(newLang);
-//   },
-// ),

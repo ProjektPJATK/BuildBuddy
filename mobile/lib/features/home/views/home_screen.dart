@@ -40,6 +40,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void dispose() {
+    _clearPlaceIdCache();
+    super.dispose();
+  }
+
+  Future<void> _clearPlaceIdCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('placeId');
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -126,6 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       final team = teams[index];
                       return BuildOption(
                         title: team['name'],
+                        placeId: team['placeId'], // Pass placeId
                         onTap: () {
                           Navigator.pushNamed(
                             context,

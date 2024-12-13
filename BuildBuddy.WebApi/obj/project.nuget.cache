@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "037EZjs3VC4=",
+  "dgSpecHash": "kwdh1pSOMq4=",
   "success": true,
-  "projectFilePath": "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.WebApi\\BuildBuddy.WebApi.csproj",
+  "projectFilePath": "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.webapi\\BuildBuddy.WebApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\igor0\\.nuget\\packages\\awssdk.core\\3.7.400.62\\awssdk.core.3.7.400.62.nupkg.sha512",
     "C:\\Users\\igor0\\.nuget\\packages\\awssdk.extensions.netcore.setup\\3.7.301\\awssdk.extensions.netcore.setup.3.7.301.nupkg.sha512",

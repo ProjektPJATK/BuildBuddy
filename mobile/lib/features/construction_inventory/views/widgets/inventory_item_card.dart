@@ -21,7 +21,7 @@ class InventoryItemCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
         title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('Zakupione: $purchased | Pozostałe: $remaining'),
+        subtitle: Text('Purchased: $purchased | Remaining: $remaining'),
         trailing: IconButton(
           icon: const Icon(Icons.edit),
           onPressed: onEdit,

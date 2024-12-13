@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/features/construction_inventory/views/widgets/edit_item_dialog.dart';
 import 'package:mobile/features/construction_inventory/views/widgets/inventory_item_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../blocs/inventory_bloc.dart';
 import '../blocs/inventory_event.dart';
 import '../blocs/inventory_state.dart';
+import '../models/inventory_item_model.dart';
 import '../../../shared/widgets/bottom_navigation.dart';
 import '../../../shared/themes/styles.dart';
-import '../../../shared/state/app_state.dart' as appState;
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -22,23 +23,53 @@ class _InventoryScreenState extends State<InventoryScreen> {
   @override
   void initState() {
     super.initState();
-    appState.currentPage = 'construction_inventory';
     _loadInventory();
   }
 
   void _loadInventory() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-    final placeId = prefs.getInt('placeId');
+    final placeIdString = prefs.getString('placeId'); // Retrieve as String
 
-    if (token != null && placeId != null) {
-      context.read<InventoryBloc>().add(LoadInventoryEvent(token: token, placeId: placeId));
+    if (token != null && placeIdString != null) {
+      final placeId = int.tryParse(placeIdString); // Convert to int
+      if (placeId != null) {
+        context.read<InventoryBloc>().add(
+              LoadInventoryEvent(token: token, placeId: placeId),
+            );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid place ID in cache')),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Authentication error')),
+        const SnackBar(content: Text('Failed to load inventory: Missing data')),
       );
     }
   }
+
+  void _showEditItemDialog(BuildContext context, InventoryItemModel item) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return EditItemDialog(
+        remaining: item.remaining,
+        purchased: item.purchased,
+        onSave: (newRemaining) {
+          print('New remaining quantity: $newRemaining');
+          context.read<InventoryBloc>().add(
+                UpdateInventoryItemEvent(
+                  itemId: item.id,
+                  newRemaining: newRemaining,
+                ),
+              );
+        },
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -52,28 +83,28 @@ class _InventoryScreenState extends State<InventoryScreen> {
               Container(
                 color: AppStyles.transparentWhite,
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16.0),
-                child: Text(
-                  'Inwentarz budowy',
-                  style: AppStyles.headerStyle.copyWith(color: Colors.black, fontSize: 22),
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: const Text(
+                  'Inventory',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
                 ),
               ),
-              Container(
+              Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: TextField(
                   controller: _searchController,
                   onChanged: (query) {
-                    context.read<InventoryBloc>().add(FilterInventoryEvent(query: query));
+                    context
+                        .read<InventoryBloc>()
+                        .add(FilterInventoryEvent(query: query));
                   },
                   decoration: InputDecoration(
-                    hintText: 'Wyszukaj przedmioty...',
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.9),
+                    hintText: 'Search items...',
+                    prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25),
-                      borderSide: BorderSide.none,
                     ),
-                    prefixIcon: const Icon(Icons.search),
                   ),
                 ),
               ),
@@ -94,26 +125,28 @@ class _InventoryScreenState extends State<InventoryScreen> {
                             purchased: item.purchased,
                             remaining: item.remaining,
                             onEdit: () {
-                              context.read<InventoryBloc>().add(
-                                    UpdateInventoryEvent(
-                                      itemId: item.id,
-                                      newRemaining: item.remaining - 1, // Przykład
-                                    ),
-                                  );
+                              _showEditItemDialog(context, item);
                             },
                           );
                         },
                       );
-                    } else {
-                      return const Center(child: Text('No items available.'));
                     }
+                    return const Center(child: Text('No items found.'));
                   },
                 ),
               ),
-              BottomNavigation(onTap: (_) {}),
             ],
           ),
         ],
+      ),
+      bottomNavigationBar: BottomNavigation(
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushNamed(context, '/home');
+          } else if (index == 1) {
+            Navigator.pushNamed(context, '/inventory');
+          }
+        },
       ),
     );
   }

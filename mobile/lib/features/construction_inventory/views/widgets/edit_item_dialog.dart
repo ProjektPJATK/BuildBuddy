@@ -36,13 +36,13 @@ class _EditItemDialogState extends State<EditItemDialog> {
     return AlertDialog(
       backgroundColor: Colors.black.withOpacity(0.8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text('Edytuj Pozostałe', style: TextStyle(color: Colors.white)),
+      title: const Text('Edit Remaining', style: TextStyle(color: Colors.white)),
       content: TextField(
         controller: _remainingController,
         keyboardType: TextInputType.number,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
-          hintText: 'Pozostałe',
+          hintText: 'Remaining',
           hintStyle: const TextStyle(color: Colors.white70),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
@@ -57,21 +57,21 @@ class _EditItemDialogState extends State<EditItemDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Anuluj', style: TextStyle(color: Colors.white)),
+          child: const Text('Cancel', style: TextStyle(color: Colors.white)),
         ),
         ElevatedButton(
           onPressed: () {
             final newRemaining = int.tryParse(_remainingController.text);
             if (newRemaining == null || newRemaining > widget.purchased) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Pozostałe nie może być większe niż zakupione!')),
+                const SnackBar(content: Text('Remaining cannot exceed purchased quantity!')),
               );
             } else {
               widget.onSave(newRemaining);
               Navigator.pop(context);
             }
           },
-          child: const Text('Zapisz'),
+          child: const Text('Save'),
         ),
       ],
     );

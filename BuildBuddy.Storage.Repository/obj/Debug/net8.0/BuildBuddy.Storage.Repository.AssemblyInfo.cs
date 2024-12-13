@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BuildBuddy.Storage.Repository")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a92551a294e67cf33eb9c4fbca4ce18d7e730b3d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+271c2dc4297700cc3d04bf5ef33ca42e1171d5a7")]
 [assembly: System.Reflection.AssemblyProductAttribute("BuildBuddy.Storage.Repository")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BuildBuddy.Storage.Repository")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,7 +1,7 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.WebApi\\BuildBuddy.WebApi.csproj": {}
+    "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.webapi\\BuildBuddy.WebApi.csproj": {}
   },
   "projects": {
     "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.Application.Abstractions\\BuildBuddy.Application.Abstractions.csproj": {
@@ -619,14 +619,14 @@
         }
       }
     },
-    "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.WebApi\\BuildBuddy.WebApi.csproj": {
+    "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.webapi\\BuildBuddy.WebApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.WebApi\\BuildBuddy.WebApi.csproj",
+        "projectUniqueName": "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.webapi\\BuildBuddy.WebApi.csproj",
         "projectName": "BuildBuddy.WebApi",
-        "projectPath": "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.WebApi\\BuildBuddy.WebApi.csproj",
+        "projectPath": "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.webapi\\BuildBuddy.WebApi.csproj",
         "packagesPath": "C:\\Users\\igor0\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.WebApi\\obj\\",
+        "outputPath": "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.webapi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\igor0\\AppData\\Roaming\\NuGet\\NuGet.Config"

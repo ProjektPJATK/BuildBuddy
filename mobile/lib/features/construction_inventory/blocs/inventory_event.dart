@@ -7,15 +7,15 @@ class LoadInventoryEvent extends InventoryEvent {
   LoadInventoryEvent({required this.token, required this.placeId});
 }
 
-class UpdateInventoryEvent extends InventoryEvent {
-  final int itemId;
-  final int newRemaining;
-
-  UpdateInventoryEvent({required this.itemId, required this.newRemaining});
-}
-
 class FilterInventoryEvent extends InventoryEvent {
   final String query;
 
   FilterInventoryEvent({required this.query});
+}
+
+class UpdateInventoryItemEvent extends InventoryEvent {
+  final int itemId;
+  final int newRemaining;
+
+  UpdateInventoryItemEvent({required this.itemId, required this.newRemaining});
 }
