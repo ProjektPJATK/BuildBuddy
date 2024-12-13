@@ -5,6 +5,7 @@ using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
 using BuildBuddy.Data.Model;
+using BuildBuddy.Storage.Abstraction;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BuildBuddy.Application.Services
@@ -13,11 +14,13 @@ namespace BuildBuddy.Application.Services
     {
         private readonly IConfiguration _configuration;
         private readonly IRepositoryCatalog _dbContext;
+        private readonly IFileStorageRepository _fileStorage;
 
-        public UserService(IRepositoryCatalog dbContext, IConfiguration configuration)
+        public UserService(IRepositoryCatalog dbContext, IConfiguration configuration, IFileStorageRepository fileStorage)
         {
             _dbContext = dbContext;
             _configuration = configuration;
+            _fileStorage = fileStorage;
         }
 
         public async Task<UserDto> GetUserByIdAsync(int userId)
@@ -39,7 +42,6 @@ namespace BuildBuddy.Application.Services
                 TelephoneNr = user.TelephoneNr,
                 UserImageUrl = user.UserImageUrl,
                 PreferredLanguage = user.PreferredLanguage,
-                //TeamId = user.TeamId
             };
         }
         public async Task<UserDto?> GetUserByEmailAsync(string email)
@@ -73,7 +75,6 @@ namespace BuildBuddy.Application.Services
                     TelephoneNr = user.TelephoneNr,
                     UserImageUrl = user.UserImageUrl,
                     PreferredLanguage = user.PreferredLanguage,
-                    //TeamId = user.TeamId
                 });
         }
 
@@ -88,7 +89,6 @@ namespace BuildBuddy.Application.Services
                 Password = userDto.Password,
                 UserImageUrl = userDto.UserImageUrl,
                 PreferredLanguage = userDto.PreferredLanguage,
-                //TeamId = userDto.TeamId
             };
 
             _dbContext.Users.Insert(user);
@@ -111,7 +111,6 @@ namespace BuildBuddy.Application.Services
                 user.Password = userDto.Password;
                 user.UserImageUrl = userDto.UserImageUrl;
                 user.PreferredLanguage = userDto.PreferredLanguage;
-                //user.TeamId = userDto.TeamId;
 
                 await _dbContext.SaveChangesAsync();
             }
@@ -153,20 +152,28 @@ namespace BuildBuddy.Application.Services
             );
             return teams; 
         }
+        
+        public async Task UpdateUserImageAsync(int userId, Stream imageStream, string imageName)
+        {
+            const string prefix = "user";
+            var user = await _dbContext.Users.GetByID(userId);
+            if (user == null) throw new Exception("User not found");
 
-        // public async Task<List<TeamDto>> GetTeamsByUserId(int userId)
-        // {
-        //     var teams = await _dbContext.Teams.GetRelatedEntitiesAsync<Team, User, TeamDto>(
-        //         filterSource: t => true,
-        //         //relationCondition: (t, u) => u.Id == userId && u.TeamId == t.Id,
-        //         mapper: t => new TeamDto
-        //         {
-        //             Id = t.Id,
-        //             Name = t.Name,
-        //             PlaceId = t.PlaceId
-        //         });
-        //     return teams;
-        // }
+            if (!string.IsNullOrEmpty(user.UserImageUrl))
+            {
+                await _fileStorage.DeleteFileAsync(user.UserImageUrl);
+            }
+
+            user.UserImageUrl = await _fileStorage.UploadImageAsync(imageStream, imageName, prefix);
+
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+        }
+        
+        public async Task<IEnumerable<string>> GetUserImageAsync(string imageUrl)
+        {
+            return await _fileStorage.GetFilesByPrefixAsync(imageUrl);
+        }
         
         public string GenerateJwtToken(UserDto user)
         {

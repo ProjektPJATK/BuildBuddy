@@ -94,5 +94,32 @@ namespace Backend.Controller.User
             var token = _userService.GenerateJwtToken(user);
             return Ok(new { token, user.Id });
         }
+        
+        [HttpPost("{userId}/upload-image")]
+        public async Task<IActionResult> UploadUserImage(int userId, IFormFile image)
+        {
+            using var stream = image.OpenReadStream();
+            await _userService.UpdateUserImageAsync(userId, stream, image.FileName);
+            return NoContent();
+        }
+        
+        [HttpGet("{userId}/image")]
+        public async Task<IActionResult> GetUserImage(int userId)
+        {
+            var user = await _userService.GetUserByIdAsync(userId);
+            if (user == null || string.IsNullOrEmpty(user.UserImageUrl))
+            {
+                return NotFound("User or image not found.");
+            }
+
+            var image = await _userService.GetUserImageAsync(user.UserImageUrl);
+            if (image == null)
+            {
+                return NotFound("Image not found.");
+            }
+
+            return Ok(image);
+        }
+
     }
 }

@@ -6,10 +6,10 @@ namespace BuildBuddy.Data.Repositories
 {
     public static class ServiceCollectionsExtensions
     {
-        public static IServiceCollection AddBuildBuddyData(this IServiceCollection services, string connectionString) 
+        public static IServiceCollection AddBuildBuddyData(this IServiceCollection services, IConfiguration configuration) 
         {
             return services.AddDbContext<BuildBuddyDbContext>(options =>
-                    options.UseNpgsql(connectionString))
+                    options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")))
                 .AddScoped<IRepository<User, int>, MainRepository<User, int>>()
                 .AddScoped<IRepository<Conversation, int>, MainRepository<Conversation, int>>()
                 .AddScoped<IRepository<Item, int>, MainRepository<Item, int>>()

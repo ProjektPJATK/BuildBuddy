@@ -2,16 +2,19 @@
 using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
 using BuildBuddy.Data.Model;
+using BuildBuddy.Storage.Abstraction;
 
 namespace BuildBuddy.Application.Services
 {
     public class TaskActualizationService : ITaskActualizationService
     {
         private readonly IRepositoryCatalog _dbContext;
+        private readonly IFileStorageRepository _fileStorage;
 
-        public TaskActualizationService(IRepositoryCatalog dbContext)
+        public TaskActualizationService(IRepositoryCatalog dbContext, IFileStorageRepository fileStorage)
         {
             _dbContext = dbContext;
+            _fileStorage = fileStorage;
         }
 
         public async Task<IEnumerable<TaskActualizationDto>> GetAllTasksActualizationAsync()
@@ -90,6 +93,40 @@ namespace BuildBuddy.Application.Services
                 _dbContext.TaskActualizations.Delete(taskActualization);
                 await _dbContext.SaveChangesAsync();
             }
+        }
+        
+        public async Task AddTaskImageAsync(int taskId, Stream imageStream, string imageName)
+        {
+            const string prefix = "task";
+            var task = await _dbContext.TaskActualizations.GetByID(taskId);
+            if (task == null) throw new Exception("Task not found");
+
+            var imageUrl = await _fileStorage.UploadImageAsync(imageStream, imageName, prefix);
+            task.TaskImageUrl.Add(imageUrl);
+
+            _dbContext.TaskActualizations.Update(task);
+            await _dbContext.SaveChangesAsync();
+        }
+        
+        public async Task<IEnumerable<string>> GetTaskImagesAsync(int taskId)
+        {
+            var task = await _dbContext.TaskActualizations.GetByID(taskId);
+            if (task == null) throw new Exception("Task not found");
+
+            return task.TaskImageUrl;
+        }
+
+        public async Task RemoveTaskImageAsync(int taskId, string imageUrl)
+        {
+            var task = await _dbContext.TaskActualizations.GetByID(taskId);
+            if (task == null) throw new Exception("Task not found");
+            
+            await _fileStorage.DeleteFileAsync(imageUrl);
+
+            task.TaskImageUrl.Remove(imageUrl);
+
+            _dbContext.TaskActualizations.Update(task);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

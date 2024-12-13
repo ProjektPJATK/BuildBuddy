@@ -82,5 +82,4 @@ internal class MainRepository<TEntity, TId> : IRepository<TEntity, TId> where TE
             _dbSet.Attach(entityToUpdate);
             _dbSet.Entry(entityToUpdate).State = EntityState.Modified;
         }
-
     }

@@ -53,5 +53,31 @@ namespace Backend.Controller.Tasks
             await _taskActualizationService.DeleteTaskActualizationAsync(id);
             return NoContent();
         }
+        
+        [HttpPost("{taskId}/add-image")]
+        public async Task<IActionResult> AddTaskImage(int taskId, IFormFile image)
+        {
+            using var stream = image.OpenReadStream();
+            await _taskActualizationService.AddTaskImageAsync(taskId, stream, image.FileName);
+            return NoContent();
+        }
+        
+        [HttpDelete("{taskId}/delete-image")]
+        public async Task<IActionResult> DeleteTaskImage(int taskId, [FromQuery] string imageUrl)
+        {
+            await _taskActualizationService.RemoveTaskImageAsync(taskId, imageUrl);
+            return NoContent();
+        }
+        
+        [HttpGet("{taskId}/images")]
+        public async Task<IActionResult> GetTaskImages(int taskId)
+        {
+            var images = await _taskActualizationService.GetTaskImagesAsync(taskId);
+            if (images == null || !images.Any())
+            {
+                return NotFound("No images found for the given task.");
+            }
+            return Ok(images);
+        }
     }
 }
