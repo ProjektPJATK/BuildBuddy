@@ -34,44 +34,62 @@ class _EditItemDialogState extends State<EditItemDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.black.withOpacity(0.8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text('Edit Remaining', style: TextStyle(color: Colors.white)),
+      backgroundColor: Colors.black.withOpacity(0.8), // Dark background for the dialog
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // Rounded corners
+      title: const Text(
+        'Edit Remaining',
+        style: TextStyle(color: Colors.white), // White text for the title
+      ),
       content: TextField(
         controller: _remainingController,
         keyboardType: TextInputType.number,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white), // White text input
         decoration: InputDecoration(
           hintText: 'Remaining',
-          hintStyle: const TextStyle(color: Colors.white70),
+          hintStyle: const TextStyle(color: Colors.white70), // Hint style
+          filled: true,
+          fillColor: Colors.grey.withOpacity(0.2), // Slightly darkened input background
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: Colors.white),
+            borderSide: const BorderSide(color: Colors.white), // White border when not focused
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: Colors.blue),
+            borderSide: const BorderSide(color: Colors.blue), // Blue border when focused
           ),
         ),
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+          onPressed: () => Navigator.pop(context), // Close dialog on cancel
+          child: const Text(
+            'Cancel',
+            style: TextStyle(color: Colors.white), // White text for cancel button
+          ),
         ),
         ElevatedButton(
           onPressed: () {
             final newRemaining = int.tryParse(_remainingController.text);
             if (newRemaining == null || newRemaining > widget.purchased) {
+              // Show error if input is invalid
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Remaining cannot exceed purchased quantity!')),
               );
             } else {
-              widget.onSave(newRemaining);
-              Navigator.pop(context);
+              widget.onSave(newRemaining); // Call onSave callback with new value
+              Navigator.pop(context); // Close dialog
             }
           },
-          child: const Text('Save'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue, // Blue background for the "Save" button
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20), // Rounded corners for the button
+            ),
+          ),
+          child: const Text(
+            'Save',
+            style: TextStyle(color: Colors.white), // White text for save button
+          ),
         ),
       ],
     );
