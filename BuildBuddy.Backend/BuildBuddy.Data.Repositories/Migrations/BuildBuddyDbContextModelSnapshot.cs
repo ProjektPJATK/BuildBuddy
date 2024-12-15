@@ -302,6 +302,29 @@ namespace BuildBuddy.Data.Repositories.Migrations
                     b.ToTable("UserConversations");
                 });
 
+            modelBuilder.Entity("BuildBuddy.Data.Model.UserTask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("TasksId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TasksId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserTask");
+                });
+
             modelBuilder.Entity("BuildBuddy.Data.Model.Conversation", b =>
                 {
                     b.HasOne("BuildBuddy.Data.Model.Team", "Team")
@@ -404,6 +427,25 @@ namespace BuildBuddy.Data.Repositories.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("BuildBuddy.Data.Model.UserTask", b =>
+                {
+                    b.HasOne("BuildBuddy.Data.Model.Tasks", "Tasks")
+                        .WithMany("UserTask")
+                        .HasForeignKey("TasksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BuildBuddy.Data.Model.User", "User")
+                        .WithMany("UserTask")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tasks");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("BuildBuddy.Data.Model.Conversation", b =>
                 {
                     b.Navigation("Messages");
@@ -423,6 +465,8 @@ namespace BuildBuddy.Data.Repositories.Migrations
                 {
                     b.Navigation("TaskActualization")
                         .IsRequired();
+
+                    b.Navigation("UserTask");
                 });
 
             modelBuilder.Entity("BuildBuddy.Data.Model.Team", b =>
@@ -440,6 +484,8 @@ namespace BuildBuddy.Data.Repositories.Migrations
                     b.Navigation("TeamUsers");
 
                     b.Navigation("UserConversations");
+
+                    b.Navigation("UserTask");
                 });
 #pragma warning restore 612, 618
         }

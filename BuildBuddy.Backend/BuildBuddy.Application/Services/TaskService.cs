@@ -97,5 +97,57 @@ namespace BuildBuddy.Application.Services
                 await _dbContext.SaveChangesAsync();
             }
         }
+        
+        public async Task<IEnumerable<TaskDto>> GetTaskByUserIdAsync(int userId)
+        {
+            var tasks = await _dbContext.UserTasks.GetAsync(
+                    mapper: t => new TaskDto
+                    {
+                        Id = t.Id,
+                        Name = t.Tasks.Name,
+                        Message = t.Tasks.Message,
+                        StartTime = t.Tasks.StartTime,
+                        EndTime = t.Tasks.EndTime,
+                        AllDay = t.Tasks.AllDay,
+                        PlaceId = t.Tasks.PlaceId ?? 0
+                    },
+                    filter:ut => ut.UserId == userId,
+                    includeProperties: "Tasks");
+
+            return tasks;
+        }
+        public async Task AssignTaskToUserAsync(int taskId, int userId)
+        {
+            // Sprawdź, czy zadanie istnieje
+            var task = await _dbContext.Tasks.GetByID(taskId);
+            if (task == null)
+                throw new Exception("Task not found");
+
+            // Sprawdź, czy użytkownik istnieje
+            var user = await _dbContext.Users.GetByID(userId);
+            if (user == null)
+                throw new Exception("User not found");
+
+            // Sprawdź, czy przypisanie już istnieje
+            var existingAssignments = await _dbContext.UserTasks.GetAsync(
+                filter: ut => ut.TasksId == taskId && ut.UserId == userId
+            );
+
+            if (existingAssignments.Any())
+                throw new Exception("Task is already assigned to this user");
+
+            // Utwórz nowy wpis UserTask
+            var userTask = new UserTask
+            {
+                TasksId = taskId,
+                UserId = userId
+            };
+
+            // Dodaj i zapisz zmiany
+            _dbContext.UserTasks.Insert(userTask);
+            await _dbContext.SaveChangesAsync();
+        }
+
+
     }
 }

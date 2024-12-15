@@ -10,6 +10,7 @@ public class Tasks : IHaveId<int>
     public bool AllDay { get; set; }
     public int? PlaceId {get; set;}
     
+    public virtual ICollection<UserTask> UserTask  { get; set; }
     public virtual TaskActualization TaskActualization { get; set; }
     public virtual Place Place { get; set; }
 }

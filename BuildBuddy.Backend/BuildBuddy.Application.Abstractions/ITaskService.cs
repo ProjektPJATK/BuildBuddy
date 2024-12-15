@@ -9,4 +9,6 @@ public interface ITaskService
     Task<TaskDto> CreateTaskAsync(TaskDto conversationDto);
     Task UpdateTaskAsync(int id, TaskDto conversationDto);
     Task DeleteTaskAsync(int id);
+    Task<IEnumerable<TaskDto>> GetTaskByUserIdAsync(int userId);
+    Task AssignTaskToUserAsync(int taskId, int userId);
 }

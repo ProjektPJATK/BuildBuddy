@@ -54,5 +54,31 @@ namespace Backend.Controller.Tasks
             await _taskService.DeleteTaskAsync(id);
             return NoContent();
         }
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetTasksByUserId(int userId)
+        {
+            var tasks = await _taskService.GetTaskByUserIdAsync(userId);
+            if (tasks == null || !tasks.Any())
+                return NotFound("No tasks found for this user.");
+
+            return Ok(tasks);
+        }
+
+        [HttpPost("assign")]
+        public async Task<IActionResult> AssignTaskToUser(int taskId, int userId)
+        {
+            if (taskId <= 0 || userId <= 0)
+                return BadRequest("Invalid taskId or userId.");
+
+            try
+            {
+                await _taskService.AssignTaskToUserAsync(taskId, userId);
+                return Ok("Task successfully assigned to user.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

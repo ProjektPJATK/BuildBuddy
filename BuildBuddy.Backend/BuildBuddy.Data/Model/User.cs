@@ -10,7 +10,7 @@ public class User : IHaveId<int>
     public string UserImageUrl { get; set; }
     public string PreferredLanguage { get; set; }
     
-
+    public virtual ICollection<UserTask> UserTask  { get; set; }
     public virtual ICollection<TeamUser> TeamUsers  { get; set; }
     public virtual ICollection<UserConversation> UserConversations { get; set; }
     public virtual ICollection<Message> Message { get; set; }

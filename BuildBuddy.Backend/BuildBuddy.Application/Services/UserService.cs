@@ -132,7 +132,7 @@ namespace BuildBuddy.Application.Services
                 mapper: uc => new ConversationDto
                 {
                     Id = uc.Conversation.Id,
-                    Name = uc.Conversation.Name
+                    Name = uc.Conversation.Name,
                 },
                 filter: uc => uc.UserId == userId,
                 includeProperties: "Conversation");

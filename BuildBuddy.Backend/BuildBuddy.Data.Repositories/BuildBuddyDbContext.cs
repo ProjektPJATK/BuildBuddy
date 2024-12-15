@@ -17,4 +17,6 @@ public class BuildBuddyDbContext : DbContext
     public DbSet<TaskActualization> TaskActualizations { get; set; }
     public DbSet<Item> Items { get; set; }
     public DbSet<Place> Places { get; set; }
+    public DbSet<UserTask> UserTask { get; set; }
+    
 }
