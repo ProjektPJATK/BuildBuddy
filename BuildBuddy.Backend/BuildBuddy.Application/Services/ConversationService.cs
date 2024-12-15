@@ -107,4 +107,19 @@ public class ConversationService : IConversationService
             }).ToList()
         };
     }
+    public async Task<List<ConversationDto>> GetUserConversationsAsync(int userId)
+    {
+        var conversations = await _context.Conversations.GetAsync(
+            filter: c => c.UserConversations.Any(uc => uc.UserId == userId),
+            includeProperties: "UserConversations.User"
+        );
+
+        return conversations.Select(c => new ConversationDto
+        {
+            Id = c.Id,
+            Name = c.Name,
+            TeamId = c.TeamId
+        }).ToList();
+    }
+
 }

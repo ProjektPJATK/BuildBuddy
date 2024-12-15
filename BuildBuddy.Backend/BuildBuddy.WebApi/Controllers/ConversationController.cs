@@ -45,4 +45,14 @@ namespace BuildBuddy.WebApi.Controllers;
             await _conversationService.AddUserToConversationAsync(conversationId, userId);
             return Ok();
         }
+        
+        [HttpGet("user/{userId}/conversations")]
+        public async Task<IActionResult> GetUserConversations(int userId)
+        {
+            var conversations = await _conversationService.GetUserConversationsAsync(userId);
+            if (conversations == null || !conversations.Any())
+                return NotFound("No conversations found for this user.");
+
+            return Ok(conversations);
+        }
     }
