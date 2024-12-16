@@ -12,15 +12,15 @@ class ConstructionDetails extends StatelessWidget {
     return Container(
       color: AppStyles.transparentWhite,
       padding: const EdgeInsets.all(16.0),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Szczegóły budowy:',
             style: AppStyles.headerStyle,
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             'Opis inwestycji i wszelkie istotne informacje dotyczące tej budowy.',
             style: AppStyles.textStyle,
           ),

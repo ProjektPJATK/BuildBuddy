@@ -1,0 +1,23 @@
+{
+  "Version": 1,
+  "Hash": "EzYiouE7Rr5kPQRrLMrjJLCgPWHxZ8AaZTzUb7JNvxw=",
+  "Source": "BuildBuddy.Data.Abstractions",
+  "BasePath": "_content/BuildBuddy.Data.Abstractions",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\Users\\igor0\\Desktop\\inzynierka\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Data\\BuildBuddy.Data.csproj",
+      "Version": 2,
+      "Source": "BuildBuddy.Data",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

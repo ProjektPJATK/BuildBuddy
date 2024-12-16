@@ -7,6 +7,8 @@ void main() {
 }
 
 class BuildBuddyApp extends StatelessWidget {
+  const BuildBuddyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

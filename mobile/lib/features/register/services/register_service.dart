@@ -12,7 +12,7 @@ class RegisterService {
     required String telephoneNr,
     required String password,
   }) async {
-    final url = "http://$backendIP:$backendPort/api/User/register";
+    const url = "http://$backendIP:$backendPort/api/User/register";
 
     try {
       final response = await http.post(

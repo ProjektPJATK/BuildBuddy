@@ -15,12 +15,13 @@ import 'package:mobile/features/construction_team/views/team_screen.dart';
 import 'package:mobile/features/home/bloc/home_bloc.dart';
 import 'package:mobile/features/home/services/home_service.dart';
 import 'package:mobile/features/home/views/home_screen.dart';
-import 'package:mobile/features/localization/language_provider.dart';
+
 import 'package:mobile/features/login/services/login_service.dart';
 import 'package:mobile/features/login/views/login_screen.dart';
 import 'package:mobile/features/profile/views/user_profile_screen.dart';
 import 'package:mobile/features/register/views/register_screen.dart';
 import 'package:mobile/features/login/bloc/login_bloc.dart';
+import 'features/localization/language_provider.dart';
 import 'shared/themes/styles.dart';
 
 void main() {
@@ -65,15 +66,15 @@ class BuildBuddyApp extends StatelessWidget {
       routes: {
         '/': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
-        '/chats': (context) => ChatListScreen(),
+        '/chats': (context) => const ChatListScreen(),
         '/calendar': (context) => const CalendarScreen(),
         '/profile': (context) => const UserProfileScreen(),
-        '/new_message': (context) => NewMessageScreen(),
-        '/construction_home': (context) => ConstructionHomeScreen(),
-        '/construction_team': (context) => TeamScreen(),
-        '/construction_inventory': (context) => InventoryScreen(),
+        '/new_message': (context) => const NewMessageScreen(),
+        '/construction_home': (context) => const ConstructionHomeScreen(),
+        '/construction_team': (context) => const TeamScreen(),
+        '/construction_inventory': (context) => const InventoryScreen(),
         '/construction_calendar': (context) => const ConstructionCalendarScreen(),
-        '/chat': (context) => ChatScreen(),
+        '/chat': (context) => const ChatScreen(),
         '/register': (context) => RegisterScreen(),
       },
       theme: ThemeData(

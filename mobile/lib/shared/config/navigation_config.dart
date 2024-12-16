@@ -31,24 +31,24 @@ class NavigationConfig {
   static Widget getDestinationScreen(String route) {
     switch (route) {
       case '/calendar':
-        return CalendarScreen();
+        return const CalendarScreen();
       case '/construction_calendar':
-        return ConstructionCalendarScreen();
+        return const ConstructionCalendarScreen();
       case '/construction_team':
-        return TeamScreen();
+        return const TeamScreen();
       case '/construction_home':
-        return ConstructionHomeScreen();
+        return const ConstructionHomeScreen();
       case '/construction_inventory':
-        return InventoryScreen();
+        return const InventoryScreen();
       case '/chats':
-        return ChatListScreen();
+        return const ChatListScreen();
       case '/home':
         appState.isConstructionContext = false;
-        return HomeScreen();
+        return const HomeScreen();
       case '/profile':
-        return UserProfileScreen();
+        return const UserProfileScreen();
       default:
-        return HomeScreen();
+        return const HomeScreen();
     }
   }
 }

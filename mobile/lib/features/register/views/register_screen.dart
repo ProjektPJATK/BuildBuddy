@@ -8,6 +8,8 @@ import '../bloc/register_event.dart';
 import '../bloc/register_state.dart';
 
 class RegisterScreen extends StatelessWidget {
+  const RegisterScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -38,6 +40,8 @@ class RegisterScreen extends StatelessWidget {
 }
 
 class RegisterForm extends StatefulWidget {
+  const RegisterForm({super.key});
+
   @override
   _RegisterFormState createState() => _RegisterFormState();
 }
@@ -152,7 +156,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   BlocBuilder<RegisterBloc, RegisterState>(
                     builder: (context, state) {
                       if (state is RegisterLoading) {
-                        return Center(
+                        return const Center(
                           child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(AppStyles.primaryBlue),
                           ),

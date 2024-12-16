@@ -43,26 +43,26 @@ class ChatScreen extends StatelessWidget {
                   Expanded(
                     child: ListView(
                       padding: const EdgeInsets.all(10),
-                      children: [
-                        const ChatBubble(
+                      children: const [
+                        ChatBubble(
                           message: 'Cześć. Jak idą dzisiaj prace?',
                           isSentByMe: true,
                           sender: '',
                           time: '9:50 AM',
                         ),
-                        const ChatBubble(
+                        ChatBubble(
                           message: 'Cześć. Wyślę zdjęcia niedługo.',
                           isSentByMe: false,
                           sender: 'MARTA',
                           time: '10:00 AM',
                         ),
-                        const ChatBubble(
+                        ChatBubble(
                           message: 'Ok. Czekam.',
                           isSentByMe: true,
                           sender: '',
                           time: '10:05 AM',
                         ),
-                        const ChatBubble(
+                        ChatBubble(
                           message: 'Skrzynka elektryczna będzie dzisiaj gotowa.',
                           isSentByMe: false,
                           sender: 'MARTA',

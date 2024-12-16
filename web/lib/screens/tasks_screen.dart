@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'taskdetails_screen.dart';
 
 class TasksScreen extends StatefulWidget {
-  const TasksScreen({Key? key}) : super(key: key);
+  const TasksScreen({super.key});
 
   @override
   _TasksScreenState createState() => _TasksScreenState();
@@ -71,12 +71,12 @@ class _TasksScreenState extends State<TasksScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage Tasks'),
+        title: const Text('Manage Tasks'),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _isError
-              ? Center(
+              ? const Center(
                   child: Text(
                     'Failed to load tasks.',
                     style: TextStyle(color: Colors.red),

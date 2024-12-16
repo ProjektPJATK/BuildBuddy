@@ -8,7 +8,6 @@ import '../models/inventory_item_model.dart';
 import '../../../shared/widgets/bottom_navigation.dart';
 import '../../../shared/themes/styles.dart';
 import 'widgets/edit_item_dialog.dart';
-import 'widgets/inventory_item_card.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});

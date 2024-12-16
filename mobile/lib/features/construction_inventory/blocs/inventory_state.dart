@@ -1,6 +1,5 @@
 import '../models/inventory_item_model.dart';
 
-import '../models/inventory_item_model.dart';
 
 abstract class InventoryState {}
 

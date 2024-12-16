@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'employeedetails_screen.dart';
 
 class EmployeesScreen extends StatefulWidget {
-  const EmployeesScreen({Key? key}) : super(key: key);
+  const EmployeesScreen({super.key});
 
   @override
   _EmployeesScreenState createState() => _EmployeesScreenState();
@@ -81,12 +81,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage Employees'),
+        title: const Text('Manage Employees'),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _isError
-              ? Center(
+              ? const Center(
                   child: Text(
                     'Failed to load employees.',
                     style: TextStyle(color: Colors.red),

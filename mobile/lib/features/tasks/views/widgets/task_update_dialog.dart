@@ -14,11 +14,11 @@ class TaskUpdateDialog extends StatefulWidget {
 
 class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
   final TextEditingController _commentController = TextEditingController();
-  List<File> _selectedImages = [];
+  final List<File> _selectedImages = [];
 
   Future<void> _selectImage() async {
     final picker = ImagePicker();
-    final List<XFile>? images = await picker.pickMultiImage();
+    final List<XFile> images = await picker.pickMultiImage();
     if (images != null) {
       setState(() {
         _selectedImages.addAll(images.map((xfile) => File(xfile.path)));
