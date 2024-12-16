@@ -22,45 +22,47 @@ class LoginScreen extends StatelessWidget {
           Container(
             color: AppStyles.filterColor.withOpacity(0.7),
           ),
-          // Logo
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 50),
-              child: SizedBox(
-                width: 100,
-                height: 100,
-                child: Image.asset('assets/logo_small.png'),
-              ),
-            ),
-          ),
-          // Login Form
-          Align(
-            alignment: Alignment.bottomCenter,
+          // Content with scrollable behavior
+          SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: BlocListener<LoginBloc, LoginState>(
-                listener: (context, state) {
-                  if (state is LoginSuccess) {
-                    Navigator.pushReplacementNamed(context, '/home');
-                  } else if (state is LoginFailure) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Login Failed: ${state.error}')),
-                    );
-                  }
-                },
-                child: BlocBuilder<LoginBloc, LoginState>(
-                  builder: (context, state) {
-                    return LoginForm(
-                      isLoading: state is LoginLoading,
-                      onLogin: (email, password) {
-                        context.read<LoginBloc>().add(
-                              LoginSubmitted(email: email, password: password),
-                            );
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Logo
+                  Padding(
+                    padding: const EdgeInsets.only(top: 50, bottom: 20),
+                    child: SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: Image.asset('assets/logo_small.png'),
+                    ),
+                  ),
+                  // Login Form
+                  BlocListener<LoginBloc, LoginState>(
+                    listener: (context, state) {
+                      if (state is LoginSuccess) {
+                        Navigator.pushReplacementNamed(context, '/home');
+                      } else if (state is LoginFailure) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Login Failed: ${state.error}')),
+                        );
+                      }
+                    },
+                    child: BlocBuilder<LoginBloc, LoginState>(
+                      builder: (context, state) {
+                        return LoginForm(
+                          isLoading: state is LoginLoading,
+                          onLogin: (email, password) {
+                            context.read<LoginBloc>().add(
+                                  LoginSubmitted(email: email, password: password),
+                                );
+                          },
+                        );
                       },
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

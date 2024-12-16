@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/calendar/views/calendar_screen.dart';
-import 'package:mobile/features/chats/views/chat_list_screen.dart';
 import 'package:mobile/features/construction_calendar/views/construction_calendar_screen.dart';
 import 'package:mobile/features/construction_home/views/construction_home_screen.dart';
 import 'package:mobile/features/construction_inventory/views/inventory_screen.dart';
 import 'package:mobile/features/construction_team/views/team_screen.dart';
+import 'package:mobile/features/conversation_list/views/conversation_list_screen.dart';
 import 'package:mobile/features/profile/views/user_profile_screen.dart';
 import '../../features/home/views/home_screen.dart';
 
@@ -41,7 +41,7 @@ class NavigationConfig {
       case '/construction_inventory':
         return InventoryScreen();
       case '/chats':
-        return ChatListScreen();
+        return ConversationListScreen();
       case '/home':
         appState.isConstructionContext = false;
         return HomeScreen();

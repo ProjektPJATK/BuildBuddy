@@ -16,7 +16,7 @@ class HomeService {
     }
 
     // Dynamiczny URL
-    final url = "${AppConfig.getBaseUrl()}/api/User/$userId/teams";
+    final url = AppConfig.getTeamsEndpoint(userId);
     print('Requesting URL: $url');
 
     try {

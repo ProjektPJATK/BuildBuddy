@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/features/calendar/views/calendar_screen.dart';
 import 'package:mobile/features/chats/views/chat_screen.dart';
-import 'package:mobile/features/chats/views/chat_list_screen.dart';
+import 'package:mobile/features/conversation_list/bloc/conversation_bloc.dart';
+import 'package:mobile/features/conversation_list/services/conversation_service.dart';
+import 'package:mobile/features/conversation_list/views/conversation_list_screen.dart';
 import 'package:mobile/features/chats/views/new_message_screen.dart';
 import 'package:mobile/features/construction_calendar/bloc/calendar_bloc.dart';
 import 'package:mobile/features/construction_calendar/services/calendar_service,dart';
@@ -53,6 +55,9 @@ void main() {
         BlocProvider<ProfileBloc>(
           create: (context) => ProfileBloc(UserService()),
         ),
+         BlocProvider<ConversationBloc>(
+        create: (context) => ConversationBloc(conversationService: ConversationService()),
+         ),
       ],
       child: const BuildBuddyApp(),
     ),
@@ -69,7 +74,7 @@ class BuildBuddyApp extends StatelessWidget {
       routes: {
         '/': (context) => const LoginScreen(), // Show splash screen first
         '/home': (context) => const HomeScreen(),
-        '/chats': (context) => ChatListScreen(),
+        '/chats': (context) => ConversationListScreen(),
         '/calendar': (context) => const CalendarScreen(), // Calendar screen
         '/profile': (context) => const UserProfileScreen(),
         '/new_message': (context) => NewMessageScreen(),
