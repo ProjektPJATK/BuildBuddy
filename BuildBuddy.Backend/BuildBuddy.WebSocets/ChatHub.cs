@@ -19,7 +19,13 @@ public class ChatHub : Hub
 
         await Clients.Group(conversationId.ToString()).SendAsync("ReceiveMessage", senderId, text, DateTime.UtcNow);
     }
+    public async Task FetchHistory(int conversationId)
+    {
+        var messages = await _chatService.GetChatHistory(conversationId);
 
+        await Clients.Caller.SendAsync("ReceiveHistory", messages);
+    }
+    
     public override async Task OnConnectedAsync()
     {
         Console.WriteLine($"Connection established: {Context.ConnectionId}");
