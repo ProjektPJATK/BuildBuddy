@@ -21,7 +21,7 @@ namespace BuildBuddy.Application.Services
                 {
                     Id = team.Id,
                     Name = team.Name,
-                    PlaceId = team.PlaceId
+                    AddressId = team.AdressId
                 });
         }
 
@@ -39,7 +39,7 @@ namespace BuildBuddy.Application.Services
             {
                 Id = team.Id,
                 Name = team.Name,
-                PlaceId = team.PlaceId
+                AddressId = team.AdressId
             };
         }
 
@@ -48,7 +48,7 @@ namespace BuildBuddy.Application.Services
             var team = new BuildBuddy.Data.Model.Team
             {
                 Name = teamDto.Name,
-                PlaceId = teamDto.PlaceId
+                AdressId = teamDto.AddressId
             };
 
             _dbContext.Teams.Insert(team);
@@ -65,7 +65,7 @@ namespace BuildBuddy.Application.Services
             if (team != null)
             {
                 team.Name = teamDto.Name;
-                team.PlaceId = teamDto.PlaceId;
+                team.AdressId = teamDto.AddressId;
 
                 await _dbContext.SaveChangesAsync();
             }

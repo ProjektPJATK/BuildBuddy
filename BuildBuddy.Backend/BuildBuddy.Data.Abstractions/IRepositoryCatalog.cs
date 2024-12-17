@@ -4,17 +4,17 @@ namespace BuildBuddy.Data.Abstractions;
 
 public interface IRepositoryCatalog
 {
-    IRepository<Item, int> Items { get; }
+    IRepository<BuildingArticles, int> BuildingArticles { get; }
     IRepository<User, int> Users { get; } 
     IRepository<Conversation, int> Conversations { get; } 
     IRepository<Message, int> Messages { get; } 
-    IRepository<Place, int> Places { get; } 
-    IRepository<TaskActualization, int> TaskActualizations { get; } 
-    IRepository<Tasks, int> Tasks { get; } 
+    IRepository<Address, int> Addresses { get; } 
+    IRepository<JobActualization, int> JobActualizations { get; } 
+    IRepository<Job, int> Jobs { get; } 
     IRepository<Team, int> Teams { get; } 
     IRepository<TeamUser, int> TeamUsers { get; } 
     IRepository<UserConversation, int> UserConversations { get; } 
-    IRepository<UserTask, int> UserTasks { get; } 
+    IRepository<UserJob, int> UserJobs { get; } 
 
     void Dispose();
     Task SaveChangesAsync();

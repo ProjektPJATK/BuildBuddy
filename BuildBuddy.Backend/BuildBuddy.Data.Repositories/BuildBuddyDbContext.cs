@@ -13,10 +13,10 @@ public class BuildBuddyDbContext : DbContext
     public DbSet<Conversation> Conversations { get; set; }
     public DbSet<UserConversation> UserConversations { get; set; }
     public DbSet<Message> Messages { get; set; }
-    public DbSet<Tasks> Tasks { get; set; }
-    public DbSet<TaskActualization> TaskActualizations { get; set; }
-    public DbSet<Item> Items { get; set; }
-    public DbSet<Place> Places { get; set; }
-    public DbSet<UserTask> UserTask { get; set; }
+    public DbSet<Job> Job { get; set; }
+    public DbSet<JobActualization> JobActualization { get; set; }
+    public DbSet<BuildingArticles> BuildingArticles { get; set; }
+    public DbSet<Address> Address { get; set; }
+    public DbSet<UserJob> UserJob { get; set; }
     
 }

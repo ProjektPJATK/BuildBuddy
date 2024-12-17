@@ -2,8 +2,8 @@
 using BuildBuddy.Contract;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Backend.Controller.Team
-{
+namespace BuildBuddy.WebApi.Controllers;
+
     [Route("api/[controller]")]
     [ApiController]
     public class TeamController : ControllerBase
@@ -80,4 +80,4 @@ namespace Backend.Controller.Team
             return Ok(users);
         }
     }
-}
+

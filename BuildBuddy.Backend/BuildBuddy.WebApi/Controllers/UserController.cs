@@ -3,8 +3,8 @@ using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Backend.Controller.User
-{
+namespace BuildBuddy.WebApi.Controllers;
+
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -122,4 +122,4 @@ namespace Backend.Controller.User
         }
 
     }
-}
+

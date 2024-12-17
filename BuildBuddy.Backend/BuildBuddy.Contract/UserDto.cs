@@ -9,6 +9,6 @@ public class UserDto
     public string TelephoneNr { get; set; }
     public string Password { get; set; }
     public string UserImageUrl { get; set; }
-    public string  PreferredLanguage { get; set; }
+    public string PreferredLanguage { get; set; }
     
 }

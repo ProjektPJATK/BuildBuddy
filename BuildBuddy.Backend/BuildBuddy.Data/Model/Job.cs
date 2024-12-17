@@ -1,6 +1,6 @@
 ﻿namespace BuildBuddy.Data.Model;
 
-public class Tasks : IHaveId<int>
+public class Job : IHaveId<int>
 {
     public int Id { get; set; }
     public string Name { get; set; }
@@ -10,7 +10,7 @@ public class Tasks : IHaveId<int>
     public bool AllDay { get; set; }
     public int? PlaceId {get; set;}
     
-    public virtual ICollection<UserTask> UserTask  { get; set; }
-    public virtual TaskActualization TaskActualization { get; set; }
-    public virtual Place Place { get; set; }
+    public virtual ICollection<UserJob> UserJob  { get; set; }
+    public virtual JobActualization JobActualization { get; set; }
+    public virtual Address Address { get; set; }
 }

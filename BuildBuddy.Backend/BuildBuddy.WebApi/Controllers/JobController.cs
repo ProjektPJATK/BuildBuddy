@@ -3,30 +3,30 @@ using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Backend.Controller.Tasks
-{
+namespace BuildBuddy.WebApi.Controllers;
+
     [Route("api/[controller]")]
     [ApiController]
-    public class TaskController : ControllerBase
+    public class JobController : ControllerBase
     {
-        private readonly ITaskService _taskService;
+        private readonly IJobService _jobService;
 
-        public TaskController(ITaskService taskService)
+        public JobController(IJobService jobService)
         {
-            _taskService = taskService;
+            _jobService = jobService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TaskDto>>> GetAllTasks()
+        public async Task<ActionResult<IEnumerable<JobDto>>> GetAllTasks()
         {
-            var tasks = await _taskService.GetAllTasksAsync();
+            var tasks = await _jobService.GetAllJobsAsync();
             return Ok(tasks);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<TaskDto>> GetTaskById(int id)
+        public async Task<ActionResult<JobDto>> GetTaskById(int id)
         {
-            var task = await _taskService.GetTaskIdAsync(id);
+            var task = await _jobService.GetJobIdAsync(id);
             if (task == null)
             {
                 return NotFound();
@@ -35,29 +35,29 @@ namespace Backend.Controller.Tasks
         }
 
         [HttpPost]
-        public async Task<ActionResult<TaskDto>> CreateTask(TaskDto taskDto)
+        public async Task<ActionResult<JobDto>> CreateTask(JobDto jobDto)
         {
-            var createdTask = await _taskService.CreateTaskAsync(taskDto);
+            var createdTask = await _jobService.CreateJobAsync(jobDto);
             return CreatedAtAction(nameof(GetTaskById), new { id = createdTask.Id }, createdTask);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTask(int id, TaskDto taskDto)
+        public async Task<IActionResult> UpdateTask(int id, JobDto jobDto)
         {
-            await _taskService.UpdateTaskAsync(id, taskDto);
+            await _jobService.UpdateJobAsync(id, jobDto);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(int id)
         {
-            await _taskService.DeleteTaskAsync(id);
+            await _jobService.DeleteJobAsync(id);
             return NoContent();
         }
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetTasksByUserId(int userId)
         {
-            var tasks = await _taskService.GetTaskByUserIdAsync(userId);
+            var tasks = await _jobService.GetJobByUserIdAsync(userId);
             if (tasks == null || !tasks.Any())
                 return NotFound("No tasks found for this user.");
 
@@ -72,7 +72,7 @@ namespace Backend.Controller.Tasks
 
             try
             {
-                await _taskService.AssignTaskToUserAsync(taskId, userId);
+                await _jobService.AssignJobToUserAsync(taskId, userId);
                 return Ok("Task successfully assigned to user.");
             }
             catch (Exception ex)
@@ -81,4 +81,3 @@ namespace Backend.Controller.Tasks
             }
         }
     }
-}
