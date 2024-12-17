@@ -145,7 +145,7 @@ namespace BuildBuddy.Application.Services
                 {
                     Id = tu.Team.Id,
                     Name = tu.Team.Name,
-                    AddressId = tu.Team.AdressId
+                    AddressId = tu.Team.AddressId
                 },
                 filter: tu => tu.UserId == userId,
                 includeProperties: "Team" 
