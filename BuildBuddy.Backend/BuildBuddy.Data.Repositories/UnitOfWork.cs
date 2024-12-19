@@ -6,29 +6,29 @@ namespace BuildBuddy.Data.Repositories;
 public class UnitOfWork(BuildBuddyDbContext buildBuddyDb, 
     IRepository<User, int> users, 
     IRepository<Conversation, int> conversations, 
-    IRepository<Item, int> items, 
+    IRepository<BuildingArticles, int> buildingArticles, 
     IRepository<Message, int> messages, 
-    IRepository<Place, int> places, 
-    IRepository<TaskActualization, int> taskActualizations,
-    IRepository<Tasks, int> tasks, 
+    IRepository<Address, int> address, 
+    IRepository<JobActualization, int> jobActualizations,
+    IRepository<Job, int> jobs, 
     IRepository<Team, int> teams, 
     IRepository<TeamUser, int> teamUsers, 
     IRepository<UserConversation, int> userConversations,
-    IRepository<UserTask,int> userTask) : IDisposable, IRepositoryCatalog
+    IRepository<UserJob,int> userJob) : IDisposable, IRepositoryCatalog
 {
     private readonly BuildBuddyDbContext _context = buildBuddyDb;
 
-    public IRepository<Item, int> Items { get; } = items;
+    public IRepository<BuildingArticles, int> BuildingArticles { get; } = buildingArticles;
     public IRepository<User, int> Users { get; } = users;
     public IRepository<Conversation, int> Conversations { get; } = conversations;
     public IRepository<Message, int> Messages { get; } = messages;
-    public IRepository<Place, int> Places { get; } = places;
-    public IRepository<TaskActualization, int> TaskActualizations { get; } = taskActualizations;
-    public IRepository<Tasks, int> Tasks { get; } = tasks;
+    public IRepository<Address, int> Addresses { get; } = address;
+    public IRepository<JobActualization, int> JobActualizations { get; } = jobActualizations;
+    public IRepository<Job, int> Jobs { get; } = jobs;
     public IRepository<Team, int> Teams { get; } = teams;
     public IRepository<TeamUser, int> TeamUsers { get; } = teamUsers;
     public IRepository<UserConversation, int> UserConversations { get; } = userConversations;
-    public IRepository<UserTask, int> UserTasks { get; } = userTask;
+    public IRepository<UserJob, int> UserJobs { get; } = userJob;
 
     public Task SaveChangesAsync()
     {

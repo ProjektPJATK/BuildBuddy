@@ -12,16 +12,16 @@ namespace BuildBuddy.Data.Repositories
                     options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")))
                 .AddScoped<IRepository<User, int>, MainRepository<User, int>>()
                 .AddScoped<IRepository<Conversation, int>, MainRepository<Conversation, int>>()
-                .AddScoped<IRepository<Item, int>, MainRepository<Item, int>>()
+                .AddScoped<IRepository<BuildingArticles, int>, MainRepository<BuildingArticles, int>>()
                 .AddScoped<IRepository<Message, int>, MainRepository<Message, int>>()
-                .AddScoped<IRepository<Place, int>, MainRepository<Place, int>>()
-                .AddScoped<IRepository<TaskActualization, int>, MainRepository<TaskActualization, int>>()
-                .AddScoped<IRepository<Tasks, int>, MainRepository<Tasks, int>>()
+                .AddScoped<IRepository<Address, int>, MainRepository<Address, int>>()
+                .AddScoped<IRepository<JobActualization, int>, MainRepository<JobActualization, int>>()
+                .AddScoped<IRepository<Job, int>, MainRepository<Job, int>>()
                 .AddScoped<IRepository<Team, int>, MainRepository<Team, int>>()
                 .AddScoped<IRepository<TeamUser, int>, MainRepository<TeamUser, int>>()
                 .AddScoped<IRepository<User, int>, MainRepository<User, int>>()
                 .AddScoped<IRepository<UserConversation, int>, MainRepository<UserConversation, int>>()
-                .AddScoped<IRepository<UserTask,int>,MainRepository<UserTask,int>>()
+                .AddScoped<IRepository<UserJob,int>,MainRepository<UserJob,int>>()
                 .AddScoped<IRepositoryCatalog, UnitOfWork>();
         }
     }

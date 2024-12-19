@@ -1,4 +1,5 @@
 ﻿using BuildBuddy.Application.Abstractions;
+using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
 using BuildBuddy.Data.Model;
 
@@ -39,5 +40,21 @@ public class ChatService : IChatService
         _repositoryCatalog.Messages.Insert(message);
         await _repositoryCatalog.SaveChangesAsync();
     }
+    
+    public async Task<List<MessageDto>> GetChatHistory(int conversationId)
+    {
+        var messages = await _repositoryCatalog.Messages.GetAsync(
+            filter: m => m.ConversationId == conversationId
+        );
 
+        return messages
+            .OrderBy(m => m.DateTimeDate)
+            .Select(m => new MessageDto
+            {
+                SenderId = m.SenderId,
+                Text = m.Text,
+                DateTimeDate = m.DateTimeDate
+            })
+            .ToList();
+    }
 }
