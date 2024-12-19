@@ -61,7 +61,7 @@ void main() {
         create: (context) => ConversationBloc(ConversationService()),
          ),
          BlocProvider<ChatBloc>(
-          create: (_) => ChatBloc(chatHubService: ChatHubService()),
+          create: (context) => ChatBloc(chatHubService: ChatHubService()),
         ),
       ],
       child: const BuildBuddyApp(),

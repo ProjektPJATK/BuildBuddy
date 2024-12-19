@@ -16,12 +16,16 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("[ChatBubble] message='$message', isSentByMe=$isSentByMe, sender='$sender', time='$time'");
+
     return Align(
       alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
+          color: isSentByMe
+              ? Colors.white.withOpacity(0.8) // Tło dla wiadomości wysłanych przez użytkownika
+              : Color.fromARGB(248, 128, 127, 127)?.withOpacity(0.8), // Tło dla wiadomości od innych użytkowników
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(12),
             topRight: const Radius.circular(12),
@@ -51,7 +55,7 @@ class ChatBubble extends StatelessWidget {
                   ),
                 Text(
                   message,
-                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  style: const TextStyle(fontSize: 14, color: Colors.black87), // Czarny tekst
                   softWrap: true,
                 ),
                 Align(

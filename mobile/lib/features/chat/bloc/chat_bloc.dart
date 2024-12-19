@@ -1,64 +1,75 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobile/shared/config/config.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'chat_event.dart';
-import 'chat_state.dart';
 import '../services/chat_hub_service.dart';
 import '../models/chat_message_model.dart';
+import 'chat_event.dart';
+import 'chat_state.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final ChatHubService chatHubService;
   final List<ChatMessage> _messages = [];
 
-  bool _connected = false;
-
   ChatBloc({required this.chatHubService}) : super(ChatInitial()) {
     on<ConnectChatEvent>(_onConnectChat);
     on<SendMessageEvent>(_onSendMessage);
     on<ReceiveMessageEvent>(_onReceiveMessage);
+    on<ReceiveHistoryEvent>(_onReceiveHistory);
   }
 
-  Future<void> _onConnectChat(ConnectChatEvent event, Emitter<ChatState> emit) async {
-    emit(ChatConnecting());
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getInt('userId') ?? 0;
-      final conversationId = prefs.getInt('conversationId') ?? 0;
-      final baseUrl = AppConfig.getChatUrl();
+Future<void> _onConnectChat(ConnectChatEvent event, Emitter<ChatState> emit) async {
+  emit(ChatConnecting());
+  print("[ChatBloc] Emitting ChatConnecting");
 
-      await chatHubService.connect(baseUrl: baseUrl, conversationId: conversationId);
-
+  try {
+    await chatHubService.connect(
+      baseUrl: event.baseUrl,
+      conversationId: event.conversationId,
+      chatBloc: this,
+    );
+      
       chatHubService.onMessageReceived = (message) {
-        add(ReceiveMessageEvent(message: message));
-      };
+      print("[ChatBloc] New message received: ${message.text}");
+      add(ReceiveMessageEvent(message: message));
+    };
+    
+    chatHubService.onHistoryReceived = (history) {
+  print("[ChatBloc] History received with ${history.length} messages");
+  add(ReceiveHistoryEvent(messages: history));
+    };
 
-      final history = await chatHubService.fetchHistory(conversationId);
-      _messages
-        ..clear()
-        ..addAll(history);
-      _messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-
-      _connected = true;
-      emit(ChatLoaded(List.from(_messages)));
-    } catch (e) {
-      emit(ChatError('Failed to connect and load chat history: $e'));
-    }
+    print("[ChatBloc] Connection successful, waiting for history...");
+  } catch (e) {
+    emit(ChatError('Error connecting: $e'));
+    print("[ChatBloc] Emitting ChatError");
   }
+}
 
-  Future<void> _onSendMessage(SendMessageEvent event, Emitter<ChatState> emit) async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('userId') ?? 0;
-    final conversationId = prefs.getInt('conversationId') ?? 0;
 
-    try {
-      await chatHubService.sendMessage(userId, conversationId, event.text);
-    } catch (e) {
-      emit(ChatError('Failed to send message: $e'));
-    }
+ Future<void> _onSendMessage(SendMessageEvent event, Emitter<ChatState> emit) async {
+  try {
+    await chatHubService.sendMessage(event.senderId, event.conversationId, event.text);
+  } catch (e) {
+    emit(ChatError('Error sending message: $e'));
   }
+}
 
-  void _onReceiveMessage(ReceiveMessageEvent event, Emitter<ChatState> emit) {
-    _messages.add(event.message);
-    emit(ChatLoaded(List.from(_messages)));
-  }
+
+void _onReceiveMessage(ReceiveMessageEvent event, Emitter<ChatState> emit) {
+  print("[ChatBloc] New message received: ${event.message.text}");
+  _messages.add(event.message);
+  emit(ChatLoaded(List.from(_messages)));
+}
+
+
+void _onReceiveHistory(ReceiveHistoryEvent event, Emitter<ChatState> emit) {
+  _messages.clear();
+  _messages.addAll(event.messages);
+  print("[ChatBloc] History received with ${event.messages.length} messages: ${event.messages.map((m) => m.text).join(", ")}");
+  print("[ChatBloc] Emitting ChatLoaded with ${_messages.length} messages");
+  print("[ChatBloc] State is changing to ChatLoaded with ${_messages.length} messages");
+
+emit(ChatLoaded(List.from(_messages)));
+  print("[ChatBloc] ChatLoaded emitted with ${_messages.length} messages");
+
+}
+
 }

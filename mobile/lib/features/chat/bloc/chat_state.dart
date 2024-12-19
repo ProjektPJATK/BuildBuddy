@@ -12,10 +12,14 @@ class ChatHistoryLoading extends ChatState {}
 
 class ChatLoaded extends ChatState {
   final List<ChatMessage> messages;
-  ChatLoaded(this.messages);
+  ChatLoaded(this.messages) {
+    print("[ChatState] ChatLoaded with ${messages.length} messages");
+  }
 }
 
 class ChatError extends ChatState {
-  final String error;
-  ChatError(this.error);
+  final String errorMessage;
+
+  ChatError(this.errorMessage);
 }
+
