@@ -30,7 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-     
+    
+  signalr_netcore: 1.4.0   
   table_calendar: ^3.0.0
   permission_handler: ^10.4.3
  

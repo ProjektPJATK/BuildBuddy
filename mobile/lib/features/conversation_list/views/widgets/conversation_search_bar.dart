@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class ChatSearchBar extends StatelessWidget {
+class ConversationSearchBar extends StatelessWidget {
   final TextEditingController searchController;
   final Function(String) onSearch;
   final VoidCallback onAddPressed;
 
-  const ChatSearchBar({
+  const ConversationSearchBar({
     super.key,
     required this.searchController,
     required this.onSearch,
@@ -23,7 +23,7 @@ class ChatSearchBar extends StatelessWidget {
               controller: searchController,
               onChanged: onSearch,
               decoration: InputDecoration(
-                hintText: 'Szukaj po imieniu i nazwisku...',
+                hintText: 'Szukaj po nazwie...',
                 filled: true,
                 fillColor: Colors.white.withOpacity(0.9),
                 border: OutlineInputBorder(

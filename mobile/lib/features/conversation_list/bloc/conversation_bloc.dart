@@ -1,40 +1,47 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/conversation_service.dart';
 import 'conversation_event.dart';
 import 'conversation_state.dart';
-import '../services/conversation_service.dart';
 
 class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   final ConversationService conversationService;
 
-  ConversationBloc({required this.conversationService}) : super(ConversationLoading()) {
+  ConversationBloc(this.conversationService) : super(ConversationLoading()) {
+    on<LoadConversationsFromCacheEvent>(_onLoadConversationsFromCache);
     on<LoadConversationsEvent>(_onLoadConversations);
   }
 
-  Future<void> _onLoadConversations(LoadConversationsEvent event, Emitter<ConversationState> emit) async {
-    emit(ConversationLoading());
-
-    // 1. Wczytujemy z cache
+  Future<void> _onLoadConversationsFromCache(
+      LoadConversationsFromCacheEvent event, Emitter<ConversationState> emit) async {
+    print("[conversation_bloc] _onLoadConversationsFromCache -> start");
     final cachedConversations = await conversationService.loadConversationsFromCache();
-    if (cachedConversations.isNotEmpty) {
-      // Wyświetlamy dane z cache natychmiast
-      final processedCache = await conversationService.processConversations(cachedConversations);
-      emit(ConversationLoaded(conversations: processedCache));
-    }
 
+    if (cachedConversations.isNotEmpty) {
+      print("[conversation_bloc] _onLoadConversationsFromCache -> loaded ${cachedConversations.length} conv from cache");
+      emit(ConversationLoaded(conversations: cachedConversations));
+      print("[conversation_bloc] _onLoadConversationsFromCache -> Emit ConversationLoaded (cache)");
+    } else {
+      print("[conversation_bloc] _onLoadConversationsFromCache -> no cached data available");
+      // Nie emitujemy błędu, bo za chwilę wczytamy z endpointu
+    }
+  }
+
+  Future<void> _onLoadConversations(
+      LoadConversationsEvent event, Emitter<ConversationState> emit) async {
+    print("[conversation_bloc] _onLoadConversations -> start");
+    emit(ConversationLoading());
     try {
-      // 2. W tle pobieramy z backendu
       final rawConversations = await conversationService.fetchConversations();
-      // Zapisujemy do cache
+      print("[conversation_bloc] _onLoadConversations -> fetched ${rawConversations.length} conv from endpoint");
       await conversationService.saveConversationsToCache(rawConversations);
-      // Przetwarzamy na List<String>
-      final processed = await conversationService.processConversations(rawConversations);
-      emit(ConversationLoaded(conversations: processed));
+
+      emit(ConversationLoaded(conversations: rawConversations));
+      print("[conversation_bloc] _onLoadConversations -> Emit ConversationLoaded (endpoint)");
     } catch (e) {
-      // Jeśli w cache nic nie było, a serwer się wywalił, emituj błąd
-      if (cachedConversations.isEmpty) {
-        emit(ConversationError('Failed to load conversations: $e'));
-      }
-      // W przeciwnym razie zostaw dane z cache
+      print("[conversation_bloc] _onLoadConversations -> error=$e");
+      emit(ConversationError('Failed to load data: $e'));
     }
   }
 }

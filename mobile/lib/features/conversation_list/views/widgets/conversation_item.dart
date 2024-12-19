@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class ChatItem extends StatelessWidget {
+class ConversationItem extends StatelessWidget {
   final String name;
   final VoidCallback onTap;
 
-  const ChatItem({
+  const ConversationItem({
     super.key,
     required this.name,
     required this.onTap,

@@ -1,8 +1,10 @@
 class AppConfig {
   static const String backendIP = "10.0.2.2"; // Zmień na swoje IP w razie potrzeby
   static const String backendPort = "5159";
+  static const String backendChatPort = "5088";
   // Konstrukcja pełnego URL
   static String getBaseUrl() => "http://$backendIP:$backendPort";
+  static String getChatUrl() => "http://$backendIP:$backendChatPort";
   // Dodatkowe endpointy
   static String getLoginEndpoint() => "${getBaseUrl()}/api/User/login";
   static String getTeamsEndpoint(int userId) => "${getBaseUrl()}/api/User/$userId/teams";

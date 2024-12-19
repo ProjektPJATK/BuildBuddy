@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/features/chats/views/widgets/recipent_selection_screen.dart';
-import '../../../shared/themes/styles.dart';
+import 'package:mobile/features/new_message/recipent_selection_screen.dart';
+import '../../shared/themes/styles.dart';
 
 class NewMessageScreen extends StatefulWidget {
   const NewMessageScreen({super.key});

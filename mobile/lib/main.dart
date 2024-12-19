@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/features/calendar/views/calendar_screen.dart';
-import 'package:mobile/features/chats/views/chat_screen.dart';
+import 'package:mobile/features/chat/bloc/chat_bloc.dart';
+import 'package:mobile/features/chat/services/chat_hub_service.dart';
+import 'package:mobile/features/chat/views/chat_screen.dart';
 import 'package:mobile/features/conversation_list/bloc/conversation_bloc.dart';
 import 'package:mobile/features/conversation_list/services/conversation_service.dart';
 import 'package:mobile/features/conversation_list/views/conversation_list_screen.dart';
-import 'package:mobile/features/chats/views/new_message_screen.dart';
+import 'package:mobile/features/new_message/new_message_screen.dart';
 import 'package:mobile/features/construction_calendar/bloc/calendar_bloc.dart';
 import 'package:mobile/features/construction_calendar/services/calendar_service,dart';
 import 'package:mobile/features/construction_calendar/views/construction_calendar_screen.dart';
@@ -56,8 +58,11 @@ void main() {
           create: (context) => ProfileBloc(UserService()),
         ),
          BlocProvider<ConversationBloc>(
-        create: (context) => ConversationBloc(conversationService: ConversationService()),
+        create: (context) => ConversationBloc(ConversationService()),
          ),
+         BlocProvider<ChatBloc>(
+          create: (_) => ChatBloc(chatHubService: ChatHubService()),
+        ),
       ],
       child: const BuildBuddyApp(),
     ),
@@ -82,7 +87,10 @@ class BuildBuddyApp extends StatelessWidget {
         '/construction_team': (context) => TeamScreen(),
         '/construction_inventory': (context) => InventoryScreen(),
         '/construction_calendar': (context) => const ConstructionCalendarScreen(),
-        '/chat': (context) => ChatScreen(),
+        '/chat': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return ChatScreen(conversationName: args['conversationName']);
+        },
         '/register': (context) => RegisterScreen(),
       },
       theme: ThemeData(

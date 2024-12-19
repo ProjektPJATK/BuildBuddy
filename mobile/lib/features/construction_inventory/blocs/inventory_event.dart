@@ -2,9 +2,9 @@ abstract class InventoryEvent {}
 
 class LoadInventoryEvent extends InventoryEvent {
   final String token;
-  final int placeId;
+  final int addressId;
 
-  LoadInventoryEvent({required this.token, required this.placeId});
+  LoadInventoryEvent({required this.token, required this.addressId});
 }
 
 class FilterInventoryEvent extends InventoryEvent {

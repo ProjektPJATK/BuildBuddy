@@ -1,7 +1,5 @@
 import '../models/inventory_item_model.dart';
 
-import '../models/inventory_item_model.dart';
-
 abstract class InventoryState {}
 
 /// State emitted while loading inventory data

@@ -1,4 +1,5 @@
 abstract class ConversationEvent {}
 
-/// Event do załadowania konwersacji (nie potrzebujemy teamId)
+class LoadConversationsFromCacheEvent extends ConversationEvent {}
+
 class LoadConversationsEvent extends ConversationEvent {}

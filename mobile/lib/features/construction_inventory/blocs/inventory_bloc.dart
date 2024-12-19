@@ -29,7 +29,7 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
     try {
       final items = await inventoryService.fetchInventoryItems(
         event.token,
-        event.placeId,
+        event.addressId,
       );
 
       // Zapis do cache

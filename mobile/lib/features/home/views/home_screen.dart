@@ -41,13 +41,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    _clearPlaceIdCache();
+    _clearAddressIdCache();
     super.dispose();
   }
 
-  Future<void> _clearPlaceIdCache() async {
+  Future<void> _clearAddressIdCache() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('placeId');
+    await prefs.remove('addressId');
   }
 
   @override
@@ -137,14 +137,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       final team = teams[index];
                       return BuildOption(
                         title: team['name'],
-                        placeId: team['placeId'], // Pass placeId
+                        addressId: team['addressId'], 
                         onTap: () {
                           Navigator.pushNamed(
                             context,
                             '/construction_home',
                             arguments: {
                               'teamId': team['id'],
-                              'placeId': team['placeId'],
+                              'addressId': team['addressId'],
                             },
                           );
                         },

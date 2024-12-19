@@ -3,20 +3,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class BuildOption extends StatelessWidget {
   final String title;
-  final dynamic placeId; // Change to dynamic to handle both int and String
+  final dynamic addressId; // Change to dynamic to handle both int and String
   final VoidCallback onTap;
 
   const BuildOption({
     super.key,
     required this.title,
-    required this.placeId, // Accept dynamic type
+    required this.addressId, // Accept dynamic type
     required this.onTap,
   });
 
-  Future<void> _cachePlaceId() async {
+  Future<void> _cacheAddressId() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('placeId', placeId.toString()); // Convert to String
-    print('Cached placeId: ${placeId.toString()}'); // Debug log
+    await prefs.setString('addressId', addressId.toString()); // Convert to String
+    print('Cached addressId: ${addressId.toString()}'); // Debug log
   }
 
   @override
@@ -44,7 +44,7 @@ class BuildOption extends StatelessWidget {
               ),
             ),
             onTap: () async {
-              await _cachePlaceId(); // Cache placeId
+              await _cacheAddressId(); 
               onTap();
             },
           ),

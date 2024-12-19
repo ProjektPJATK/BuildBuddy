@@ -8,7 +8,6 @@ import '../models/inventory_item_model.dart';
 import '../../../shared/widgets/bottom_navigation.dart';
 import '../../../shared/themes/styles.dart';
 import 'widgets/edit_item_dialog.dart';
-import 'widgets/inventory_item_card.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -26,28 +25,33 @@ class _InventoryScreenState extends State<InventoryScreen> {
     _loadInventory();
   }
 
-  void _loadInventory() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    final placeIdString = prefs.getString('placeId');
+ void _loadInventory() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+  final addressIdString = prefs.getString('addressId');
 
-    if (token != null && placeIdString != null) {
-      final placeId = int.tryParse(placeIdString);
-      if (placeId != null) {
-        context.read<InventoryBloc>().add(
-              LoadInventoryEvent(token: token, placeId: placeId),
-            );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid place ID in cache')),
-        );
-      }
+  print("Token: $token");
+  print("address ID (string): $addressIdString");
+
+  if (token != null && addressIdString != null) {
+    final addressId = int.tryParse(addressIdString);
+    print("address ID (parsed): $addressId");
+
+    if (addressId != null) {
+      context.read<InventoryBloc>().add(
+            LoadInventoryEvent(token: token, addressId: addressId),
+          );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to load inventory: Missing data')),
+        const SnackBar(content: Text('Invalid address ID in cache')),
       );
     }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Failed to load inventory: Missing data')),
+    );
   }
+}
 
   void _showEditItemDialog(BuildContext context, InventoryItemModel item) {
     showDialog(
