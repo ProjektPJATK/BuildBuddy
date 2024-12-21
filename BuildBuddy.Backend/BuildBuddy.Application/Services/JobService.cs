@@ -52,9 +52,9 @@ namespace BuildBuddy.Application.Services
             };
         }
 
-        public async Task<JobDto> CreateJobAsync(JobDto jobDto)
+        public async Task<JobDto> CreateJobAsync(JobDto jobDto, string jobActualizationMessage = "Job created")
         {
-            var task = new BuildBuddy.Data.Model.Job()
+            var job = new Job()
             {
                 Name = jobDto.Name,
                 Message = jobDto.Message,
@@ -64,10 +64,21 @@ namespace BuildBuddy.Application.Services
                 PlaceId = jobDto.AddressId
             };
 
-            _dbContext.Jobs.Insert(task);
+            _dbContext.Jobs.Insert(job);
             await _dbContext.SaveChangesAsync();
 
-            jobDto.Id = task.Id;
+            var jobActualization = new JobActualization
+            {
+                JobId = job.Id,
+                IsDone = false,
+                Message = jobActualizationMessage,
+                JobImageUrl = new List<string>()
+            };
+
+            _dbContext.JobActualizations.Insert(jobActualization);
+            await _dbContext.SaveChangesAsync();
+
+            jobDto.Id = job.Id;
             return jobDto;
         }
 

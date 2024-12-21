@@ -35,9 +35,9 @@ namespace BuildBuddy.WebApi.Controllers;
         }
 
         [HttpPost]
-        public async Task<ActionResult<JobDto>> CreateTask(JobDto jobDto)
+        public async Task<ActionResult<JobDto>> CreateTask(JobDto jobDto, string message)
         {
-            var createdTask = await _jobService.CreateJobAsync(jobDto);
+            var createdTask = await _jobService.CreateJobAsync(jobDto, message);
             return CreatedAtAction(nameof(GetTaskById), new { id = createdTask.Id }, createdTask);
         }
 

@@ -29,24 +29,26 @@ namespace BuildBuddy.Application.Services
                     JobId = ta.JobId
                 });
         }
+        
 
-        public async Task<JobActualizationDto> GetJobActualizationByIdAsync(int id)
+        public async Task<JobActualizationDto> GetJobActualizationByIdAsync(int jobId)
         {
-            var taskActualization = await _dbContext.JobActualizations 
-                .GetByID(id);
+            var taskActualization = await _dbContext.JobActualizations
+                .GetAsync(filter: ta => ta.JobId == jobId);
 
-            if (taskActualization == null)
+            if (taskActualization == null || !taskActualization.Any())
             {
                 return null;
             }
 
+            var ta = taskActualization.First();
             return new JobActualizationDto
             {
-                Id = taskActualization.Id,
-                Message = taskActualization.Message,
-                IsDone = taskActualization.IsDone,
-                JobImageUrl = taskActualization.JobImageUrl,
-                JobId = taskActualization.JobId
+                Id = ta.Id,
+                Message = ta.Message,
+                IsDone = ta.IsDone,
+                JobImageUrl = ta.JobImageUrl,
+                JobId = ta.JobId
             };
         }
 
@@ -67,62 +69,69 @@ namespace BuildBuddy.Application.Services
             return jobActualizationDto;
         }
 
-        public async Task UpdateJobActualizationAsync(int id, JobActualizationDto jobActualizationDto)
+        public async Task UpdateJobActualizationAsync(int jobId, JobActualizationDto jobActualizationDto)
         {
             var taskActualization = await _dbContext.JobActualizations
-                .GetByID(id);
+                .GetAsync(filter: ta => ta.JobId == jobId);
 
+            
             if (taskActualization != null)
             {
-                taskActualization.Message = jobActualizationDto.Message;
-                taskActualization.IsDone = jobActualizationDto.IsDone;
-                taskActualization.JobImageUrl = jobActualizationDto.JobImageUrl;
-                taskActualization.JobId = jobActualizationDto.JobId;
+                var ta = taskActualization.First();
+                ta.Message = jobActualizationDto.Message;
+                ta.IsDone = jobActualizationDto.IsDone;
+                ta.JobImageUrl = jobActualizationDto.JobImageUrl;
+                ta.JobId = jobActualizationDto.JobId;
 
                 await _dbContext.SaveChangesAsync();
             }
         }
 
-        public async Task DeleteJobActualizationAsync(int id)
+        public async Task DeleteJobActualizationAsync(int jobId)
         {
             var taskActualization = await _dbContext.JobActualizations
-                .GetByID(id);
+                .GetAsync(filter: ta => ta.JobId == jobId);
 
             if (taskActualization != null)
             {
-                _dbContext.JobActualizations.Delete(taskActualization);
+                var ta = taskActualization.First();
+                _dbContext.JobActualizations.Delete(ta);
                 await _dbContext.SaveChangesAsync();
             }
         }
         
-        public async Task AddJobImageAsync(int taskId, Stream imageStream, string imageName)
+        public async Task AddJobImageAsync(int jobId, Stream imageStream, string imageName)
         {
             const string prefix = "task";
-            var task = await _dbContext.JobActualizations.GetByID(taskId);
-            if (task == null) throw new Exception("Task not found");
+            var job = await _dbContext.JobActualizations
+                .GetAsync(filter: ta => ta.JobId == jobId);
+            if (job == null) throw new Exception("Task not found");
+            var ja = job.First();
 
             var imageUrl = await _fileStorage.UploadImageAsync(imageStream, imageName, prefix);
-            task.JobImageUrl.Add(imageUrl);
+            ja.JobImageUrl.Add(imageUrl);
 
-            _dbContext.JobActualizations.Update(task);
+            _dbContext.JobActualizations.Update(ja);
             await _dbContext.SaveChangesAsync();
         }
         
-        public async Task<IEnumerable<string>> GetJobImagesAsync(int taskId)
+        public async Task<IEnumerable<string>> GetJobImagesAsync(int jobId)
         {
-            var task = await _dbContext.JobActualizations.GetByID(taskId);
-            if (task == null) throw new Exception("Task not found");
+            var job = await _dbContext.JobActualizations
+                .GetAsync(filter: ta => ta.JobId == jobId);
+            if (job == null) throw new Exception("Task not found");
 
-            return task.JobImageUrl;
+            return job.First().JobImageUrl;
         }
 
-        public async Task RemoveJobImageAsync(int taskId, string imageUrl)
+        public async Task RemoveJobImageAsync(int jobId, string imageUrl)
         {
-            var task = await _dbContext.JobActualizations.GetByID(taskId);
-            if (task == null) throw new Exception("Task not found");
+            var job = await _dbContext.JobActualizations
+                .GetAsync(filter: ta => ta.JobId == jobId);
+            if (job == null) throw new Exception("Task not found");
             
             await _fileStorage.DeleteFileAsync(imageUrl);
-
+            var task = job.First();
             task.JobImageUrl.Remove(imageUrl);
 
             _dbContext.JobActualizations.Update(task);
