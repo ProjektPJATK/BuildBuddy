@@ -102,7 +102,7 @@ namespace BuildBuddy.Application.Services
         
         public async Task AddJobImageAsync(int jobId, Stream imageStream, string imageName)
         {
-            const string prefix = "task";
+            const string prefix = "job";
             var job = await _dbContext.JobActualizations
                 .GetAsync(filter: ta => ta.JobId == jobId);
             if (job == null) throw new Exception("Task not found");
