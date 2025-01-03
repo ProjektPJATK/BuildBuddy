@@ -1,4 +1,6 @@
+using Amazon.Translate;
 using BuildBuddy.Application;
+using BuildBuddy.Application.Abstractions;
 using BuildBuddy.WebSocets;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +22,6 @@ builder.Services.AddCors(options =>
             .SetIsOriginAllowed(_ => true);
     });
 });
-
 
 var app = builder.Build();
 

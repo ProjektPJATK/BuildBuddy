@@ -121,5 +121,29 @@ public class ConversationService : IConversationService
             TeamId = c.TeamId
         }).ToList();
     }
+    public async Task<List<UserDto>> GetConversationUsersAsync(int conversationId)
+    {
+        var conversation = await _context.Conversations.GetAsync(
+            filter: c => c.Id == conversationId,
+            includeProperties: "UserConversations.User"
+        );
 
+        var entity = conversation.FirstOrDefault();
+
+        if (entity == null)
+        {
+            throw new ArgumentException("Conversation not found");
+        }
+
+        return entity.UserConversations.Select(uc => new UserDto
+        {
+            Id = uc.User.Id,
+            Name = uc.User.Name,
+            Surname = uc.User.Surname,
+            Mail = uc.User.Mail,
+            TelephoneNr = uc.User.TelephoneNr,
+            UserImageUrl = uc.User.UserImageUrl,
+            PreferredLanguage = uc.User.PreferredLanguage
+        }).ToList();
+    }
 }
