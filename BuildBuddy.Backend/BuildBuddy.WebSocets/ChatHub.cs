@@ -6,14 +6,10 @@ namespace BuildBuddy.WebSocets;
 public class ChatHub : Hub
 {
     private readonly IChatService _chatService;
-    private readonly IConversationService _conversationService;
-    private readonly ITranslationService _translationService;
-
-    public ChatHub(IChatService chatService, IConversationService conversationService, ITranslationService translationService)
+    
+    public ChatHub(IChatService chatService)
     {
         _chatService = chatService;
-        _conversationService = conversationService;
-        _translationService = translationService;
     }
 
     public async Task SendMessage(int senderId, int conversationId, string text)
