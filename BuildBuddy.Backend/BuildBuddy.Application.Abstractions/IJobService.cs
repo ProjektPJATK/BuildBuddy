@@ -6,7 +6,7 @@ public interface IJobService
 {
     Task<IEnumerable<JobDto>> GetAllJobsAsync();
     Task<JobDto> GetJobIdAsync(int id);
-    Task<JobDto> CreateJobAsync(JobDto conversationDto, string jobActualizationMessage);
+    Task<JobDto> CreateJobAsync(JobDto conversationDto);
     Task UpdateJobAsync(int id, JobDto conversationDto);
     Task DeleteJobAsync(int id);
     Task<IEnumerable<JobDto>> GetJobByUserIdAsync(int userId);
