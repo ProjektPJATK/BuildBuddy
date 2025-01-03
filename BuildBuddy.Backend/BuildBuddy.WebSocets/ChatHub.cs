@@ -6,22 +6,39 @@ namespace BuildBuddy.WebSocets;
 public class ChatHub : Hub
 {
     private readonly IChatService _chatService;
+    private readonly IConversationService _conversationService;
+    private readonly ITranslationService _translationService;
 
-    public ChatHub(IChatService chatService)
+    public ChatHub(IChatService chatService, IConversationService conversationService, ITranslationService translationService)
     {
         _chatService = chatService;
+        _conversationService = conversationService;
+        _translationService = translationService;
     }
 
     public async Task SendMessage(int senderId, int conversationId, string text)
     {
-        await _chatService.HandleIncomingMessage(senderId, conversationId, text);
-        Console.WriteLine($"Message received: SenderId={senderId}, Text={text}, Timestamp={DateTime.UtcNow}");
+        Console.WriteLine($"SendMessage called with senderId={senderId}, conversationId={conversationId}, text={text}");
 
-        await Clients.Group(conversationId.ToString()).SendAsync("ReceiveMessage", senderId, text, DateTime.UtcNow);
+        var message = await _chatService.HandleIncomingMessage(senderId, conversationId, text);
+
+        var translations = await _chatService.PrepareMessageForUsers(senderId, conversationId, text);
+
+        foreach (var translation in translations)
+        {
+            await Clients.User(translation.Key.ToString()).SendAsync(
+                "ReceiveMessage",
+                senderId,
+                translation.Value,
+                message.DateTimeDate
+            );
+        }
     }
     public async Task FetchHistory(int conversationId)
     {
-        var messages = await _chatService.GetChatHistory(conversationId);
+        var userId = int.Parse(Context.UserIdentifier);
+
+        var messages = await _chatService.GetChatHistory(conversationId, userId);
 
         await Clients.Caller.SendAsync("ReceiveHistory", messages);
     }

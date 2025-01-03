@@ -10,5 +10,5 @@ public interface IConversationService
     Task<List<ConversationDto>> GetAllConversationsAsync();
     Task<ConversationDto> GetConversationByIdAsync(int conversationId);
     Task<List<ConversationDto>> GetUserConversationsAsync(int userId);
-
+    Task<List<UserDto>> GetConversationUsersAsync(int conversationId);
 }
