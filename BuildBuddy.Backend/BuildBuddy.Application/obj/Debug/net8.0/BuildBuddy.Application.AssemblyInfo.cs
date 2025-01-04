@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BuildBuddy.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9198a6fb62728585429fdad017d68756f3d9cc56")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b799499f944f739593e3c95aadb3eeaec753c1df")]
 [assembly: System.Reflection.AssemblyProductAttribute("BuildBuddy.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BuildBuddy.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
