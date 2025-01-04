@@ -1,4 +1,4 @@
-﻿using BuildBuddy.Application.Abstractions;
+using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
 using BuildBuddy.Data.Model;
@@ -26,7 +26,9 @@ namespace BuildBuddy.Application.Services
                     StartTime = t.StartTime,
                     EndTime = t.EndTime,
                     AllDay = t.AllDay,
+
                     AddressId = t.AddressId ?? 0
+
                 });
         }
 
@@ -49,12 +51,15 @@ namespace BuildBuddy.Application.Services
                 EndTime = task.EndTime,
                 AllDay = task.AllDay,
                 AddressId = task.AddressId ?? 0
+
             };
         }
 
         public async Task<JobDto> CreateJobAsync(JobDto jobDto)
         {
+
             var job = new Job()
+
             {
                 Name = jobDto.Name,
                 Message = jobDto.Message,
@@ -66,7 +71,6 @@ namespace BuildBuddy.Application.Services
 
             _dbContext.Jobs.Insert(job);
             await _dbContext.SaveChangesAsync();
-
             jobDto.Id = job.Id;
             return jobDto;
         }
@@ -83,7 +87,6 @@ namespace BuildBuddy.Application.Services
                 task.EndTime = jobDto.EndTime;
                 task.AllDay = jobDto.AllDay;
                 task.AddressId = jobDto.AddressId;
-                
                 await _dbContext.SaveChangesAsync();
             }
         }

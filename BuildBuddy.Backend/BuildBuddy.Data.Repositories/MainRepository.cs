@@ -43,7 +43,6 @@ internal class MainRepository<TEntity, TId> : IRepository<TEntity, TId> where TE
             }
             if (orderBy != null)
                 query = orderBy(query);
-            
 
             if (typeof(TEntity) == typeof(TDto))
                 return query.OfType<TDto>().ToListAsync();

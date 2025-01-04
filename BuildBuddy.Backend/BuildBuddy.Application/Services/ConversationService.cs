@@ -1,4 +1,3 @@
-﻿
 using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
@@ -118,7 +117,18 @@ public class ConversationService : IConversationService
         {
             Id = c.Id,
             Name = c.Name,
-            TeamId = c.TeamId
+            TeamId = c.TeamId,
+            Users = c.UserConversations.Select(uc => new UserDto
+            {
+                Id = uc.User.Id,
+                Name = uc.User.Name,
+                Surname = uc.User.Surname,
+                Mail = uc.User.Mail,
+                TelephoneNr = uc.User.TelephoneNr,
+                UserImageUrl = uc.User.UserImageUrl,
+                PreferredLanguage = uc.User.PreferredLanguage,
+            }).ToList()
+
         }).ToList();
     }
     public async Task<List<UserDto>> GetConversationUsersAsync(int conversationId)
