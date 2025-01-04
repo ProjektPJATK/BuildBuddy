@@ -28,4 +28,8 @@
       <ProjectReference Include="..\BuildBuddy.Data\BuildBuddy.Data.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Migrations\BuildBuddyDbContextModelSnapshot.cs" />
+    </ItemGroup>
+
 </Project>

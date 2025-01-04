@@ -1,0 +1,23 @@
+{
+  "Version": 1,
+  "Hash": "J1vHT6JZ+NxDJX0Yw++1EM0LEqA5SK8lK80i7dgAjgk=",
+  "Source": "BuildBuddy.Storage.Repository",
+  "BasePath": "_content/BuildBuddy.Storage.Repository",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Storage.Abstraction\\BuildBuddy.Storage.Abstraction.csproj",
+      "Version": 2,
+      "Source": "BuildBuddy.Storage.Abstraction",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

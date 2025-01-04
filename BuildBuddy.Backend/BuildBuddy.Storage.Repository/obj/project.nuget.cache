@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "dgSpecHash": "vKE6V6svU9K5bG+1X6wgHLzI4/pbNrAVHgPuaoTxZdM7p/4KMae5tiQ8a7wuhmQ4s9UenYzzgDp47A/lLnZ9cQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Storage.Repository\\BuildBuddy.Storage.Repository.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\mateu\\.nuget\\packages\\awssdk.core\\3.7.400.62\\awssdk.core.3.7.400.62.nupkg.sha512",
+    "C:\\Users\\mateu\\.nuget\\packages\\awssdk.extensions.netcore.setup\\3.7.301\\awssdk.extensions.netcore.setup.3.7.301.nupkg.sha512",
+    "C:\\Users\\mateu\\.nuget\\packages\\awssdk.s3\\3.7.410.4\\awssdk.s3.3.7.410.4.nupkg.sha512",
+    "C:\\Users\\mateu\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\2.0.0\\microsoft.extensions.configuration.abstractions.2.0.0.nupkg.sha512",
+    "C:\\Users\\mateu\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\2.0.0\\microsoft.extensions.dependencyinjection.abstractions.2.0.0.nupkg.sha512",
+    "C:\\Users\\mateu\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\2.0.0\\microsoft.extensions.logging.abstractions.2.0.0.nupkg.sha512",
+    "C:\\Users\\mateu\\.nuget\\packages\\microsoft.extensions.primitives\\2.0.0\\microsoft.extensions.primitives.2.0.0.nupkg.sha512",
+    "C:\\Users\\mateu\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\4.4.0\\system.runtime.compilerservices.unsafe.4.4.0.nupkg.sha512"
+  ],
+  "logs": []
+}
