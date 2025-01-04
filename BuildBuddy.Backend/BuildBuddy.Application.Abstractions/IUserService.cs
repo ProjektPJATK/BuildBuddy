@@ -1,5 +1,6 @@
 ﻿
 using BuildBuddy.Contract;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace BuildBuddy.Application.Abstractions;
 
@@ -9,7 +10,7 @@ public interface IUserService
     Task<UserDto?> GetUserByEmailAsync(string email);
     Task<IEnumerable<UserDto>> GetAllUsersAsync();
     Task<UserDto> CreateUserAsync(UserDto userDto);
-    Task UpdateUserAsync(int userId, UserDto userDto);
+    Task UpdateUserAsync(int userId, JsonPatchDocument<UserDto> patchDoc);
     Task DeleteUserAsync(int userId);
     Task<IEnumerable<ConversationDto>> GetUserConversationsAsync(int userId);
     Task<List<TeamDto>> GetTeamsByUserId(int userId);
