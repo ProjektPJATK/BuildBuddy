@@ -1,13 +1,13 @@
 {
   "Version": 1,
-  "Hash": "Vg2xEUOfTQp7vhEMDyD+2Bk3nq2rM6t1DcL6vMHJ5J0=",
+  "Hash": "BW47QC/ClkG4o19wUj7hNLOImZRV5mGrlGNpqupzzbQ=",
   "Source": "BuildBuddy.Data.Abstractions",
   "BasePath": "_content/BuildBuddy.Data.Abstractions",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [
     {
-      "Identity": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Data\\BuildBuddy.Data.csproj",
+      "Identity": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Data\\BuildBuddy.Data.csproj",
       "Version": 2,
       "Source": "BuildBuddy.Data",
       "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
@@ -19,5 +19,6 @@
     }
   ],
   "DiscoveryPatterns": [],
-  "Assets": []
+  "Assets": [],
+  "Endpoints": []
 }

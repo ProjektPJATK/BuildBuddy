@@ -1,4 +1,4 @@
-﻿using BuildBuddy.Application.Abstractions;
+using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
 using BuildBuddy.Data.Model;

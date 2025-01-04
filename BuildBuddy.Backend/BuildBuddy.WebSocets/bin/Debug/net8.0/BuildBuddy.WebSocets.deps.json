@@ -731,7 +731,10 @@
           "System.IdentityModel.Tokens.Jwt": "8.3.0"
         },
         "runtime": {
-          "BuildBuddy.Application.dll": {}
+          "BuildBuddy.Application.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "BuildBuddy.Application.Abstractions/1.0.0": {
@@ -741,7 +744,10 @@
           "Swashbuckle.AspNetCore": "6.4.0"
         },
         "runtime": {
-          "BuildBuddy.Application.Abstractions.dll": {}
+          "BuildBuddy.Application.Abstractions.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "BuildBuddy.Contract/1.0.0": {
@@ -750,7 +756,10 @@
           "Swashbuckle.AspNetCore": "6.4.0"
         },
         "runtime": {
-          "BuildBuddy.Contract.dll": {}
+          "BuildBuddy.Contract.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "BuildBuddy.Data/1.0.0": {
@@ -759,7 +768,10 @@
           "Swashbuckle.AspNetCore": "6.4.0"
         },
         "runtime": {
-          "BuildBuddy.Data.dll": {}
+          "BuildBuddy.Data.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "BuildBuddy.Data.Abstractions/1.0.0": {
@@ -769,7 +781,10 @@
           "Swashbuckle.AspNetCore": "6.4.0"
         },
         "runtime": {
-          "BuildBuddy.Data.Abstractions.dll": {}
+          "BuildBuddy.Data.Abstractions.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "BuildBuddy.Data.Repositories/1.0.0": {
@@ -783,12 +798,18 @@
           "Swashbuckle.AspNetCore": "6.4.0"
         },
         "runtime": {
-          "BuildBuddy.Data.Repositories.dll": {}
+          "BuildBuddy.Data.Repositories.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "BuildBuddy.Storage.Abstraction/1.0.0": {
         "runtime": {
-          "BuildBuddy.Storage.Abstraction.dll": {}
+          "BuildBuddy.Storage.Abstraction.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "BuildBuddy.Storage.Repository/1.0.0": {
@@ -798,7 +819,10 @@
           "BuildBuddy.Storage.Abstraction": "1.0.0"
         },
         "runtime": {
-          "BuildBuddy.Storage.Repository.dll": {}
+          "BuildBuddy.Storage.Repository.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

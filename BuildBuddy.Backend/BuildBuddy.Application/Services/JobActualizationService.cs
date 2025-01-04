@@ -1,4 +1,4 @@
-﻿using BuildBuddy.Application.Abstractions;
+using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
 using BuildBuddy.Data.Model;
@@ -29,7 +29,6 @@ namespace BuildBuddy.Application.Services
                     JobId = ta.JobId
                 });
         }
-        
 
         public async Task<JobActualizationDto> GetJobActualizationByIdAsync(int jobId)
         {
@@ -37,7 +36,7 @@ namespace BuildBuddy.Application.Services
                 .GetAsync(filter: ta => ta.JobId == jobId);
 
             if (jobActualization == null || !jobActualization.Any())
-            {
+         {
                 return null;
             }
 
@@ -49,6 +48,7 @@ namespace BuildBuddy.Application.Services
                 IsDone = ta.IsDone,
                 JobImageUrl = ta.JobImageUrl,
                 JobId = ta.JobId
+
             };
         }
 
@@ -82,6 +82,7 @@ namespace BuildBuddy.Application.Services
                 ta.IsDone = jobActualizationDto.IsDone;
                 ta.JobImageUrl = jobActualizationDto.JobImageUrl;
                 ta.JobId = jobActualizationDto.JobId;
+
 
                 await _dbContext.SaveChangesAsync();
             }
@@ -131,7 +132,8 @@ namespace BuildBuddy.Application.Services
             if (job == null) throw new Exception("Task not found");
             
             await _fileStorage.DeleteFileAsync(imageUrl);
-            var task = job.First();
+            var task = job.First(); 
+            
             task.JobImageUrl.Remove(imageUrl);
 
             _dbContext.JobActualizations.Update(task);

@@ -64,7 +64,10 @@
       "System.Runtime.CompilerServices.Unsafe/4.4.0": {},
       "BuildBuddy.Storage.Abstraction/1.0.0": {
         "runtime": {
-          "BuildBuddy.Storage.Abstraction.dll": {}
+          "BuildBuddy.Storage.Abstraction.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

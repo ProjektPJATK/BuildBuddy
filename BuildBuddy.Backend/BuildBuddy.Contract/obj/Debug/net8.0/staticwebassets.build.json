@@ -1,11 +1,12 @@
 {
   "Version": 1,
-  "Hash": "2XaYuHM5+znGARn+QUyZ+J/vmC8eLfL8gWopHjmeqb8=",
+  "Hash": "0vdK2de9rzxgrY1YKwSS5nOBTeL4reE2BMjEFz22XFs=",
   "Source": "BuildBuddy.Contract",
   "BasePath": "_content/BuildBuddy.Contract",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
   "DiscoveryPatterns": [],
-  "Assets": []
+  "Assets": [],
+  "Endpoints": []
 }

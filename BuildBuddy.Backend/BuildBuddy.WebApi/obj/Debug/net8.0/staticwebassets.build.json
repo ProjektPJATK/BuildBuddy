@@ -1,13 +1,13 @@
 {
   "Version": 1,
-  "Hash": "7H2UQyAiLKsfN8VZSH73OFDlF/SWuCOOdOwyBK3kYWU=",
+  "Hash": "8JOgDEmsvgxuzvJW/S483xCiHXMOcQ/BRx3CpkDtJeU=",
   "Source": "BuildBuddy.WebApi",
   "BasePath": "_content/BuildBuddy.WebApi",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [
     {
-      "Identity": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application.Abstractions\\BuildBuddy.Application.Abstractions.csproj",
+      "Identity": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application.Abstractions\\BuildBuddy.Application.Abstractions.csproj",
       "Version": 2,
       "Source": "BuildBuddy.Application.Abstractions",
       "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
@@ -18,7 +18,7 @@
       "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
     },
     {
-      "Identity": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application\\BuildBuddy.Application.csproj",
+      "Identity": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application\\BuildBuddy.Application.csproj",
       "Version": 2,
       "Source": "BuildBuddy.Application",
       "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
@@ -29,7 +29,7 @@
       "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
     },
     {
-      "Identity": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\BuildBuddy.Contract.csproj",
+      "Identity": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\BuildBuddy.Contract.csproj",
       "Version": 2,
       "Source": "BuildBuddy.Contract",
       "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
@@ -40,7 +40,7 @@
       "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
     },
     {
-      "Identity": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Data.Abstractions\\BuildBuddy.Data.Abstractions.csproj",
+      "Identity": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Data.Abstractions\\BuildBuddy.Data.Abstractions.csproj",
       "Version": 2,
       "Source": "BuildBuddy.Data.Abstractions",
       "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
@@ -51,7 +51,7 @@
       "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
     },
     {
-      "Identity": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Data.Repositories\\BuildBuddy.Data.Repositories.csproj",
+      "Identity": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Data.Repositories\\BuildBuddy.Data.Repositories.csproj",
       "Version": 2,
       "Source": "BuildBuddy.Data.Repositories",
       "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
@@ -62,7 +62,7 @@
       "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
     },
     {
-      "Identity": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Data\\BuildBuddy.Data.csproj",
+      "Identity": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Data\\BuildBuddy.Data.csproj",
       "Version": 2,
       "Source": "BuildBuddy.Data",
       "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
@@ -73,7 +73,7 @@
       "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
     },
     {
-      "Identity": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Storage.Abstraction\\BuildBuddy.Storage.Abstraction.csproj",
+      "Identity": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Storage.Abstraction\\BuildBuddy.Storage.Abstraction.csproj",
       "Version": 2,
       "Source": "BuildBuddy.Storage.Abstraction",
       "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
@@ -84,7 +84,7 @@
       "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
     },
     {
-      "Identity": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Storage.Repository\\BuildBuddy.Storage.Repository.csproj",
+      "Identity": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Storage.Repository\\BuildBuddy.Storage.Repository.csproj",
       "Version": 2,
       "Source": "BuildBuddy.Storage.Repository",
       "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
@@ -96,5 +96,6 @@
     }
   ],
   "DiscoveryPatterns": [],
-  "Assets": []
+  "Assets": [],
+  "Endpoints": []
 }

@@ -1,4 +1,4 @@
-﻿using BuildBuddy.Application.Abstractions;
+using BuildBuddy.Application.Abstractions;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BuildBuddy.WebSocets;
@@ -13,26 +13,40 @@ public class ChatHub : Hub
     }
 
     public async Task SendMessage(int senderId, int conversationId, string text)
+{
+    Console.WriteLine($"SendMessage called with senderId={senderId}, conversationId={conversationId}, text={text}");
+
+    var message = await _chatService.HandleIncomingMessage(senderId, conversationId, text);
+
+    var translations = await _chatService.PrepareMessageForUsers(senderId, conversationId, text);
+
+    Console.WriteLine("Translations:");
+    foreach (var translation in translations)
     {
-        Console.WriteLine($"SendMessage called with senderId={senderId}, conversationId={conversationId}, text={text}");
-
-        var message = await _chatService.HandleIncomingMessage(senderId, conversationId, text);
-
-        var translations = await _chatService.PrepareMessageForUsers(senderId, conversationId, text);
-
-        foreach (var translation in translations)
+        Console.WriteLine($"UserId: {translation.Key}, Message: {translation.Value}");
+        if (translation.Key != senderId)  // Tylko dla innych użytkowników
         {
-            await Clients.User(translation.Key.ToString()).SendAsync(
+            await Clients.OthersInGroup(conversationId.ToString()).SendAsync(
                 "ReceiveMessage",
                 senderId,
-                translation.Value,
+                translation.Value,  // Tłumaczenie
                 message.DateTimeDate
             );
         }
     }
-    public async Task FetchHistory(int conversationId)
+
+    // Nadawca otrzymuje tylko oryginalną wiadomość
+    await Clients.Caller.SendAsync(
+        "ReceiveMessage",
+        senderId,
+        text,  // Oryginał
+        message.DateTimeDate
+    );
+}
+
+    
+    public async Task FetchHistory(int conversationId, int userId)
     {
-        var userId = int.Parse(Context.UserIdentifier);
 
         var messages = await _chatService.GetChatHistory(conversationId, userId);
 

@@ -583,7 +583,10 @@
           "Swashbuckle.AspNetCore": "6.4.0"
         },
         "runtime": {
-          "BuildBuddy.Data.dll": {}
+          "BuildBuddy.Data.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "BuildBuddy.Data.Abstractions/1.0.0": {
@@ -593,7 +596,10 @@
           "Swashbuckle.AspNetCore": "6.4.0"
         },
         "runtime": {
-          "BuildBuddy.Data.Abstractions.dll": {}
+          "BuildBuddy.Data.Abstractions.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

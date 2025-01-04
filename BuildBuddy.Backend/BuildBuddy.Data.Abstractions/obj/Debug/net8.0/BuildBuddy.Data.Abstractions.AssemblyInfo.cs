@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BuildBuddy.Data.Abstractions")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b799499f944f739593e3c95aadb3eeaec753c1df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ba288fff41da260e9182186079111082e7051943")]
 [assembly: System.Reflection.AssemblyProductAttribute("BuildBuddy.Data.Abstractions")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BuildBuddy.Data.Abstractions")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

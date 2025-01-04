@@ -1,35 +1,33 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application.Abstractions\\BuildBuddy.Application.Abstractions.csproj": {}
+    "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application.Abstractions\\BuildBuddy.Application.Abstractions.csproj": {}
   },
   "projects": {
-    "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application.Abstractions\\BuildBuddy.Application.Abstractions.csproj": {
+    "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application.Abstractions\\BuildBuddy.Application.Abstractions.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application.Abstractions\\BuildBuddy.Application.Abstractions.csproj",
+        "projectUniqueName": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application.Abstractions\\BuildBuddy.Application.Abstractions.csproj",
         "projectName": "BuildBuddy.Application.Abstractions",
-        "projectPath": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application.Abstractions\\BuildBuddy.Application.Abstractions.csproj",
-        "packagesPath": "C:\\Users\\mateu\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application.Abstractions\\obj\\",
+        "projectPath": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application.Abstractions\\BuildBuddy.Application.Abstractions.csproj",
+        "packagesPath": "C:\\Users\\Xerks\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Application.Abstractions\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\mateu\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\Xerks\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\BuildBuddy.Contract.csproj": {
-                "projectPath": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\BuildBuddy.Contract.csproj"
+              "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\BuildBuddy.Contract.csproj": {
+                "projectPath": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\BuildBuddy.Contract.csproj"
               }
             }
           }
@@ -38,16 +36,18 @@
           "warnAsError": [
             "NU1605"
           ]
-        }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "all"
+        },
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Microsoft.AspNetCore.Mvc.NewtonsoftJson": {
-              "target": "Package",
-              "version": "[8.0.11, )"
-            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.3, )"
@@ -68,6 +68,20 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -76,28 +90,26 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\BuildBuddy.Contract.csproj": {
+    "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\BuildBuddy.Contract.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\BuildBuddy.Contract.csproj",
+        "projectUniqueName": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\BuildBuddy.Contract.csproj",
         "projectName": "BuildBuddy.Contract",
-        "projectPath": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\BuildBuddy.Contract.csproj",
-        "packagesPath": "C:\\Users\\mateu\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mateu\\Desktop\\INZ\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\obj\\",
+        "projectPath": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\BuildBuddy.Contract.csproj",
+        "packagesPath": "C:\\Users\\Xerks\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.Contract\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\mateu\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\Xerks\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -110,7 +122,13 @@
           "warnAsError": [
             "NU1605"
           ]
-        }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "all"
+        },
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -136,6 +154,20 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.11, 8.0.11]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -144,7 +176,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

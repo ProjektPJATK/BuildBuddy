@@ -73,13 +73,6 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
 
-        [HttpGet("{id}/conversations")]
-        public async Task<ActionResult<IEnumerable<ConversationDto>>> GetUserConversations(int id)
-        {
-            var conversations = await _userService.GetUserConversationsAsync(id);
-            return Ok(conversations);
-        }
-
         [HttpGet("{id}/teams")]
         public async Task<ActionResult<IEnumerable<TeamDto>>> GetUserTeams(int id)
         {
