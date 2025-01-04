@@ -1,4 +1,4 @@
-﻿using BuildBuddy.Application.Abstractions;
+using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
 using BuildBuddy.Data.Model;
@@ -6,13 +6,15 @@ using BuildBuddy.Data.Model;
 public class ChatService : IChatService
 {
     private readonly IRepositoryCatalog _repositoryCatalog;
+    private readonly ITranslationService _translationService;
 
-    public ChatService(IRepositoryCatalog messageRepository)
+    public ChatService(IRepositoryCatalog repositoryCatalog, ITranslationService translationService)
     {
-        _repositoryCatalog = messageRepository;
+        _repositoryCatalog = repositoryCatalog;
+        _translationService = translationService;
     }
 
-    public async Task HandleIncomingMessage(int senderId, int conversationId, string text)
+    public async Task<MessageDto> HandleIncomingMessage(int senderId, int conversationId, string text)
     {
         if (string.IsNullOrWhiteSpace(text))
         {
@@ -20,14 +22,13 @@ public class ChatService : IChatService
         }
 
         var userConversations = await _repositoryCatalog.UserConversations.GetAsync(
-            filter:uc => uc.UserId == senderId && uc.ConversationId == conversationId
+            filter: uc => uc.UserId == senderId && uc.ConversationId == conversationId
         );
 
         if (userConversations.Count == 0)
         {
             throw new UnauthorizedAccessException("User is not part of this conversation");
         }
-
 
         var message = new Message
         {
@@ -39,22 +40,72 @@ public class ChatService : IChatService
 
         _repositoryCatalog.Messages.Insert(message);
         await _repositoryCatalog.SaveChangesAsync();
+
+        return new MessageDto
+        {
+            SenderId = senderId,
+            Text = text,
+            DateTimeDate = message.DateTimeDate
+        };
+    }
+
+    public async Task<Dictionary<int, string>> PrepareMessageForUsers(int senderId, int conversationId, string text)
+    {
+        var sender = await _repositoryCatalog.Users.GetByID(senderId);
+        var senderPreferredLanguage = sender.PreferredLanguage;
+
+        var conversationUsers = await _repositoryCatalog.UserConversations.GetAsync(
+            filter: uc => uc.ConversationId == conversationId
+        );
+
+        var translations = new Dictionary<int, string>();
+
+        foreach (var userConversation in conversationUsers)
+        {
+            var user = await _repositoryCatalog.Users.GetByID(userConversation.UserId);
+            string translatedText = text;
+
+            if (user.Id != senderId && !string.IsNullOrEmpty(user.PreferredLanguage) && user.PreferredLanguage != senderPreferredLanguage)
+            {
+                translatedText = await _translationService.TranslateText(text, senderPreferredLanguage, user.PreferredLanguage);
+            }
+            
+            translations[user.Id] = translatedText;
+        }
+
+        return translations;
     }
     
-    public async Task<List<MessageDto>> GetChatHistory(int conversationId)
+    public async Task<List<MessageDto>> GetChatHistory(int conversationId, int userId)
     {
         var messages = await _repositoryCatalog.Messages.GetAsync(
             filter: m => m.ConversationId == conversationId
         );
 
-        return messages
-            .OrderBy(m => m.DateTimeDate)
-            .Select(m => new MessageDto
+        var user = await _repositoryCatalog.Users.GetByID(userId);
+        var preferredLanguage = user.PreferredLanguage;
+
+        var translatedMessages = new List<MessageDto>();
+
+        foreach (var message in messages.OrderBy(m => m.DateTimeDate))
+        {
+            var sender = await _repositoryCatalog.Users.GetByID(message.SenderId);
+            var senderPreferredLanguage = sender.PreferredLanguage;
+            string translatedText = message.Text;
+
+            if (!string.IsNullOrEmpty(preferredLanguage) && preferredLanguage != senderPreferredLanguage)
             {
-                SenderId = m.SenderId,
-                Text = m.Text,
-                DateTimeDate = m.DateTimeDate
-            })
-            .ToList();
+                translatedText = await _translationService.TranslateText(message.Text, senderPreferredLanguage, preferredLanguage);
+            }
+
+            translatedMessages.Add(new MessageDto
+            {
+                SenderId = message.SenderId,
+                Text = translatedText,
+                DateTimeDate = message.DateTimeDate
+            });
+        }
+
+        return translatedMessages;
     }
 }

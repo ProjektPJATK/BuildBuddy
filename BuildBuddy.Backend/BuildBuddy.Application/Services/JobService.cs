@@ -1,4 +1,4 @@
-﻿using BuildBuddy.Application.Abstractions;
+using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
 using BuildBuddy.Data.Model;
@@ -26,7 +26,9 @@ namespace BuildBuddy.Application.Services
                     StartTime = t.StartTime,
                     EndTime = t.EndTime,
                     AllDay = t.AllDay,
-                    AddressId = t.PlaceId ?? 0
+
+                    AddressId = t.AddressId ?? 0
+
                 });
         }
 
@@ -48,26 +50,28 @@ namespace BuildBuddy.Application.Services
                 StartTime = task.StartTime,
                 EndTime = task.EndTime,
                 AllDay = task.AllDay,
-                AddressId = task.PlaceId ?? 0
+                AddressId = task.AddressId ?? 0
+
             };
         }
 
         public async Task<JobDto> CreateJobAsync(JobDto jobDto)
         {
-            var task = new BuildBuddy.Data.Model.Job()
+
+            var job = new Job()
+
             {
                 Name = jobDto.Name,
                 Message = jobDto.Message,
                 StartTime = jobDto.StartTime,
                 EndTime = jobDto.EndTime,
                 AllDay = jobDto.AllDay,
-                PlaceId = jobDto.AddressId
+                AddressId = jobDto.AddressId
             };
 
-            _dbContext.Jobs.Insert(task);
+            _dbContext.Jobs.Insert(job);
             await _dbContext.SaveChangesAsync();
-
-            jobDto.Id = task.Id;
+            jobDto.Id = job.Id;
             return jobDto;
         }
 
@@ -82,8 +86,7 @@ namespace BuildBuddy.Application.Services
                 task.StartTime = jobDto.StartTime;
                 task.EndTime = jobDto.EndTime;
                 task.AllDay = jobDto.AllDay;
-                task.PlaceId = jobDto.AddressId;
-                
+                task.AddressId = jobDto.AddressId;
                 await _dbContext.SaveChangesAsync();
             }
         }
@@ -109,10 +112,10 @@ namespace BuildBuddy.Application.Services
                         StartTime = t.Job.StartTime,
                         EndTime = t.Job.EndTime,
                         AllDay = t.Job.AllDay,
-                        AddressId = t.Job.PlaceId ?? 0
+                        AddressId = t.Job.AddressId ?? 0
                     },
                     filter:ut => ut.UserId == userId,
-                    includeProperties: "Tasks");
+                    includeProperties: "Job");
 
             return tasks;
         }

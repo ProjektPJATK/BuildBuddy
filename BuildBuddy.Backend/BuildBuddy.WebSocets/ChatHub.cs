@@ -1,4 +1,4 @@
-﻿using BuildBuddy.Application.Abstractions;
+using BuildBuddy.Application.Abstractions;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BuildBuddy.WebSocets;

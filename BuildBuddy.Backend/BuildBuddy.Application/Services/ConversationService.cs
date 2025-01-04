@@ -1,4 +1,3 @@
-﻿
 using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
@@ -115,11 +114,38 @@ public class ConversationService : IConversationService
         );
 
         return conversations.Select(c => new ConversationDto
+        {
+            Id = c.Id,
+            Name = c.Name,
+            TeamId = c.TeamId,
+            Users = c.UserConversations.Select(uc => new UserDto
+            {
+                Id = uc.User.Id,
+                Name = uc.User.Name,
+                Surname = uc.User.Surname,
+                Mail = uc.User.Mail,
+                TelephoneNr = uc.User.TelephoneNr,
+                UserImageUrl = uc.User.UserImageUrl,
+                PreferredLanguage = uc.User.PreferredLanguage,
+            }).ToList()
+
+        }).ToList();
+    }
+    public async Task<List<UserDto>> GetConversationUsersAsync(int conversationId)
     {
-        Id = c.Id,
-        Name = c.Name,
-        TeamId = c.TeamId,
-        Users = c.UserConversations.Select(uc => new UserDto
+        var conversation = await _context.Conversations.GetAsync(
+            filter: c => c.Id == conversationId,
+            includeProperties: "UserConversations.User"
+        );
+
+        var entity = conversation.FirstOrDefault();
+
+        if (entity == null)
+        {
+            throw new ArgumentException("Conversation not found");
+        }
+
+        return entity.UserConversations.Select(uc => new UserDto
         {
             Id = uc.User.Id,
             Name = uc.User.Name,
@@ -127,9 +153,7 @@ public class ConversationService : IConversationService
             Mail = uc.User.Mail,
             TelephoneNr = uc.User.TelephoneNr,
             UserImageUrl = uc.User.UserImageUrl,
-            PreferredLanguage = uc.User.PreferredLanguage,
-        }).ToList()
-    }).ToList();
+            PreferredLanguage = uc.User.PreferredLanguage
+        }).ToList();
     }
-
 }

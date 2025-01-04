@@ -8,8 +8,7 @@ public class Job : IHaveId<int>
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public bool AllDay { get; set; }
-    public int? PlaceId {get; set;}
-    
+    public int? AddressId {get; set;}
     public virtual ICollection<UserJob> UserJob  { get; set; }
     public virtual JobActualization JobActualization { get; set; }
     public virtual Address Address { get; set; }

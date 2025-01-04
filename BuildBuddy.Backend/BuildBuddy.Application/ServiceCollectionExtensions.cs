@@ -1,8 +1,8 @@
-﻿using BuildBuddy.Application.Abstractions;
+using Amazon.Translate;
+using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Application.Services;
 using BuildBuddy.Data.Repositories;
 using BuildBuddy.Storage.Repository;
-
 namespace BuildBuddy.Application;
 
 public static class ServiceCollectionExtensions
@@ -17,8 +17,19 @@ public static class ServiceCollectionExtensions
             .AddScoped<ITeamService, TeamService>()
             .AddScoped<IUserService, UserService>()
             .AddScoped<IChatService, ChatService>()
+            .AddScoped<ITranslationService, TranslationService>()
             .AddBuildBuddyData(configuration)
-            .AddStorageServices(configuration);
+            .AddStorageServices(configuration)
+            .AddSingleton<AmazonTranslateClient>(sp =>
+            {
+                var awsOptions = new AwsOptions();
+                sp.GetService<IConfiguration>().GetSection("AWS").Bind(awsOptions);
+
+                var credentials = new Amazon.Runtime.BasicAWSCredentials(awsOptions.AccessKey, awsOptions.SecretKey);
+                var config = new AmazonTranslateConfig { RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(awsOptions.Region) };
+
+                return new AmazonTranslateClient(credentials, config);
+            });
         return services;
     }
 
