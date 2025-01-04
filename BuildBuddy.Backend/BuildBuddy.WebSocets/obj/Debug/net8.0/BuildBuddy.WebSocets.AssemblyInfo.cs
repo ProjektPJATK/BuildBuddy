@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BuildBuddy.WebSocets")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ba288fff41da260e9182186079111082e7051943")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5427914e52cb5f3c7d415aa98083b110831f433f")]
 [assembly: System.Reflection.AssemblyProductAttribute("BuildBuddy.WebSocets")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BuildBuddy.WebSocets")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

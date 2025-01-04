@@ -6,22 +6,49 @@ namespace BuildBuddy.WebSocets;
 public class ChatHub : Hub
 {
     private readonly IChatService _chatService;
-
+    
     public ChatHub(IChatService chatService)
     {
         _chatService = chatService;
     }
 
     public async Task SendMessage(int senderId, int conversationId, string text)
-    {
-        await _chatService.HandleIncomingMessage(senderId, conversationId, text);
-        Console.WriteLine($"Message received: SenderId={senderId}, Text={text}, Timestamp={DateTime.UtcNow}");
+{
+    Console.WriteLine($"SendMessage called with senderId={senderId}, conversationId={conversationId}, text={text}");
 
-        await Clients.Group(conversationId.ToString()).SendAsync("ReceiveMessage", senderId, text, DateTime.UtcNow);
-    }
-    public async Task FetchHistory(int conversationId)
+    var message = await _chatService.HandleIncomingMessage(senderId, conversationId, text);
+
+    var translations = await _chatService.PrepareMessageForUsers(senderId, conversationId, text);
+
+    Console.WriteLine("Translations:");
+    foreach (var translation in translations)
     {
-        var messages = await _chatService.GetChatHistory(conversationId);
+        Console.WriteLine($"UserId: {translation.Key}, Message: {translation.Value}");
+        if (translation.Key != senderId)  // Tylko dla innych użytkowników
+        {
+            await Clients.OthersInGroup(conversationId.ToString()).SendAsync(
+                "ReceiveMessage",
+                senderId,
+                translation.Value,  // Tłumaczenie
+                message.DateTimeDate
+            );
+        }
+    }
+
+    // Nadawca otrzymuje tylko oryginalną wiadomość
+    await Clients.Caller.SendAsync(
+        "ReceiveMessage",
+        senderId,
+        text,  // Oryginał
+        message.DateTimeDate
+    );
+}
+
+    
+    public async Task FetchHistory(int conversationId, int userId)
+    {
+
+        var messages = await _chatService.GetChatHistory(conversationId, userId);
 
         await Clients.Caller.SendAsync("ReceiveHistory", messages);
     }

@@ -17,6 +17,7 @@ C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebSocet
 C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebSocets\bin\Debug\net8.0\AWSSDK.Core.dll
 C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebSocets\bin\Debug\net8.0\AWSSDK.Extensions.NETCore.Setup.dll
 C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebSocets\bin\Debug\net8.0\AWSSDK.S3.dll
+C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebSocets\bin\Debug\net8.0\AWSSDK.Translate.dll
 C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebSocets\bin\Debug\net8.0\Microsoft.AspNetCore.Connections.Abstractions.dll
 C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebSocets\bin\Debug\net8.0\Microsoft.AspNetCore.Http.Connections.Client.dll
 C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebSocets\bin\Debug\net8.0\Microsoft.AspNetCore.Http.Connections.Common.dll
