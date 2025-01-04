@@ -17,6 +17,7 @@ C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebApi\b
 C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebApi\bin\Debug\net8.0\AWSSDK.Core.dll
 C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebApi\bin\Debug\net8.0\AWSSDK.Extensions.NETCore.Setup.dll
 C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebApi\bin\Debug\net8.0\AWSSDK.S3.dll
+C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebApi\bin\Debug\net8.0\AWSSDK.Translate.dll
 C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebApi\bin\Debug\net8.0\BCrypt.Net-Next.dll
 C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebApi\bin\Debug\net8.0\Humanizer.dll
 C:\Users\Xerks\OneDrive\Pulpit\BuildBuddy\BuildBuddy.Backend\BuildBuddy.WebApi\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

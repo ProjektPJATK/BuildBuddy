@@ -55,24 +55,24 @@ namespace BuildBuddy.WebApi.Controllers;
         }
         
         [HttpPost("{jobId}/add-image")]
-        public async Task<IActionResult> AddTaskImage(int taskId, IFormFile image)
+        public async Task<IActionResult> AddTaskImage(int jobId, IFormFile image)
         {
             using var stream = image.OpenReadStream();
-            await _jobActualizationService.AddJobImageAsync(taskId, stream, image.FileName);
+            await _jobActualizationService.AddJobImageAsync(jobId, stream, image.FileName);
             return NoContent();
         }
         
         [HttpDelete("{jobId}/delete-image")]
-        public async Task<IActionResult> DeleteTaskImage(int taskId, [FromQuery] string imageUrl)
+        public async Task<IActionResult> DeleteTaskImage(int jobId, [FromQuery] string imageUrl)
         {
-            await _jobActualizationService.RemoveJobImageAsync(taskId, imageUrl);
+            await _jobActualizationService.RemoveJobImageAsync(jobId, imageUrl);
             return NoContent();
         }
         
         [HttpGet("{jobId}/images")]
-        public async Task<IActionResult> GetTaskImages(int taskId)
+        public async Task<IActionResult> GetTaskImages(int jobId)
         {
-            var images = await _jobActualizationService.GetJobImagesAsync(taskId);
+            var images = await _jobActualizationService.GetJobImagesAsync(jobId);
             if (images == null || !images.Any())
             {
                 return NotFound("No images found for the given task.");

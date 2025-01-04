@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "B0a0sc0ijLo=",
+  "dgSpecHash": "E07ezNrOUI0=",
   "success": true,
   "projectFilePath": "C:\\Users\\Xerks\\OneDrive\\Pulpit\\BuildBuddy\\BuildBuddy.Backend\\BuildBuddy.WebApi\\BuildBuddy.WebApi.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Xerks\\.nuget\\packages\\awssdk.core\\3.7.400.62\\awssdk.core.3.7.400.62.nupkg.sha512",
+    "C:\\Users\\Xerks\\.nuget\\packages\\awssdk.core\\3.7.400.71\\awssdk.core.3.7.400.71.nupkg.sha512",
     "C:\\Users\\Xerks\\.nuget\\packages\\awssdk.extensions.netcore.setup\\3.7.301\\awssdk.extensions.netcore.setup.3.7.301.nupkg.sha512",
     "C:\\Users\\Xerks\\.nuget\\packages\\awssdk.s3\\3.7.410.4\\awssdk.s3.3.7.410.4.nupkg.sha512",
+    "C:\\Users\\Xerks\\.nuget\\packages\\awssdk.translate\\3.7.400.71\\awssdk.translate.3.7.400.71.nupkg.sha512",
     "C:\\Users\\Xerks\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\Xerks\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Xerks\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.11\\microsoft.aspnetcore.authentication.jwtbearer.8.0.11.nupkg.sha512",

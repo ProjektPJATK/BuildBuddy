@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BuildBuddy.WebApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+76c12e952c3f554077da72a2f6a28afdff35397b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5427914e52cb5f3c7d415aa98083b110831f433f")]
 [assembly: System.Reflection.AssemblyProductAttribute("BuildBuddy.WebApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BuildBuddy.WebApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
