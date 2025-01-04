@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="defaultdb@buildbuddydb-buildbuddy.l.aivencloud.com" uuid="ead3c82d-f3b6-4912-a811-b76e32bfb869">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <configured-by-url>true</configured-by-url>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://buildbuddydb-buildbuddy.l.aivencloud.com:22050/defaultdb?password=AVNS_IgZXo4APuiTByf0O4Gs&amp;sslmode=Require&amp;user=avnadmin</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+  </component>
+</project>
