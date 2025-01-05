@@ -51,38 +51,40 @@ class _ChatScreenState extends State<ChatScreen> {
       _chatBloc?.add(ConnectChatEvent(
         baseUrl: AppConfig.getChatUrl(),
         conversationId: conversationId,
+         userId: userId,
       ));
     } else {
       print("[ChatScreen] No valid conversationId found in SharedPreferences");
     }
   }
 
-  void _sendMessage() async {
-    final text = messageController.text.trim();
-    if (text.isNotEmpty) {
-      final prefs = await SharedPreferences.getInstance();
-      final senderId = prefs.getInt('userId') ?? 0;
-      final conversationId = prefs.getInt('conversationId') ?? 0;
+  Future<void> _sendMessage() async {
+  final text = messageController.text.trim();
+  if (text.isNotEmpty) {
+    final prefs = await SharedPreferences.getInstance();
+    final senderId = prefs.getInt('userId') ?? 0;
+    final conversationId = prefs.getInt('conversationId') ?? 0;
 
-      _chatBloc?.add(SendMessageEvent(
-        senderId: senderId,
-        conversationId: conversationId,
-        text: text,
-      ));
+    _chatBloc?.add(SendMessageEvent(
+      senderId: senderId,
+      conversationId: conversationId,
+      text: text,
+    ));
 
-      messageController.clear();
-      Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
-    }
+    messageController.clear();
+    Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
   }
+}
+
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
-        final targetOffset = _scrollController.position.maxScrollExtent + 290;
+        final targetOffset = _scrollController.position.maxScrollExtent+400;
         if (_scrollController.offset != targetOffset) {
           _scrollController.animateTo(
             targetOffset,
-            duration: const Duration(milliseconds: 600),
+            duration: const Duration(milliseconds: 400),
             curve: Curves.easeOut,
           );
         }
@@ -127,7 +129,13 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               ChatHeader(
                 conversationName: widget.conversationName,
-                onBackPressed: () => Navigator.pop(context),
+                onBackPressed: () {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/chats',  // Zmień na odpowiednią ścieżkę do listy konwersacji
+                      (Route<dynamic> route) => false,  // Usunięcie wszystkich poprzednich ekranów
+                    );
+                  },
               ),
               Expanded(
                 child: Container(

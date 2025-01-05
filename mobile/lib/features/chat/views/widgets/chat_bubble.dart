@@ -16,7 +16,6 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("[ChatBubble] message='$message', isSentByMe=$isSentByMe, sender='$sender', time='$time'");
 
     return Align(
       alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
