@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/features/calendar/views/calendar_screen.dart';
 import 'package:mobile/features/chat/bloc/chat_bloc.dart';
-import 'package:mobile/features/chat/services/chat_hub_service.dart';
+import 'package:mobile/shared/services/chat_hub_service.dart';
 import 'package:mobile/features/chat/views/chat_screen.dart';
 import 'package:mobile/features/conversation_list/bloc/conversation_bloc.dart';
 import 'package:mobile/features/conversation_list/services/conversation_service.dart';
@@ -82,7 +82,10 @@ class BuildBuddyApp extends StatelessWidget {
         '/chats': (context) => ConversationListScreen(),
         '/calendar': (context) => const CalendarScreen(), // Calendar screen
         '/profile': (context) => const UserProfileScreen(),
-        '/new_message': (context) => NewMessageScreen(),
+        '/new_message': (context) {
+            final chatBloc = BlocProvider.of<ChatBloc>(context);  // Pobieramy ChatBloc z contextu
+            return NewMessageScreen(chatBloc: chatBloc);  // Przekazujemy chatBloc
+          },
         '/construction_home': (context) => ConstructionHomeScreen(),
         '/construction_team': (context) => TeamScreen(),
         '/construction_inventory': (context) => InventoryScreen(),

@@ -143,17 +143,6 @@ namespace BuildBuddy.Application.Services
             }
         }
 
-        public async Task<IEnumerable<ConversationDto>> GetUserConversationsAsync(int userId)
-        {
-            return await _dbContext.UserConversations.GetAsync(
-                mapper: uc => new ConversationDto
-                {
-                    Id = uc.Conversation.Id,
-                    Name = uc.Conversation.Name,
-                },
-                filter: uc => uc.UserId == userId,
-                includeProperties: "Conversation");
-        }
 
         public async Task<List<TeamDto>> GetTeamsByUserId(int userId)
         {

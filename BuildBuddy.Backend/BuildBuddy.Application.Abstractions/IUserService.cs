@@ -12,7 +12,6 @@ public interface IUserService
     Task<UserDto> CreateUserAsync(UserDto userDto);
     Task UpdateUserAsync(int userId, JsonPatchDocument<UserDto> patchDoc);
     Task DeleteUserAsync(int userId);
-    Task<IEnumerable<ConversationDto>> GetUserConversationsAsync(int userId);
     Task<List<TeamDto>> GetTeamsByUserId(int userId);
     Task UpdateUserImageAsync(int userId, Stream imageStream, string imageName);
     Task<IEnumerable<string>> GetUserImageAsync(string imageUrl);

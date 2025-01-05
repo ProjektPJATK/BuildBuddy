@@ -26,9 +26,7 @@ namespace BuildBuddy.Application.Services
                     StartTime = t.StartTime,
                     EndTime = t.EndTime,
                     AllDay = t.AllDay,
-
                     AddressId = t.AddressId ?? 0
-
                 });
         }
 
@@ -51,15 +49,12 @@ namespace BuildBuddy.Application.Services
                 EndTime = task.EndTime,
                 AllDay = task.AllDay,
                 AddressId = task.AddressId ?? 0
-
             };
         }
 
         public async Task<JobDto> CreateJobAsync(JobDto jobDto)
         {
-
             var job = new Job()
-
             {
                 Name = jobDto.Name,
                 Message = jobDto.Message,
@@ -87,6 +82,7 @@ namespace BuildBuddy.Application.Services
                 task.EndTime = jobDto.EndTime;
                 task.AllDay = jobDto.AllDay;
                 task.AddressId = jobDto.AddressId;
+                
                 await _dbContext.SaveChangesAsync();
             }
         }
