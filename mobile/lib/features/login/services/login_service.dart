@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/shared/config/config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/login_response.dart';
 
 
@@ -25,6 +26,9 @@ class LoginService {
       print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
+        final token = json.decode(response.body)['token'];
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userToken', token);
         final data = jsonDecode(response.body);
         return LoginResponse.fromJson(data);
       } else {

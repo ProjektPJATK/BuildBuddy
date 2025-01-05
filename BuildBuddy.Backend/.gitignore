@@ -20,7 +20,6 @@ obj/
 *.sln.iml
 
 # ASP.NET specific
-appsettings*.json
 secrets.json
 .env
 .env.*
