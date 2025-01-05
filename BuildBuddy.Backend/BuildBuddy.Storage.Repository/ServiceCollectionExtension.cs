@@ -9,10 +9,6 @@ public static class ServiceCollectionExtension
     {
         var awsOptions = new AwsOptions();
         configuration.GetSection("AWS").Bind(awsOptions);
-
-        Console.WriteLine($"AWS Access Key: {awsOptions.AccessKey}");
-        Console.WriteLine($"AWS Region: {awsOptions.Region}");
-        Console.WriteLine($"AWS Bucket Name: {awsOptions.BucketName}");
         
         var credentials = new Amazon.Runtime.BasicAWSCredentials(awsOptions.AccessKey, awsOptions.SecretKey);
         var s3Client = new AmazonS3Client(credentials, Amazon.RegionEndpoint.GetBySystemName(awsOptions.Region));
