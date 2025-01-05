@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/shared/themes/styles.dart';
+import 'package:mobile/shared/config/config.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RecipientSelectionScreen extends StatefulWidget {
   final List<String> initialSelectedRecipients;
+  final int userId;
 
-  const RecipientSelectionScreen(this.initialSelectedRecipients, {super.key});
+  const RecipientSelectionScreen(
+    this.initialSelectedRecipients, {
+    required this.userId,
+    super.key,
+  });
 
   @override
-  _RecipientSelectionScreenState createState() => _RecipientSelectionScreenState();
+  _RecipientSelectionScreenState createState() =>
+      _RecipientSelectionScreenState();  // Poprawiona nazwa
 }
 
-class _RecipientSelectionScreenState extends State<RecipientSelectionScreen> {
-  List<String> allRecipients = ['Marta Nowak', 'Jan Kowalski', 'Piotr Malinowski', 'Anna Wiśniewska'];
+class _RecipientSelectionScreenState
+    extends State<RecipientSelectionScreen> {
+  List<String> allRecipients = [];
   List<String> displayedRecipients = [];
   List<String> selectedRecipients = [];
   TextEditingController searchController = TextEditingController();
@@ -19,13 +29,56 @@ class _RecipientSelectionScreenState extends State<RecipientSelectionScreen> {
   @override
   void initState() {
     super.initState();
-    allRecipients.sort(); // Sortujemy odbiorców alfabetycznie
-    displayedRecipients = List.from(allRecipients); // Kopia listy wszystkich odbiorców
+    _loadRecipients();
     selectedRecipients = widget.initialSelectedRecipients;
   }
 
+  Future<void> _loadRecipients() async {
+    List<String> recipients = [];
+
+    try {
+      // Pobierz zespoły użytkownika
+      final teamsResponse = await http.get(
+        Uri.parse(AppConfig.getTeamsEndpoint(widget.userId)),
+      );
+
+      if (teamsResponse.statusCode == 200) {
+        List<dynamic> teams = json.decode(teamsResponse.body);
+
+        for (var team in teams) {
+          final teamId = team['id'];
+
+          // Pobierz członków zespołu
+          final membersResponse = await http.get(
+            Uri.parse(AppConfig.getTeammatesEndpoint(teamId)),
+          );
+
+          if (membersResponse.statusCode == 200) {
+            List<dynamic> teammates = json.decode(membersResponse.body);
+
+            for (var mate in teammates) {
+              if (mate['id'] != widget.userId) {
+                recipients.add('${mate['name']} ${mate['surname']}');
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      print('Błąd podczas pobierania odbiorców: $e');
+    }
+
+    setState(() {
+      allRecipients = recipients.toSet().toList(); // Unikalne imiona
+      allRecipients.sort();
+      displayedRecipients = List.from(allRecipients);
+    });
+  }
+
   void _filterChats(String query) {
-    final results = allRecipients.where((name) => name.toLowerCase().contains(query.toLowerCase())).toList();
+    final results = allRecipients
+        .where((name) => name.toLowerCase().contains(query.toLowerCase()))
+        .toList();
     setState(() {
       displayedRecipients = results;
     });
@@ -38,7 +91,7 @@ class _RecipientSelectionScreenState extends State<RecipientSelectionScreen> {
         children: [
           Container(decoration: AppStyles.backgroundDecoration),
           Container(color: AppStyles.filterColor.withOpacity(0.75)),
-          Container(color: AppStyles.transparentWhite),
+          Container(color: AppStyles.transparentWhite),  // Tło na całą stronę
           Column(
             children: [
               Padding(
@@ -48,13 +101,14 @@ class _RecipientSelectionScreenState extends State<RecipientSelectionScreen> {
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.black),
                     onPressed: () {
-                      Navigator.pop(context, selectedRecipients); // Powrót z wybranymi odbiorcami
+                      Navigator.pop(context, selectedRecipients);
                     },
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12.0, vertical: 8.0),
                 child: TextField(
                   controller: searchController,
                   onChanged: _filterChats,
