@@ -1,38 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../../tasks/views/task_details_screen.dart';
 
 class TaskItem extends StatelessWidget {
-  final String title;
-  final String? description;
-  final String? startTime;
-  final String? endTime;
-  final String? taskDate;
+  final Map<String, dynamic> task;
 
   const TaskItem({
     super.key,
-    required this.title,
-    this.description,
-    this.startTime,
-    this.endTime,
-    this.taskDate,
+    required this.task,
   });
 
   @override
   Widget build(BuildContext context) {
+    final String title = task['name'] ?? 'Brak nazwy';
+    final String description = task['message'] ?? 'Brak opisu';
+    
+    // Parse DateTime and Format
+    final DateTime startTime = DateTime.parse(task['startTime']);
+    final DateTime endTime = DateTime.parse(task['endTime']);
+    final String formattedStartTime = DateFormat('yyyy-MM-dd HH:mm', 'pl_PL').format(startTime);
+    final String formattedEndTime = DateFormat('yyyy-MM-dd HH:mm', 'pl_PL').format(endTime);
+
+    final int? taskId = task['id'];
+
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => TaskDetailScreen(
-              title: title,
-              description: description ?? 'Brak opisu',
-              startTime: startTime ?? 'Nieznana',
-              endTime: endTime ?? 'Nieznana',
-              taskDate: taskDate ?? 'Nieznana',
+        print('Task clicked - Task ID: $taskId');
+
+        if (taskId != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TaskDetailScreen(
+                title: title,
+                description: description,
+                startTime: formattedStartTime,
+                endTime: formattedEndTime,
+                taskDate: formattedStartTime.split(' ')[0],
+                taskId: taskId,
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Task ID is missing')),
+          );
+        }
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -64,30 +77,10 @@ class TaskItem extends StatelessWidget {
                       color: Colors.black,
                     ),
                   ),
-                  if (description != null && description!.isNotEmpty)
-                    Text(
-                      description!,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  if (startTime != null && endTime != null)
-                    Text(
-                      'Godziny: $startTime - $endTime',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black,
-                      ),
-                    ),
-                  if (taskDate != null)
-                    Text(
-                      'Data: $taskDate',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black,
-                      ),
-                    ),
+                  Text(
+                    'Godziny: $formattedStartTime - $formattedEndTime',
+                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                  ),
                 ],
               ),
             ),

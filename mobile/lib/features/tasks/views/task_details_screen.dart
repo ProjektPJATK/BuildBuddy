@@ -4,16 +4,30 @@ import 'widgets/task_update_dialog.dart';
 class TaskDetailScreen extends StatelessWidget {
   final String title;
   final String description;
+  final String startTime;
+  final String endTime;
+  final String taskDate;
+  final int taskId;
 
-  const TaskDetailScreen({super.key, required this.title, required this.description, required String startTime, required String endTime, required String taskDate});
+  const TaskDetailScreen({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.startTime,
+    required this.endTime,
+    required this.taskDate,
+    required this.taskId,
+  });
 
   void _showTaskUpdateDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (_) => TaskUpdateDialog(
+        jobId: taskId,
         onSave: (comment, images) {
+          print('Task Updated - ID: $taskId');
           print('Komentarz: $comment');
-          print('Obrazy: ${images.map((img) => img.path).toList()}');
+          print('Zdjęcia: ${images.map((img) => img.path).toList()}');
         },
       ),
     );
@@ -21,6 +35,8 @@ class TaskDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('Opening Task Details - Task ID: $taskId');
+
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: Padding(
@@ -29,9 +45,16 @@ class TaskDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Opis: $description'),
-            ElevatedButton(
-              onPressed: () => _showTaskUpdateDialog(context),
-              child: const Text('Dodaj Aktualizację'),
+            Text('Godzina rozpoczęcia: $startTime'),
+            Text('Godzina zakończenia: $endTime'),
+            Text('Data: $taskDate'),
+            Text('Task ID: $taskId'),
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                onPressed: () => _showTaskUpdateDialog(context),
+                child: const Text('Aktualizuj'),
+              ),
             ),
           ],
         ),

@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'projectdetails_screen.dart';
 
 class ProjectsScreen extends StatefulWidget {
-  const ProjectsScreen({Key? key}) : super(key: key);
+  const ProjectsScreen({super.key});
 
   @override
   _ProjectsScreenState createState() => _ProjectsScreenState();
@@ -70,12 +70,12 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage Projects'),
+        title: const Text('Manage Projects'),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _isError
-              ? Center(
+              ? const Center(
                   child: Text(
                     'Failed to load projects.',
                     style: TextStyle(color: Colors.red),

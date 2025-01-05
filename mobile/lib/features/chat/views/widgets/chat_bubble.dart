@@ -25,7 +25,7 @@ class ChatBubble extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSentByMe
               ? Colors.white.withOpacity(0.8) // Tło dla wiadomości wysłanych przez użytkownika
-              : Color.fromARGB(248, 128, 127, 127)?.withOpacity(0.8), // Tło dla wiadomości od innych użytkowników
+              : const Color.fromARGB(248, 128, 127, 127).withOpacity(0.8), // Tło dla wiadomości od innych użytkowników
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(12),
             topRight: const Radius.circular(12),

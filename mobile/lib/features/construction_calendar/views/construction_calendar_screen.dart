@@ -7,16 +7,16 @@ import 'package:mobile/shared/widgets/bottom_navigation.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../models/task_model.dart';
 
-
-
 class ConstructionCalendarScreen extends StatefulWidget {
   const ConstructionCalendarScreen({super.key});
 
   @override
-  _ConstructionCalendarScreenState createState() => _ConstructionCalendarScreenState();
+  _ConstructionCalendarScreenState createState() =>
+      _ConstructionCalendarScreenState();
 }
 
-class _ConstructionCalendarScreenState extends State<ConstructionCalendarScreen> {
+class _ConstructionCalendarScreenState
+    extends State<ConstructionCalendarScreen> {
   DateTime? _selectedDay;
   DateTime _focusedDay = DateTime.now();
   List<TaskModel> _tasks = [];
@@ -40,7 +40,9 @@ class _ConstructionCalendarScreenState extends State<ConstructionCalendarScreen>
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to load tasks')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load tasks')),
+      );
     }
   }
 
@@ -77,8 +79,10 @@ class _ConstructionCalendarScreenState extends State<ConstructionCalendarScreen>
                     });
                   },
                   calendarStyle: const CalendarStyle(
-                    todayDecoration: BoxDecoration(color: Colors.blueAccent, shape: BoxShape.circle),
-                    selectedDecoration: BoxDecoration(color: Colors.black, shape: BoxShape.circle),
+                    todayDecoration: BoxDecoration(
+                        color: Colors.blueAccent, shape: BoxShape.circle),
+                    selectedDecoration: BoxDecoration(
+                        color: Colors.black, shape: BoxShape.circle),
                   ),
                 ),
               ),
@@ -91,13 +95,17 @@ class _ConstructionCalendarScreenState extends State<ConstructionCalendarScreen>
                             itemCount: tasksForSelectedDay.length,
                             itemBuilder: (context, index) {
                               final task = tasksForSelectedDay[index];
-                              return TaskItem(
-                                title: task.name,
-                                description: task.message,
-                                startTime: DateFormat('HH:mm').format(task.startTime),
-                                endTime: DateFormat('HH:mm').format(task.endTime),
-                                taskDate: DateFormat('dd.MM.yyyy').format(task.startTime),
-                              );
+                              // return TaskItem(
+                              //   title: task.name,
+                              //   description: task.message,
+                              //   startTime: DateFormat('HH:mm')
+                              //       .format(task.startTime),
+                              //   endTime:
+                              //       DateFormat('HH:mm').format(task.endTime),
+                              //   taskDate: DateFormat('dd.MM.yyyy')
+                              //       .format(task.startTime),
+                              //   jobId: task.jobId ?? 0,  // Default to 0 if jobId is null
+                              // );
                             },
                           ),
               ),

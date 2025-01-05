@@ -24,6 +24,10 @@ class ImageCarousel extends StatelessWidget {
         int index = entry.key;
         File image = entry.value;
 
+        // Log the image path for debugging
+        print('Displaying Image: ${image.path}');
+        print('Image Exists: ${image.existsSync()}');
+
         return Stack(
           children: [
             GestureDetector(
@@ -33,14 +37,19 @@ class ImageCarousel extends StatelessWidget {
                   child: Image.file(image, fit: BoxFit.cover),
                 ),
               ),
-              child: Image.file(image, fit: BoxFit.cover),
+              child: Image.file(image, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) {
+                return const Center(child: Text('Failed to load image'));
+              }),
             ),
             Positioned(
-              top: -10,
-              right: -10,
+              top: 0,
+              right: 0,
               child: IconButton(
                 icon: const Icon(Icons.close, color: Colors.white),
-                onPressed: () => onRemoveImage(index),
+                onPressed: () {
+                  print('Removing image at index: $index');
+                  onRemoveImage(index);
+                },
               ),
             ),
           ],

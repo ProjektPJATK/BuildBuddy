@@ -12,4 +12,14 @@ class AppConfig {
   static String getInventoryEndpoint(int placeId) => "${getBaseUrl()}/api/Item/place/$placeId";
   static String getTeammatesEndpoint(int teamId) => "${getBaseUrl()}/api/Team/$teamId/users";
   static String getChatListEndpoint(int userId) => '${getBaseUrl()}/api/Conversation/user/$userId/conversations';
+
+    // Nowe endpointy dla JobActualization
+  static String getJobActualizationEndpoint(int id) => '${getBaseUrl()}/api/JobActualization/$id';
+  static String postAddImageEndpoint(int jobId) => '${getBaseUrl()}/api/JobActualization/$jobId/add-image';
+  static String deleteImageEndpoint(int jobId) => '${getBaseUrl()}/api/JobActualization/$jobId/delete-image';
+  static String getImagesEndpoint(int jobId) => '${getBaseUrl()}/api/JobActualization/$jobId/images';
+  
+  // Dodatkowy endpoint dla użytkownika
+  static String getUserJobEndpoint(int userId) => '${getBaseUrl()}/api/Job/user/$userId';
+  static String postJobActualizationEndpoint() => '${getBaseUrl()}/api/JobActualization';
 }

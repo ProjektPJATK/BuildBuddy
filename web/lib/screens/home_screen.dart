@@ -5,6 +5,8 @@ import 'reports_screens.dart';
 import 'tasks_screen.dart';
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -39,13 +41,13 @@ class HomeScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         IconButton(
-                          icon: Icon(Icons.settings, color: Colors.white, size: 32),
+                          icon: const Icon(Icons.settings, color: Colors.white, size: 32),
                           onPressed: () {
                             // Navigation to settings screen if required
                           },
                         ),
                         IconButton(
-                          icon: Icon(Icons.logout, color: Colors.white, size: 32),
+                          icon: const Icon(Icons.logout, color: Colors.white, size: 32),
                           onPressed: () {
                             Navigator.pushReplacementNamed(context, '/');
                           },
@@ -62,7 +64,7 @@ class HomeScreen extends StatelessWidget {
                           child: GestureDetector(
                             onTap: () => Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => EmployeesScreen()),
+                              MaterialPageRoute(builder: (context) => const EmployeesScreen()),
                             ),
                             child: _buildButton(context, 'Employees', Icons.people, Colors.blue),
                           ),
@@ -71,7 +73,7 @@ class HomeScreen extends StatelessWidget {
                           child: GestureDetector(
                             onTap: () => Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => TasksScreen()),
+                              MaterialPageRoute(builder: (context) => const TasksScreen()),
                             ),
                             child: _buildButton(context, 'Tasks', Icons.task, Colors.green),
                           ),
@@ -80,7 +82,7 @@ class HomeScreen extends StatelessWidget {
                           child: GestureDetector(
                             onTap: () => Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => ProjectsScreen()),
+                              MaterialPageRoute(builder: (context) => const ProjectsScreen()),
                             ),
                             child: _buildButton(context, 'Projects', Icons.apartment, Colors.orange),
                           ),
@@ -102,7 +104,7 @@ class HomeScreen extends StatelessWidget {
                     child: Container(
                       width: screenWidth,
                       height: screenHeight * 0.6,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         image: DecorationImage(
                           image: AssetImage('assets/homeback.png'),
                           fit: BoxFit.cover,
@@ -127,7 +129,7 @@ class HomeScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withOpacity(0.8),
         borderRadius: BorderRadius.circular(16.0),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black26,
             blurRadius: 8,
@@ -142,7 +144,7 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             title,
-            style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
         ],

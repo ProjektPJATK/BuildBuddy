@@ -79,13 +79,13 @@ class BuildBuddyApp extends StatelessWidget {
       routes: {
         '/': (context) => const LoginScreen(), // Show splash screen first
         '/home': (context) => const HomeScreen(),
-        '/chats': (context) => ConversationListScreen(),
+        '/chats': (context) => const ConversationListScreen(),
         '/calendar': (context) => const CalendarScreen(), // Calendar screen
         '/profile': (context) => const UserProfileScreen(),
-        '/new_message': (context) => NewMessageScreen(),
-        '/construction_home': (context) => ConstructionHomeScreen(),
-        '/construction_team': (context) => TeamScreen(),
-        '/construction_inventory': (context) => InventoryScreen(),
+        '/new_message': (context) => const NewMessageScreen(),
+        '/construction_home': (context) => const ConstructionHomeScreen(),
+        '/construction_team': (context) => const TeamScreen(),
+        '/construction_inventory': (context) => const InventoryScreen(),
         '/construction_calendar': (context) => const ConstructionCalendarScreen(),
         '/chat': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;

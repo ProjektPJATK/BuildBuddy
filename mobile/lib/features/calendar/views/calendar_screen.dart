@@ -4,7 +4,7 @@ import '../../../shared/themes/styles.dart';
 import '../views/widgets/calendar_widget.dart';
 import '../views/widgets/task_list.dart';
 import '/shared/widgets/bottom_navigation.dart';
-import '../services/task_service.dart';
+import '../../../shared/services/task_service.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -16,31 +16,45 @@ class CalendarScreen extends StatefulWidget {
 class _CalendarScreenState extends State<CalendarScreen> {
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
-  late List<Map<String, dynamic>> _tasks;
+  late List<Map<String, dynamic>> _tasks = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     initializeDateFormatting('pl_PL');
-    _tasks = TaskService.getTasks(); // Pobranie danych z serwisu
+    _loadTasks();
+  }
+
+  // Fetch tasks from the backend
+  Future<void> _loadTasks() async {
+    try {
+      List<Map<String, dynamic>> tasks = await TaskService.fetchTasks();
+      setState(() {
+        _tasks = tasks;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Failed to load tasks: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Filter tasks for the selected day
     final tasksForSelectedDay = TaskService.getTasksForDay(_tasks, _selectedDay);
 
     return Scaffold(
       body: Stack(
         children: [
           // Background
-          Container(
-            decoration: AppStyles.backgroundDecoration,
-          ),
-          // Filter overlay
-          Container(
-            color: AppStyles.filterColor.withOpacity(0.75),
-          ),
-          // Main screen content
+          Container(decoration: AppStyles.backgroundDecoration),
+          Container(color: AppStyles.filterColor.withOpacity(0.75)),
+
+          // Main content
           Positioned(
             top: 0,
             left: 0,
@@ -48,7 +62,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             bottom: 0,
             child: Column(
               children: [
-                // Calendar widget
+                // Calendar widget for day selection
                 CalendarWidget(
                   selectedDay: _selectedDay,
                   focusedDay: _focusedDay,
@@ -59,7 +73,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     });
                   },
                 ),
-                // Divider
                 Container(
                   color: AppStyles.transparentWhite,
                   child: const Divider(
@@ -67,17 +80,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     thickness: 1,
                   ),
                 ),
-                // Task list
+                // Task List or Loading Spinner
                 Expanded(
-                  child: TaskList(
-                    selectedDay: _selectedDay,
-                    tasks: tasksForSelectedDay,
-                  ),
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : TaskList(
+                          selectedDay: _selectedDay,
+                          tasks: tasksForSelectedDay,
+                        ),
                 ),
                 // Bottom Navigation
-                BottomNavigation(
-                  onTap: (_) {},
-                ),
+                BottomNavigation(onTap: (_) {}),
               ],
             ),
           ),
