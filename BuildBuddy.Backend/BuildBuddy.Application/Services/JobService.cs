@@ -1,4 +1,4 @@
-﻿using BuildBuddy.Application.Abstractions;
+using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
 using BuildBuddy.Data.Model;
@@ -66,7 +66,6 @@ namespace BuildBuddy.Application.Services
 
             _dbContext.Jobs.Insert(job);
             await _dbContext.SaveChangesAsync();
-
             jobDto.Id = job.Id;
             return jobDto;
         }

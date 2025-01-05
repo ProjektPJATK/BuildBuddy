@@ -1,4 +1,4 @@
-﻿using BuildBuddy.Application.Abstractions;
+using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
 using BuildBuddy.Data.Model;
@@ -37,7 +37,7 @@ namespace BuildBuddy.Application.Services
                 .GetAsync(filter: ta => ta.JobId == jobId);
 
             if (jobActualization == null || !jobActualization.Any())
-            {
+         {
                 return null;
             }
 

@@ -1,9 +1,8 @@
-﻿using Amazon.Translate;
+using Amazon.Translate;
 using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Application.Services;
 using BuildBuddy.Data.Repositories;
 using BuildBuddy.Storage.Repository;
-
 namespace BuildBuddy.Application;
 
 public static class ServiceCollectionExtensions
