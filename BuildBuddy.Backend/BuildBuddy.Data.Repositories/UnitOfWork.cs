@@ -14,6 +14,7 @@ public class UnitOfWork(BuildBuddyDbContext buildBuddyDb,
     IRepository<Team, int> teams, 
     IRepository<TeamUser, int> teamUsers, 
     IRepository<UserConversation, int> userConversations,
+    IRepository<Role, int> role,
     IRepository<UserJob,int> userJob) : IDisposable, IRepositoryCatalog
 {
     private readonly BuildBuddyDbContext _context = buildBuddyDb;
@@ -29,6 +30,8 @@ public class UnitOfWork(BuildBuddyDbContext buildBuddyDb,
     public IRepository<TeamUser, int> TeamUsers { get; } = teamUsers;
     public IRepository<UserConversation, int> UserConversations { get; } = userConversations;
     public IRepository<UserJob, int> UserJobs { get; } = userJob;
+    public IRepository<Role, int> Roles { get; } = role;
+
 
     public Task SaveChangesAsync()
     {

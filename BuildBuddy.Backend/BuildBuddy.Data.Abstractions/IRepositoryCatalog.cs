@@ -15,6 +15,7 @@ public interface IRepositoryCatalog
     IRepository<TeamUser, int> TeamUsers { get; } 
     IRepository<UserConversation, int> UserConversations { get; } 
     IRepository<UserJob, int> UserJobs { get; } 
+    IRepository<Role, int> Roles { get; }
 
     void Dispose();
     Task SaveChangesAsync();

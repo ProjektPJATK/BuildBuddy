@@ -18,5 +18,5 @@ public class BuildBuddyDbContext : DbContext
     public DbSet<BuildingArticles> BuildingArticles { get; set; }
     public DbSet<Address> Address { get; set; }
     public DbSet<UserJob> UserJob { get; set; }
-    
+    public DbSet<Role> Role { get; set; }
 }
