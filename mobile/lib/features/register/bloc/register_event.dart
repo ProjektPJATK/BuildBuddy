@@ -1,17 +1,19 @@
-abstract class RegisterEvent {}
+import 'package:equatable/equatable.dart';
+import 'package:mobile/features/profile/models/user_model.dart';
+
+
+abstract class RegisterEvent extends Equatable {
+  const RegisterEvent();
+
+  @override
+  List<Object> get props => [];
+}
 
 class RegisterSubmitted extends RegisterEvent {
-  final String name;
-  final String surname;
-  final String email;
-  final String telephoneNr;
-  final String password;
+  final User user;
 
-  RegisterSubmitted({
-    required this.name,
-    required this.surname,
-    required this.email,
-    required this.telephoneNr,
-    required this.password,
-  });
+  const RegisterSubmitted(this.user);
+
+  @override
+  List<Object> get props => [user];
 }

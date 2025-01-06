@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:mobile/shared/themes/styles.dart';
+import 'package:mobile/shared/utils/validators.dart';  // Importujemy walidator
 
 class PhoneNumberField extends StatelessWidget {
   final TextEditingController controller;
@@ -30,8 +31,8 @@ class PhoneNumberField extends StatelessWidget {
             );
           },
           child: Container(
-            height: 56, // Wysokość dopasowana do TextFormField
-            width: 70,  // Szerokość, aby zapewnić proporcjonalny design
+            height: 56,
+            width: 70,
             padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
               color: Colors.transparent,
@@ -53,14 +54,7 @@ class PhoneNumberField extends StatelessWidget {
             keyboardType: TextInputType.phone,
             style: const TextStyle(color: Colors.white),
             decoration: AppStyles.inputFieldStyle(hintText: 'Numer telefonu'),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'To pole jest wymagane';
-              } else if (!RegExp(r'^[0-9]{9,15}$').hasMatch(value)) {
-                return 'Wpisz poprawny numer telefonu';
-              }
-              return null;
-            },
+            validator: Validator.validatePhoneNumber,  // Użycie walidatora
           ),
         ),
       ],
