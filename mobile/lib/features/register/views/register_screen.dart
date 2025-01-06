@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/features/profile/models/user_model.dart';
 import 'package:mobile/features/register/views/widgets/phone_number_field.dart';
 import 'package:mobile/features/register/views/widgets/styled_text_field.dart';
 import 'package:mobile/shared/themes/styles.dart';
@@ -7,8 +8,9 @@ import '../bloc/register_bloc.dart';
 import '../bloc/register_event.dart';
 import '../bloc/register_state.dart';
 
-
 class RegisterScreen extends StatelessWidget {
+  const RegisterScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -74,32 +76,17 @@ class _RegisterFormState extends State<RegisterForm> {
                         StyledTextField(
                           controller: _nameController,
                           labelText: 'Imię',
-                          validator: (value) => value == null || value.isEmpty
-                              ? 'To pole jest wymagane'
-                              : null,
                         ),
                         const SizedBox(height: 12),
                         StyledTextField(
                           controller: _surnameController,
                           labelText: 'Nazwisko',
-                          validator: (value) => value == null || value.isEmpty
-                              ? 'To pole jest wymagane'
-                              : null,
                         ),
                         const SizedBox(height: 12),
                         StyledTextField(
                           controller: _emailController,
                           labelText: 'Adres e-mail',
                           keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'To pole jest wymagane';
-                            }
-                            if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                              return 'Niepoprawny adres e-mail';
-                            }
-                            return null;
-                          },
                         ),
                         const SizedBox(height: 12),
                         PhoneNumberField(
@@ -116,56 +103,37 @@ class _RegisterFormState extends State<RegisterForm> {
                           controller: _passwordController,
                           labelText: 'Hasło',
                           obscureText: true,
-                          validator: (value) => value != null && value.length < 8
-                              ? 'Hasło musi mieć co najmniej 8 znaków'
-                              : null,
                         ),
                         const SizedBox(height: 12),
                         StyledTextField(
                           controller: _confirmPasswordController,
                           labelText: 'Powtórz hasło',
                           obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'To pole jest wymagane';
-                            }
-                            if (value != _passwordController.text) {
-                              return 'Hasła muszą być takie same';
-                            }
-                            return null;
-                          },
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 24),
-                  BlocBuilder<RegisterBloc, RegisterState>(
-                    builder: (context, state) {
-                      if (state is RegisterLoading) {
-                        return const CircularProgressIndicator();
-                      }
-                      return ElevatedButton(
-                        style: AppStyles.buttonStyle(),
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            context.read<RegisterBloc>().add(RegisterSubmitted(
-                                  name: _nameController.text,
-                                  surname: _surnameController.text,
-                                  email: _emailController.text,
-                                  telephoneNr: '$_selectedCountryCode${_telephoneNrController.text}',
-                                  password: _passwordController.text,
-                                ));
-                          }
-                        },
-                        child: const Text('ZAREJESTRUJ'),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Masz już konto? Zaloguj się'),
-                  ),
+                  ElevatedButton(
+                          style: AppStyles.buttonStyle(),
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              final user = User(
+                                id: 0,  // Domyślne id, bo serwer je nadaje automatycznie
+                                name: _nameController.text,
+                                surname: _surnameController.text,
+                                email: _emailController.text,
+                                telephoneNr: '$_selectedCountryCode${_telephoneNrController.text}',
+                                password: _passwordController.text,
+                                userImageUrl: "string",  // Opcjonalne
+                                preferredLanguage: "pl",    // Opcjonalne
+                              );
+
+                              context.read<RegisterBloc>().add(RegisterSubmitted(user));
+                            }
+                          },
+                          child: const Text('ZAREJESTRUJ'),
+                        )
                 ],
               ),
             ),

@@ -13,4 +13,6 @@ class AppConfig {
   static String getTeammatesEndpoint(int teamId) => "${getBaseUrl()}/api/Team/$teamId/users";
   static String getChatListEndpoint(int userId) => '${getBaseUrl()}/api/Conversation/user/$userId/conversations';
   static String createConversationEndpoint = '${getBaseUrl()}/api/Conversation/create';
+  static String RegisterEndpoint = '${getBaseUrl()}/api/User/register';
+
 }
