@@ -92,7 +92,7 @@ class BuildBuddyApp extends StatelessWidget {
         '/construction_calendar': (context) => const ConstructionCalendarScreen(),
         '/chat': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-          return ChatScreen(conversationName: args['conversationName']);
+          return ChatScreen(conversationName: args['conversationName'], participants: args['participants'],);
         },
         '/register': (context) => RegisterScreen(),
       },

@@ -6,7 +6,7 @@ import 'package:mobile/shared/config/config.dart';
 class RegisterService {
 
   static Future<bool> registerUser(User user) async {
-    final url = AppConfig.RegisterEndpoint;
+    final url = AppConfig.registerEndpoint();
     try {
       final response = await http.post(
         Uri.parse(url),
