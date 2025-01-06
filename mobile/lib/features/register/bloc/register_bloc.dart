@@ -13,13 +13,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     emit(RegisterLoading());
 
     try {
-      final isSuccess = await RegisterService.registerUser(
-        name: event.name,
-        surname: event.surname,
-        email: event.email,
-        telephoneNr: event.telephoneNr,
-        password: event.password,
-      );
+      final isSuccess = await RegisterService.registerUser(event.user);
 
       if (isSuccess) {
         emit(RegisterSuccess());

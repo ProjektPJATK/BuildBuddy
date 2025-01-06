@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class ConversationItem extends StatelessWidget {
   final String name;
   final VoidCallback onTap;
+  final String participantsList; // Dodajemy parametr na listę uczestników
 
   const ConversationItem({
     super.key,
     required this.name,
     required this.onTap,
+    required this.participantsList, // Dodajemy parametr
   });
 
   @override
@@ -24,6 +26,12 @@ class ConversationItem extends StatelessWidget {
           name,
           style: const TextStyle(color: Colors.black),
         ),
+        subtitle: participantsList.isNotEmpty 
+          ? Text( // Jeśli jest lista uczestników, wyświetlamy ją
+              participantsList,
+              style: const TextStyle(color: Colors.black54),
+            )
+          : null,
         onTap: onTap,
       ),
     );
