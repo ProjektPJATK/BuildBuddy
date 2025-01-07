@@ -156,4 +156,16 @@ public class ConversationService : IConversationService
             PreferredLanguage = uc.User.PreferredLanguage
         }).ToList();
     }
+    public async Task DeleteConversationAsync(int conversationId)
+    {
+        var conversation = await _context.Conversations.GetByID(conversationId);
+
+        if (conversation == null)
+        {
+            throw new ArgumentException("Conversation not found.");
+        }
+
+        _context.Conversations.Delete(conversation);
+        await _context.SaveChangesAsync();
+    }
 }

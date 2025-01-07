@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<IUserService, UserService>()
             .AddScoped<IChatService, ChatService>()
             .AddScoped<ITranslationService, TranslationService>()
+            .AddScoped<IRoleService, RoleService>()
             .AddBuildBuddyData(configuration)
             .AddStorageServices(configuration)
             .AddSingleton<AmazonTranslateClient>(sp =>
