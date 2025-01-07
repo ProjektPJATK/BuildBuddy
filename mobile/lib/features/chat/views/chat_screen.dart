@@ -12,8 +12,13 @@ import 'package:mobile/shared/themes/styles.dart';
 
 class ChatScreen extends StatefulWidget {
   final String conversationName;
+  final List<Map<String, dynamic>> participants; // Lista map z uczestnikami
 
-  const ChatScreen({super.key, required this.conversationName});
+  const ChatScreen({
+    super.key,
+    required this.participants,
+    required this.conversationName,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -51,13 +56,14 @@ class _ChatScreenState extends State<ChatScreen> {
       _chatBloc?.add(ConnectChatEvent(
         baseUrl: AppConfig.getChatUrl(),
         conversationId: conversationId,
+        userId: userId,
       ));
     } else {
       print("[ChatScreen] No valid conversationId found in SharedPreferences");
     }
   }
 
-  void _sendMessage() async {
+  Future<void> _sendMessage() async {
     final text = messageController.text.trim();
     if (text.isNotEmpty) {
       final prefs = await SharedPreferences.getInstance();
@@ -78,11 +84,11 @@ class _ChatScreenState extends State<ChatScreen> {
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
-        final targetOffset = _scrollController.position.maxScrollExtent + 290;
+        final targetOffset = _scrollController.position.maxScrollExtent + 400;
         if (_scrollController.offset != targetOffset) {
           _scrollController.animateTo(
             targetOffset,
-            duration: const Duration(milliseconds: 600),
+            duration: const Duration(milliseconds: 400),
             curve: Curves.easeOut,
           );
         }
@@ -112,8 +118,24 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  /// Metoda do mapowania `senderId` na imię i nazwisko uczestnika
+  String _getSenderName(int senderId) {
+    for (var participant in widget.participants) {
+      if (participant['id'] == senderId) {
+        return participant['name']; // Zwracamy nazwisko
+      }
+    }
+    return 'Nieznany użytkownik';
+  }
+
   @override
   Widget build(BuildContext context) {
+
+       List<String> filteredParticipants = widget.participants
+        .where((participant) => participant['id'] != userId)
+        .map((p) => p['name'].toString())
+        .toList();
+
     return Scaffold(
       body: Stack(
         children: [
@@ -125,9 +147,19 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Column(
             children: [
+              // Wybór, jak nazywać nagłówek
               ChatHeader(
-                conversationName: widget.conversationName,
-                onBackPressed: () => Navigator.pop(context),
+                conversationName: widget.participants.length == 1
+                    ? widget.participants[0]['name'] // Jeden uczestnik
+                    : 'Konwersacja grupowa', // Więcej niż jeden
+                participants: filteredParticipants,
+                onBackPressed: () {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/chats', // Zmień na odpowiednią ścieżkę do listy konwersacji
+                    (Route<dynamic> route) => false,
+                  );
+                },
               ),
               Expanded(
                 child: Container(
@@ -146,10 +178,11 @@ class _ChatScreenState extends State<ChatScreen> {
                           itemCount: messages.length,
                           itemBuilder: (context, index) {
                             final message = messages[index];
+                            final senderName =
+                                _getSenderName(message.senderId);
                             final previousMessage =
                                 index > 0 ? messages[index - 1] : null;
 
-                            // Sprawdzenie, czy dodać separator daty
                             final showDateSeparator = previousMessage == null ||
                                 message.timestamp.toLocal().day !=
                                     previousMessage.timestamp.toLocal().day;
@@ -163,9 +196,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ChatBubble(
                                   message: message.text,
                                   isSentByMe: message.senderId == userId,
-                                  sender: message.senderId == userId
-                                      ? ""
-                                      : "User_${message.senderId}",
+                                  sender: senderName,
                                   time: message.timestamp
                                       .toLocal()
                                       .toString()

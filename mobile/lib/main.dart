@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/features/calendar/views/calendar_screen.dart';
 import 'package:mobile/features/chat/bloc/chat_bloc.dart';
-import 'package:mobile/features/chat/services/chat_hub_service.dart';
+import 'package:mobile/shared/services/chat_hub_service.dart';
 import 'package:mobile/features/chat/views/chat_screen.dart';
 import 'package:mobile/features/conversation_list/bloc/conversation_bloc.dart';
 import 'package:mobile/features/conversation_list/services/conversation_service.dart';
@@ -82,14 +82,17 @@ class BuildBuddyApp extends StatelessWidget {
         '/chats': (context) => const ConversationListScreen(),
         '/calendar': (context) => const CalendarScreen(), // Calendar screen
         '/profile': (context) => const UserProfileScreen(),
-        '/new_message': (context) => const NewMessageScreen(),
-        '/construction_home': (context) => const ConstructionHomeScreen(),
-        '/construction_team': (context) => const TeamScreen(),
-        '/construction_inventory': (context) => const InventoryScreen(),
+        '/new_message': (context) {
+            final chatBloc = BlocProvider.of<ChatBloc>(context);  // Pobieramy ChatBloc z contextu
+            return NewMessageScreen(chatBloc: chatBloc);  // Przekazujemy chatBloc
+          },
+        '/construction_home': (context) => ConstructionHomeScreen(),
+        '/construction_team': (context) => TeamScreen(),
+        '/construction_inventory': (context) => InventoryScreen(),
         '/construction_calendar': (context) => const ConstructionCalendarScreen(),
         '/chat': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-          return ChatScreen(conversationName: args['conversationName']);
+          return ChatScreen(conversationName: args['conversationName'], participants: args['participants'],);
         },
         '/register': (context) => RegisterScreen(),
       },

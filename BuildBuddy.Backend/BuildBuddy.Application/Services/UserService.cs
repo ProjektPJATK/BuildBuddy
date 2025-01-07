@@ -6,6 +6,7 @@ using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
 using BuildBuddy.Data.Model;
 using BuildBuddy.Storage.Abstraction;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BuildBuddy.Application.Services
@@ -98,23 +99,39 @@ namespace BuildBuddy.Application.Services
             return userDto;
         }
 
-        public async Task UpdateUserAsync(int userId, UserDto userDto)
+        public async Task UpdateUserAsync(int userId, JsonPatchDocument<UserDto> patchDoc)
         {
             var user = await _dbContext.Users.GetByID(userId);
 
-            if (user != null)
+            if (user == null)
             {
-                user.Name = userDto.Name;
-                user.Surname = userDto.Surname;
-                user.TelephoneNr = userDto.TelephoneNr;
-                user.Mail = userDto.Mail;
-                user.Password = userDto.Password;
-                user.UserImageUrl = userDto.UserImageUrl;
-                user.PreferredLanguage = userDto.PreferredLanguage;
-
-                await _dbContext.SaveChangesAsync();
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
             }
+
+            var userDto = new UserDto
+            {
+                Name = user.Name,
+                Surname = user.Surname,
+                TelephoneNr = user.TelephoneNr,
+                Mail = user.Mail,
+                Password = user.Password,
+                UserImageUrl = user.UserImageUrl,
+                PreferredLanguage = user.PreferredLanguage
+            };
+
+            patchDoc.ApplyTo(userDto);
+
+            user.Name = userDto.Name;
+            user.Surname = userDto.Surname;
+            user.TelephoneNr = userDto.TelephoneNr;
+            user.Mail = userDto.Mail;
+            user.Password = userDto.Password;
+            user.UserImageUrl = userDto.UserImageUrl;
+            user.PreferredLanguage = userDto.PreferredLanguage;
+
+            await _dbContext.SaveChangesAsync();
         }
+
 
         public async Task DeleteUserAsync(int userId)
         {
@@ -126,17 +143,6 @@ namespace BuildBuddy.Application.Services
             }
         }
 
-        public async Task<IEnumerable<ConversationDto>> GetUserConversationsAsync(int userId)
-        {
-            return await _dbContext.UserConversations.GetAsync(
-                mapper: uc => new ConversationDto
-                {
-                    Id = uc.Conversation.Id,
-                    Name = uc.Conversation.Name,
-                },
-                filter: uc => uc.UserId == userId,
-                includeProperties: "Conversation");
-        }
 
         public async Task<List<TeamDto>> GetTeamsByUserId(int userId)
         {

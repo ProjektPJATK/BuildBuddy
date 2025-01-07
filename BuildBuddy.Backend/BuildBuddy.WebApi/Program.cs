@@ -51,7 +51,8 @@ builder.Services.AddSwaggerGen(c =>
         }, new List<string>()
     }});
 });
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddNewtonsoftJson();
 
 builder.Services.AddAuthentication(options =>
 {

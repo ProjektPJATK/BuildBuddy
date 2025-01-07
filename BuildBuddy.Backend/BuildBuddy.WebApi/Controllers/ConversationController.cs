@@ -55,4 +55,18 @@ namespace BuildBuddy.WebApi.Controllers;
 
             return Ok(conversations);
         }
+        [HttpDelete("{conversationId}")]
+        public async Task<IActionResult> DeleteConversation(int conversationId)
+        {
+            try
+            {
+                await _conversationService.DeleteConversationAsync(conversationId);
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
     }

@@ -16,16 +16,14 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("[ChatBubble] message='$message', isSentByMe=$isSentByMe, sender='$sender', time='$time'");
-
     return Align(
       alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         decoration: BoxDecoration(
           color: isSentByMe
-              ? Colors.white.withOpacity(0.8) // Tło dla wiadomości wysłanych przez użytkownika
-              : const Color.fromARGB(248, 128, 127, 127).withOpacity(0.8), // Tło dla wiadomości od innych użytkowników
+              ? Colors.white.withOpacity(0.8)  // Tło dla wiadomości wysłanych przez użytkownika
+              : const Color.fromARGB(248, 128, 127, 127).withOpacity(0.8),  // Tło dla wiadomości od innych użytkowników
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(12),
             topRight: const Radius.circular(12),
@@ -41,12 +39,12 @@ class ChatBubble extends StatelessWidget {
           ],
         ),
         child: IntrinsicWidth(
-          stepWidth: 50, // Minimalna szerokość
+          stepWidth: 50,  // Minimalna szerokość
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min, // Dopasowanie do zawartości
+              mainAxisSize: MainAxisSize.min,  // Dopasowanie do zawartości
               children: [
                 if (!isSentByMe)
                   Text(
@@ -55,7 +53,7 @@ class ChatBubble extends StatelessWidget {
                   ),
                 Text(
                   message,
-                  style: const TextStyle(fontSize: 14, color: Colors.black87), // Czarny tekst
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),  // Czarny tekst
                   softWrap: true,
                 ),
                 Align(

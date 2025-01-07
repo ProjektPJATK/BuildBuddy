@@ -1,6 +1,4 @@
-using Amazon.Translate;
 using BuildBuddy.Application;
-using BuildBuddy.Application.Abstractions;
 using BuildBuddy.WebSocets;
 
 var builder = WebApplication.CreateBuilder(args);

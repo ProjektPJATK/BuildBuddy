@@ -12,6 +12,9 @@ class AppConfig {
   static String getInventoryEndpoint(int placeId) => "${getBaseUrl()}/api/Item/place/$placeId";
   static String getTeammatesEndpoint(int teamId) => "${getBaseUrl()}/api/Team/$teamId/users";
   static String getChatListEndpoint(int userId) => '${getBaseUrl()}/api/Conversation/user/$userId/conversations';
+  static String createConversationEndpoint() => '${getBaseUrl()}/api/Conversation/create';
+  static String registerEndpoint() => '${getBaseUrl()}/api/User/register';
+
 
     // Nowe endpointy dla JobActualization
   static String getJobActualizationEndpoint(int id) => '${getBaseUrl()}/api/JobActualization/$id';
@@ -22,4 +25,8 @@ class AppConfig {
   // Dodatkowy endpoint dla użytkownika
   static String getUserJobEndpoint(int userId) => '${getBaseUrl()}/api/Job/user/$userId';
   static String postJobActualizationEndpoint() => '${getBaseUrl()}/api/JobActualization';
+
+ 
+
+
 }

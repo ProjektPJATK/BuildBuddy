@@ -8,10 +8,12 @@ namespace BuildBuddy.Application.Services
     public class TeamService : ITeamService
     {
         private readonly IRepositoryCatalog _dbContext;
+        private readonly IConversationService _conversationService;
 
-        public TeamService(IRepositoryCatalog dbContext)
+        public TeamService(IRepositoryCatalog dbContext, IConversationService conversationService)
         {
             _dbContext = dbContext;
+            _conversationService = conversationService;
         }
 
         public async Task<IEnumerable<TeamDto>> GetAllTeamsAsync()
@@ -45,7 +47,27 @@ namespace BuildBuddy.Application.Services
 
         public async Task<TeamDto> CreateTeamAsync(TeamDto teamDto)
         {
-            var team = new BuildBuddy.Data.Model.Team
+            if (!teamDto.AddressId.HasValue)
+            {
+                throw new ArgumentException("AddressId is null.");
+            }
+
+            var existingTeam = await _dbContext.Teams.GetAsync(
+                filter: t => t.AddressId == teamDto.AddressId.Value
+            );
+
+            if (existingTeam.Any())
+            {
+                throw new InvalidOperationException("A team with this AddressId already exists.");
+            }
+
+            var address = await _dbContext.Addresses.GetByID(teamDto.AddressId.Value);
+            if (address == null)
+            {
+                throw new ArgumentException("Address not found.");
+            }
+
+            var team = new Team
             {
                 Name = teamDto.Name,
                 AddressId = teamDto.AddressId
@@ -54,9 +76,19 @@ namespace BuildBuddy.Application.Services
             _dbContext.Teams.Insert(team);
             await _dbContext.SaveChangesAsync();
 
+            var conversation = new Conversation
+            {
+                Name = $"{address.Street}{address.HouseNumber}{address.City}",
+                TeamId = team.Id
+            };
+
+            _dbContext.Conversations.Insert(conversation);
+            await _dbContext.SaveChangesAsync();
+
             teamDto.Id = team.Id;
             return teamDto;
         }
+
 
         public async Task UpdateTeamAsync(int id, TeamDto teamDto)
         {
@@ -97,6 +129,12 @@ namespace BuildBuddy.Application.Services
                 });
 
                 await _dbContext.SaveChangesAsync();
+
+                var conversations = await _dbContext.Conversations.GetAsync(filter: t=> t.TeamId ==teamId);
+                foreach (var conversation in conversations)
+                {
+                    await _conversationService.AddUserToConversationAsync(conversation.Id, userId);
+                }
             }
         }
 
