@@ -1,3 +1,14 @@
 
 /BuildBuddy.Backend
 /BuildBuddy.Backend/BuildBuddy.WebApi
+BuildBuddy.Backend/BuildBuddy.WebApi/bin/Debug/net8.0/BuildBuddy.Application.Abstractions.dll
+BuildBuddy.Backend/BuildBuddy.WebApi/bin/Debug/net8.0/BuildBuddy.Application.Abstractions.dll
+BuildBuddy.Backend/BuildBuddy.WebApi/bin/Debug/net8.0/BuildBuddy.Application.dll
+BuildBuddy.Backend/BuildBuddy.WebApi/bin/Debug/net8.0/BuildBuddy.Contract.dll
+BuildBuddy.Backend/BuildBuddy.WebApi/bin/Debug/net8.0/BuildBuddy.Data.Abstractions.dll
+BuildBuddy.Backend/BuildBuddy.WebApi/bin/Debug/net8.0/BuildBuddy.Data.dll
+BuildBuddy.Backend/BuildBuddy.WebApi/bin/Debug/net8.0/BuildBuddy.Data.Repositories.dll
+BuildBuddy.Backend/BuildBuddy.WebApi/bin/Debug/net8.0/BuildBuddy.Storage.Abstraction.dll
+BuildBuddy.Backend/BuildBuddy.WebApi/bin/Debug/net8.0/BuildBuddy.Storage.Repository.dll
+BuildBuddy.Backend/BuildBuddy.WebApi/bin/Debug/net8.0/BuildBuddy.WebApi.dll
+BuildBuddy.Backend/BuildBuddy.WebApi/bin/Debug/net8.0/BuildBuddy.WebApi.exe
