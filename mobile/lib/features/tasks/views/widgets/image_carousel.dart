@@ -58,3 +58,48 @@ class ImageCarousel extends StatelessWidget {
     );
   }
 }
+/// Carousel to display network images fetched from API
+class DisplayImageCarousel extends StatelessWidget {
+  final List<String> imageUrls;
+
+  const DisplayImageCarousel({
+    super.key,
+    required this.imageUrls,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return imageUrls.isEmpty
+        ? const Center(
+            child: Text(
+              'Brak zdjęć do wyświetlenia',
+              style: TextStyle(color: Colors.white70),
+            ),
+          )
+        : CarouselSlider(
+            options: CarouselOptions(
+              height: 200,
+              enableInfiniteScroll: false,
+              enlargeCenterPage: true,
+            ),
+            items: imageUrls.map((url) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 5),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    url,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Icon(Icons.broken_image, size: 80, color: Colors.white54),
+                      );
+                    },
+                  ),
+                ),
+              );
+            }).toList(),
+          );
+  }
+}

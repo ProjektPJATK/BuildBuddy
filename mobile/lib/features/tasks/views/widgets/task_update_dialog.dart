@@ -58,18 +58,15 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
     });
 
     try {
-      // Step 1: Create Task Actualization
       int actualizationId = await TaskService.createTaskActualization(
           widget.jobId, _commentController.text);
 
-      // Step 2: Upload Images
       if (_selectedImages.isNotEmpty) {
         for (File image in _selectedImages) {
           await TaskService.uploadImage(actualizationId, image);
         }
       }
 
-      // Success callback
       widget.onSave(_commentController.text, _selectedImages);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Aktualizacja zapisana pomyślnie.')),
@@ -83,7 +80,7 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
       setState(() {
         _isLoading = false;
       });
-      Navigator.pop(context);  // Close the dialog
+      Navigator.pop(context);
     }
   }
 
@@ -92,7 +89,10 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
     return AlertDialog(
       backgroundColor: Colors.black.withOpacity(0.8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text('Dodaj Aktualizację', style: TextStyle(color: Colors.white)),
+      title: const Text(
+        'Dodaj Aktualizację',
+        style: TextStyle(color: Colors.white),
+      ),
       content: SingleChildScrollView(
         child: Column(
           children: [
@@ -101,10 +101,16 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: 'Dodaj komentarz',
-                hintStyle: const TextStyle(color: Colors.white54),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Colors.white54),
+                hintStyle: const TextStyle(color: Colors.white70),
+                filled: true,
+                fillColor: Colors.grey.withOpacity(0.2),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(color: Colors.white),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(color: Colors.blue),
                 ),
               ),
             ),
@@ -115,13 +121,42 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
-                  onPressed: _selectImage,
-                  child: const Text('Dodaj Zdjęcia'),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _selectImage,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'Dodaj Zdjęcia',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
                 ),
-                ElevatedButton(
-                  onPressed: _takePhoto,
-                  child: const Text('Zrób Zdjęcie'),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _takePhoto,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'Zrób Zdjęcie',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -131,11 +166,23 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Anuluj'),
+          child: const Text(
+            'Anuluj',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _saveUpdate,
-          child: Text(_isLoading ? 'Zapisywanie...' : 'Zapisz'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          child: Text(
+            _isLoading ? 'Zapisywanie...' : 'Zapisz',
+            style: const TextStyle(color: Colors.white),
+          ),
         ),
       ],
     );
