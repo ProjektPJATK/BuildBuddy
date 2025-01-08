@@ -57,6 +57,9 @@ void main() {
         BlocProvider<ProfileBloc>(
           create: (context) => ProfileBloc(UserService()),
         ),
+           BlocProvider<ProfileBloc>(
+          create: (context) => ProfileBloc(UserService()),
+        ),
          BlocProvider<ConversationBloc>(
         create: (context) => ConversationBloc(ConversationService()),
          ),

@@ -8,8 +8,9 @@ class ProfileLoading extends ProfileState {}
 
 class ProfileLoaded extends ProfileState {
   final User profile;
+  final String imageUrl;
 
-  ProfileLoaded(this.profile);
+  ProfileLoaded(this.profile, {required this.imageUrl});
 }
 
 class ProfileError extends ProfileState {

@@ -18,23 +18,25 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     try {
       final user = await userService.getCachedUserProfile();
       if (user != null) {
-        emit(ProfileLoaded(user));
+        final imageUrl = await userService.getUserImage(user.id);
+        emit(ProfileLoaded(user, imageUrl: imageUrl));
       } else {
-        emit(ProfileError('No cached profile found'));
+        emit(ProfileError('No cached profile found.'));
       }
     } catch (e) {
-      emit(ProfileError('Error loading cached profile'));
+      emit(ProfileError('Error loading cached profile.'));
     }
   }
 
   Future<void> _onFetchProfile(
       FetchProfileEvent event, Emitter<ProfileState> emit) async {
+    emit(ProfileLoading());
     try {
       final user = await userService.getUserProfile();
-      await userService.cacheUserProfile(user);
-      emit(ProfileLoaded(user));
+      final imageUrl = await userService.getUserImage(user.id);
+      emit(ProfileLoaded(user, imageUrl: imageUrl));
     } catch (e) {
-      emit(ProfileError('Failed to fetch profile'));
+      emit(ProfileError('Failed to fetch profile: $e'));
     }
   }
 
@@ -44,7 +46,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       await userService.logout();
       emit(LogoutSuccess());
     } catch (e) {
-      emit(ProfileError('Logout failed'));
+      emit(ProfileError('Logout failed.'));
     }
   }
 
@@ -54,9 +56,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     try {
       await userService.editUserProfile(event.updatedProfile);
       await userService.cacheUserProfile(event.updatedProfile);
-      emit(ProfileLoaded(event.updatedProfile));
+      final imageUrl = await userService.getUserImage(event.updatedProfile.id);
+      emit(ProfileLoaded(event.updatedProfile, imageUrl: imageUrl));
     } catch (e) {
-      emit(ProfileError('Failed to edit profile'));
+      emit(ProfileError('Failed to edit profile.'));
     }
   }
 }

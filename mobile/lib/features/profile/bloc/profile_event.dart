@@ -1,21 +1,18 @@
 import 'package:equatable/equatable.dart';
 import 'package:mobile/features/profile/models/user_model.dart';
+import 'dart:io';
 
 abstract class ProfileEvent extends Equatable {
   @override
   List<Object?> get props => [];
 }
 
-// Pobieranie profilu
 class FetchProfileEvent extends ProfileEvent {}
 
-// Pobieranie profilu z cache
 class FetchProfileFromCacheEvent extends ProfileEvent {}
 
-// Wylogowanie użytkownika
 class LogoutEvent extends ProfileEvent {}
 
-// Edycja profilu użytkownika
 class EditProfileEvent extends ProfileEvent {
   final User updatedProfile;
 
@@ -23,4 +20,14 @@ class EditProfileEvent extends ProfileEvent {
 
   @override
   List<Object?> get props => [updatedProfile];
+}
+
+class UploadUserImageEvent extends ProfileEvent {
+  final int userId;
+  final File image;
+
+  UploadUserImageEvent(this.userId, this.image);
+
+  @override
+  List<Object?> get props => [userId, image];
 }
