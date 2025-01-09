@@ -141,7 +141,24 @@ namespace BuildBuddy.Application.Services
             _dbContext.UserJobs.Insert(userTask);
             await _dbContext.SaveChangesAsync();
         }
+        public async Task<IEnumerable<JobDto>> GetJobByUserIdAndAddressIdAsync(int userId, int addressId)
+        {
+            var jobs = await _dbContext.UserJobs.GetAsync(
+                mapper: uj => new JobDto
+                {
+                    Id = uj.Job.Id,
+                    Name = uj.Job.Name,
+                    Message = uj.Job.Message,
+                    StartTime = uj.Job.StartTime,
+                    EndTime = uj.Job.EndTime,
+                    AllDay = uj.Job.AllDay,
+                    AddressId = uj.Job.AddressId ?? 0
+                },
+                filter: uj => uj.UserId == userId && uj.Job.AddressId == addressId,
+                includeProperties: "Job"
+            );
 
-
+            return jobs;
+        }
     }
 }
