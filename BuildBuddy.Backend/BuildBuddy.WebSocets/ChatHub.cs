@@ -24,22 +24,21 @@ public class ChatHub : Hub
     foreach (var translation in translations)
     {
         Console.WriteLine($"UserId: {translation.Key}, Message: {translation.Value}");
-        if (translation.Key != senderId)  // Tylko dla innych użytkowników
+        if (translation.Key != senderId)
         {
             await Clients.OthersInGroup(conversationId.ToString()).SendAsync(
                 "ReceiveMessage",
                 senderId,
-                translation.Value,  // Tłumaczenie
+                translation.Value,
                 message.DateTimeDate
             );
         }
     }
-
-    // Nadawca otrzymuje tylko oryginalną wiadomość
+    
     await Clients.Caller.SendAsync(
         "ReceiveMessage",
         senderId,
-        text,  // Oryginał
+        text,  
         message.DateTimeDate
     );
 }
@@ -47,9 +46,7 @@ public class ChatHub : Hub
     
     public async Task FetchHistory(int conversationId, int userId)
     {
-
         var messages = await _chatService.GetChatHistory(conversationId, userId);
-
         await Clients.Caller.SendAsync("ReceiveHistory", messages);
     }
     

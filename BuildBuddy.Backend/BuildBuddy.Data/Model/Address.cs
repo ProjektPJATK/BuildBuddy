@@ -11,5 +11,5 @@ public class Address : IHaveId<int>
     public string PostalCode { get; set; }
     
     public virtual Team Team { get; set; }
-    public virtual ICollection<BuildingArticles> Items { get; set; }
+    public virtual ICollection<BuildingArticles> BuildingArticles { get; set; }
 }

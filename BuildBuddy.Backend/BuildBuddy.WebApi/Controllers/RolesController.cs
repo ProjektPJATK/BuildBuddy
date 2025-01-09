@@ -103,4 +103,23 @@ namespace BuildBuddy.WebApi.Controllers;
             await _roleService.RemoveRoleFromUserAsync(userId);
             return Ok();
         }
+        
+        [HttpGet("role/{roleId}")]
+        public async Task<IActionResult> GetUsersByRoleIdAsync(int roleId)
+        {
+            try
+            {
+                var users = await _roleService.GetUsersByRoleIdAsync(roleId);
+                if (users == null || !users.Any())
+                {
+                    return NotFound(new { message = "No users found for the specified role ID." });
+                }
+
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while processing your request.", error = ex.Message });
+            }
+        }
     }

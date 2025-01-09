@@ -1,0 +1,29 @@
+﻿using System.Security.Claims;
+using BuildBuddy.Application.Abstractions;
+using Microsoft.AspNetCore.Mvc;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ChatController : ControllerBase
+{
+    private readonly IChatService _chatService;
+
+    public ChatController(ChatService chatService)
+    {
+        _chatService = chatService;
+    }
+
+    [HttpGet("unread-count")]
+    public async Task<IActionResult> GetUnreadMessagesCount([FromBody] int conversationId, [FromBody] int userId)
+    {
+        bool count = await _chatService.GetUnreadMessagesCount(userId, conversationId);
+        return Ok(new { UnreadCount = count });
+    }
+    
+    [HttpPost("exit-chat")]
+    public async Task<IActionResult> ExitChat([FromBody] int conversationId, [FromBody] int userId)
+    {
+        await _chatService.ResetReadStatus(conversationId, userId);
+        return Ok();
+    }
+}
