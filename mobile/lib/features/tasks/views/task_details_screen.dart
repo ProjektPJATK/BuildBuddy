@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
@@ -30,18 +29,20 @@ class TaskDetailScreen extends StatefulWidget {
 }
 
 class _TaskDetailScreenState extends State<TaskDetailScreen> {
-  List<String> imageUrls = [];
-  String message = '';
+  List<Map<String, dynamic>> jobActualizations = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchTaskActualization();
+    _fetchJobActualizations();
   }
 
-  // Fetch task actualization details and images
-  Future<void> _fetchTaskActualization() async {
+  // Fetch all job actualizations for the task
+  Future<void> _fetchJobActualizations() async {
+    // Debugging the jobId used for fetching actualizations
+    print('Fetching Job Actualizations for Job ID: ${widget.taskId}');
+
     try {
       final response = await http.get(
         Uri.parse(AppConfig.getJobActualizationEndpoint(widget.taskId)),
@@ -49,29 +50,38 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
+
+        // Debugging the response from the server
+        print('Job Actualizations Fetched: $jsonData');
+
         setState(() {
-          message = jsonData['message'] ?? '';
-          imageUrls = List<String>.from(jsonData['jobImageUrl'] ?? []);
+          jobActualizations = List<Map<String, dynamic>>.from(jsonData);
           isLoading = false;
         });
       } else {
-        print('Failed to fetch actualization. Status: ${response.statusCode}');
+        print('Failed to fetch actualizations. Status: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching task actualization: $e');
+      print('Error fetching job actualizations: $e');
     }
   }
 
   void _showTaskUpdateDialog(BuildContext context) {
+    // Debugging the jobId being passed to the TaskUpdateDialog
+    print('Opening Task Update Dialog - Job ID: ${widget.taskId}');
+
     showDialog(
       context: context,
       builder: (_) => TaskUpdateDialog(
-        jobId: widget.taskId,
+        jobId: widget.taskId, // Pass the taskId (jobId)
         onSave: (comment, images) {
-          print('Task Updated - ID: ${widget.taskId}');
+          // Debugging after saving
+          print('Task Updated - Job ID: ${widget.taskId}');
           print('Komentarz: $comment');
           print('Zdjęcia: ${images.map((img) => img.path).toList()}');
-          _fetchTaskActualization();
+
+          // Refresh job actualizations
+          _fetchJobActualizations();
         },
       ),
     );
@@ -121,16 +131,17 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                           _buildDetailRow(Icons.timer_off, 'Zakończenie', widget.endTime),
                           _buildDetailRow(Icons.event, 'Data', widget.taskDate),
 
-                          // Display message if available
-                          if (message.isNotEmpty) ...[
+                          // Display job actualizations
+                          if (jobActualizations.isNotEmpty) ...[
                             const SizedBox(height: 20),
-                            _buildDetailRow(Icons.message, 'Komentarz', message),
-                          ],
-
-                          // Display images in carousel if available
-                          if (imageUrls.isNotEmpty) ...[
-                            const SizedBox(height: 20),
-                            _buildDisplayImageCarousel(imageUrls),
+                            ...jobActualizations.map((actualization) {
+                              return Column(
+                                children: [
+                                  _buildJobActualizationCard(actualization),
+                                  const Divider(color: Colors.white),
+                                ],
+                              );
+                            }).toList(),
                           ],
 
                           const SizedBox(height: 30),
@@ -173,65 +184,96 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
   }
 
-// Carousel for displaying images from the API
-Widget _buildDisplayImageCarousel(List<String> urls) {
-  return CarouselSlider(
-    options: CarouselOptions(
-      height: 200,
-      enableInfiniteScroll: false,
-      enlargeCenterPage: true,
-    ),
-    items: urls.map((url) {
-      return GestureDetector(
-        onTap: () => _showFullScreenImage(url),  // Trigger full-screen view on tap
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 5),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              'https://buildbuddybucket.s3.amazonaws.com/$url',
-              fit: BoxFit.cover,
-              width: double.infinity,
-              errorBuilder: (context, error, stackTrace) {
-                return const Center(
-                  child: Icon(Icons.broken_image, size: 100, color: Colors.white54),
-                );
-              },
-            ),
-          ),
-        ),
-      );
-    }).toList(),
-  );
-}
+  Widget _buildJobActualizationCard(Map<String, dynamic> actualization) {
+    final String message = actualization['message'] ?? '';
+    final List<String> images = List<String>.from(actualization['jobImageUrl'] ?? []);
+    final bool isDone = actualization['isDone'] ?? false;
 
-void _showFullScreenImage(String imageUrl) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return Dialog(
-        backgroundColor: const Color.fromARGB(0, 0, 0, 0),
-        insetPadding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.1),  // 10% padding on each side
-        child: GestureDetector(
-          onTap: () => Navigator.of(context).pop(),  // Close on tap
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.message, color: Colors.white, size: 30),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                'Komentarz: $message',
+                style: AppStyles.textStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            ),
+            Icon(
+              isDone ? Icons.check_circle : Icons.cancel,
+              color: isDone ? Colors.green : Colors.red,
+              size: 24,
+            ),
+          ],
+        ),
+        if (images.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          _buildDisplayImageCarousel(images),
+        ],
+      ],
+    );
+  }
+
+  // Carousel for displaying images from the API
+  Widget _buildDisplayImageCarousel(List<String> urls) {
+    return CarouselSlider(
+      options: CarouselOptions(
+        height: 200,
+        enableInfiniteScroll: false,
+        enlargeCenterPage: true,
+      ),
+      items: urls.map((url) {
+        return GestureDetector(
+          onTap: () => _showFullScreenImage(url),
           child: Container(
-            width: MediaQuery.of(context).size.width * 0.8,
-            height: MediaQuery.of(context).size.height * 0.8,
-            child: Image.network(
-              'https://buildbuddybucket.s3.amazonaws.com/$imageUrl',
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return const Center(
-                  child: Icon(Icons.broken_image, size: 150, color: Colors.white54),
-                );
-              },
+            margin: const EdgeInsets.symmetric(horizontal: 5),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                'https://buildbuddybucket.s3.amazonaws.com/$url',
+                fit: BoxFit.cover,
+                width: double.infinity,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(
+                    child: Icon(Icons.broken_image, size: 100, color: Colors.white54),
+                  );
+                },
+              ),
             ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      }).toList(),
+    );
+  }
 
-
+  void _showFullScreenImage(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: const Color.fromARGB(0, 0, 0, 0),
+          insetPadding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.1),
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.8,
+              child: Image.network(
+                'https://buildbuddybucket.s3.amazonaws.com/$imageUrl',
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(
+                    child: Icon(Icons.broken_image, size: 150, color: Colors.white54),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
