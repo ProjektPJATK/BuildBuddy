@@ -56,18 +56,19 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
   }
 
   void _handleUpdateInventoryItemEvent(
-      UpdateInventoryItemEvent event, Emitter<InventoryState> emit) {
-    if (state is InventoryLoaded) {
-      final currentState = state as InventoryLoaded;
-      final updatedItems = currentState.items.map((item) {
-        if (item.id == event.itemId) {
-          return item.copyWith(remaining: event.newRemaining);
-        }
-        return item;
-      }).toList();
-      emit(currentState.copyWith(items: updatedItems, filteredItems: updatedItems));
-    }
+    UpdateInventoryItemEvent event, Emitter<InventoryState> emit) {
+  if (state is InventoryLoaded) {
+    final currentState = state as InventoryLoaded;
+    final updatedItems = currentState.items.map((item) {
+      if (item.id == event.itemId) {
+        return item.copyWith(remaining: event.newRemaining); // Use double here
+      }
+      return item;
+    }).toList();
+    emit(currentState.copyWith(items: updatedItems, filteredItems: updatedItems));
   }
+}
+
 
   // Zapis danych do cache
   Future<void> _saveToCache(List<InventoryItemModel> items) async {

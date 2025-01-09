@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/features/construction_inventory/models/inventory_item_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../blocs/inventory_bloc.dart';
 import '../blocs/inventory_event.dart';
 import '../blocs/inventory_state.dart';
-import '../models/inventory_item_model.dart';
+
 import '../../../shared/widgets/bottom_navigation.dart';
 import '../../../shared/themes/styles.dart';
 import 'widgets/edit_item_dialog.dart';
@@ -54,24 +55,25 @@ class _InventoryScreenState extends State<InventoryScreen> {
 }
 
   void _showEditItemDialog(BuildContext context, InventoryItemModel item) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return EditItemDialog(
-          remaining: item.remaining,
-          purchased: item.purchased,
-          onSave: (newRemaining) {
-            context.read<InventoryBloc>().add(
-                  UpdateInventoryItemEvent(
-                    itemId: item.id,
-                    newRemaining: newRemaining,
-                  ),
-                );
-          },
-        );
-      },
-    );
-  }
+  showDialog(
+    context: context,
+    builder: (context) {
+      return EditItemDialog(
+        remaining: item.remaining, // Already a double
+        purchased: item.purchased, // Already a double
+        onSave: (newRemaining) {
+          context.read<InventoryBloc>().add(
+                UpdateInventoryItemEvent(
+                  itemId: item.id,
+                  newRemaining: newRemaining, // Passed as a double
+                ),
+              );
+        },
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
