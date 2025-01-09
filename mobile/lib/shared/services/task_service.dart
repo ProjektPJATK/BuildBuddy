@@ -57,11 +57,10 @@ class TaskService {
     }
   }
 
-  // Fetch job actualizations by jobId
   static Future<List<Map<String, dynamic>>> fetchJobActualizations(int jobId) async {
     try {
       final response = await http.get(
-        Uri.parse(AppConfig.getJobActualizationEndpoint(jobId)), // Updated to use jobId
+        Uri.parse(AppConfig.getJobActualizationEndpoint(jobId)),
       );
 
       if (response.statusCode == 200) {
@@ -72,18 +71,16 @@ class TaskService {
             'message': actualization['message'],
             'isDone': actualization['isDone'],
             'jobImageUrl': List<String>.from(actualization['jobImageUrl'] ?? []),
+            'jobId': actualization['jobId'],
           };
         }).toList();
       } else {
-        print('Failed to fetch job actualizations. Status Code: ${response.statusCode}');
-        throw Exception('Failed to fetch job actualizations');
+        throw Exception('Failed to fetch job actualizations: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching job actualizations: $e');
       rethrow;
     }
   }
-
   // Create a new task actualization
   static Future<int> createTaskActualization(int jobId, String message) async {
     final url = Uri.parse(AppConfig.postJobActualizationEndpoint());

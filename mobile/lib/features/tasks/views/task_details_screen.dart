@@ -204,7 +204,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             ),
             Icon(
               isDone ? Icons.check_circle : Icons.cancel,
-              color: isDone ? Colors.green : Colors.red,
+              color: isDone ? Color.fromARGB(255, 11, 164, 211) : const Color.fromARGB(255, 243, 242, 242),
               size: 24,
             ),
           ],

@@ -24,7 +24,7 @@ class AppConfig {
 
   // Endpoints for Job Actualization
   static String getJobActualizationEndpoint(int jobId) =>
-      '${getBaseUrl()}/api/Job/$jobId/actualizations'; // Uses jobId now
+      '${getBaseUrl()}/api/JobActualization/$jobId'; // Updated for fetching all actualizations for a jobId
   static String postAddImageEndpoint(int jobActualizationId) =>
       '${getBaseUrl()}/api/JobActualization/$jobActualizationId/add-image';
   static String deleteImageEndpoint(int jobActualizationId) =>

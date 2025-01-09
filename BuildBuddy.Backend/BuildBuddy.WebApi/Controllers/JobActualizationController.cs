@@ -22,16 +22,22 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(tasksActualization);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<JobActualizationDto>> GetTaskActualizationById(int id)
-        {
-            var taskActualization = await _jobActualizationService.GetJobActualizationByIdAsync(id);
-            if (taskActualization == null)
-            {
-                return NotFound();
-            }
-            return Ok(taskActualization);
-        }
+     [HttpGet("{id}")]
+public async Task<ActionResult<List<JobActualizationDto>>> GetTaskActualizationById(int id)
+{
+    // Fetch job actualizations using the service
+    var taskActualizations = await _jobActualizationService.GetJobActualizationByIdAsync(id);
+
+    // Check if the list is null or empty
+    if (taskActualizations == null || !taskActualizations.Any())
+    {
+        return NotFound(); // Return 404 if no actualizations are found
+    }
+
+    // Return the list of actualizations
+    return Ok(taskActualizations);
+}
+
 
         [HttpPost]
         public async Task<ActionResult<JobActualizationDto>> CreateTaskActualization(JobActualizationDto jobActualizationDto)
