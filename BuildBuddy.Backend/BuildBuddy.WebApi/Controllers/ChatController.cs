@@ -8,20 +8,20 @@ public class ChatController : ControllerBase
 {
     private readonly IChatService _chatService;
 
-    public ChatController(ChatService chatService)
+    public ChatController(IChatService chatService)
     {
         _chatService = chatService;
     }
 
     [HttpGet("unread-count")]
-    public async Task<IActionResult> GetUnreadMessagesCount([FromBody] int conversationId, [FromBody] int userId)
+    public async Task<IActionResult> GetUnreadMessagesCount(int conversationId, int userId)
     {
-        bool count = await _chatService.GetUnreadMessagesCount(userId, conversationId);
-        return Ok(new { UnreadCount = count });
+        var time = await _chatService.GetUnreadMessagesCount(userId, conversationId);
+        return Ok(new { Time = time });
     }
     
     [HttpPost("exit-chat")]
-    public async Task<IActionResult> ExitChat([FromBody] int conversationId, [FromBody] int userId)
+    public async Task<IActionResult> ExitChat(int conversationId, int userId)
     {
         await _chatService.ResetReadStatus(conversationId, userId);
         return Ok();
