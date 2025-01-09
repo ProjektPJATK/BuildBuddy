@@ -109,42 +109,33 @@ public class ChatService : IChatService
         return translatedMessages;
     }
     
-    public async Task MarkMessagesAsRead(int conversationId, int userId)
+    public async Task<bool> GetUnreadMessagesCount(int userId, int conversationId)
     {
-        var messages = await _repositoryCatalog.Messages
-            .GetAsync(filter: m => m.ConversationId == conversationId);
+        var userConversations = await _repositoryCatalog.UserConversations
+            .GetAsync(filter: uc => uc.UserId == userId && uc.ConversationId == conversationId);
 
-        foreach (var message in messages)
+        var userConversation = userConversations.FirstOrDefault();
+        if (userConversation == null)
         {
-            if (!message.ReadByUserIds.Contains(userId))
-            {
-                message.ReadByUserIds.Add(userId);
-            }
+            return false;
         }
+        var lastReadTime = userConversation.LastReadTime ?? DateTime.MinValue;
 
-        await _repositoryCatalog.SaveChangesAsync();
-    }
-    
-    public async Task<int> GetUnreadMessagesCount(int userId)
-    {
         var unreadMessages = await _repositoryCatalog.Messages
-            .GetAsync(filter: m => !m.ReadByUserIds.Contains(userId));
-        return unreadMessages.Count;
+            .GetAsync(filter: m => m.ConversationId == conversationId && m.DateTimeDate > lastReadTime);
+
+        return unreadMessages.Count > 0;
     }
-    
     public async Task ResetReadStatus(int conversationId, int userId)
     {
-        var messages = await _repositoryCatalog.Messages
-            .GetAsync(filter: m => m.ConversationId == conversationId);
+        var userConversations = await _repositoryCatalog.UserConversations
+            .GetAsync(filter: uc => uc.UserId == userId && uc.ConversationId == conversationId);
 
-        foreach (var message in messages)
+        var userConversation = userConversations.FirstOrDefault();
+        if (userConversation != null)
         {
-            if (message.ReadByUserIds.Contains(userId))
-            {
-                message.ReadByUserIds.Remove(userId);
-            }
+            userConversation.LastReadTime = DateTime.UtcNow;
+            await _repositoryCatalog.SaveChangesAsync();
         }
-
-        await _repositoryCatalog.SaveChangesAsync();
     }
 }
