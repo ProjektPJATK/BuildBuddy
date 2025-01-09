@@ -23,7 +23,6 @@ class ChatHubService {
       .build();
 
   _registerSignalRListeners(chatBloc, conversationId);
-
   _hubConnection.onclose(({Exception? error}) async {
     _connected = false;
     print("[ChatHubService] Connection closed: $error");
