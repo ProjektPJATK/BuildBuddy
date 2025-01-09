@@ -80,4 +80,13 @@ namespace BuildBuddy.WebApi.Controllers;
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("user/{userId}/address/{addressId}")]
+        public async Task<IActionResult> GetJobsByUserIdAndAddressId(int userId, int addressId)
+        {
+            var jobs = await _jobService.GetJobByUserIdAndAddressIdAsync(userId, addressId);
+            if (jobs == null || !jobs.Any())
+                return NotFound("No jobs found for this user and address.");
+
+            return Ok(jobs);
+        }
     }
