@@ -31,17 +31,17 @@ namespace BuildBuddy.Application.Services
         }
         
 
-        public async Task<JobActualizationDto> GetJobActualizationByIdAsync(int jobActualizationId)
+        public async Task<JobActualizationDto> GetJobActualizationByIdAsync(int jobId)
         {
             var jobActualization = await _dbContext.JobActualizations
-                .GetByID(jobActualizationId);
+                .GetAsync(filter: ta => ta.JobId == jobId);
 
-            if (jobActualization == null)
-            {
+            if (jobActualization == null || !jobActualization.Any())
+         {
                 return null;
             }
 
-            var ta = jobActualization;
+            var ta = jobActualization.First();
             return new JobActualizationDto
             {
                 Id = ta.Id,
