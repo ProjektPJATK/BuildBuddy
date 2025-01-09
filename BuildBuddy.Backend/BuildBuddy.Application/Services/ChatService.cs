@@ -108,4 +108,43 @@ public class ChatService : IChatService
 
         return translatedMessages;
     }
+    
+    public async Task MarkMessagesAsRead(int conversationId, int userId)
+    {
+        var messages = await _repositoryCatalog.Messages
+            .GetAsync(filter: m => m.ConversationId == conversationId);
+
+        foreach (var message in messages)
+        {
+            if (!message.ReadByUserIds.Contains(userId))
+            {
+                message.ReadByUserIds.Add(userId);
+            }
+        }
+
+        await _repositoryCatalog.SaveChangesAsync();
+    }
+    
+    public async Task<int> GetUnreadMessagesCount(int userId)
+    {
+        var unreadMessages = await _repositoryCatalog.Messages
+            .GetAsync(filter: m => !m.ReadByUserIds.Contains(userId));
+        return unreadMessages.Count;
+    }
+    
+    public async Task ResetReadStatus(int conversationId, int userId)
+    {
+        var messages = await _repositoryCatalog.Messages
+            .GetAsync(filter: m => m.ConversationId == conversationId);
+
+        foreach (var message in messages)
+        {
+            if (message.ReadByUserIds.Contains(userId))
+            {
+                message.ReadByUserIds.Remove(userId);
+            }
+        }
+
+        await _repositoryCatalog.SaveChangesAsync();
+    }
 }

@@ -10,6 +10,6 @@ public class Job : IHaveId<int>
     public bool AllDay { get; set; }
     public int? AddressId {get; set;}
     public virtual ICollection<UserJob> UserJob  { get; set; }
-    public virtual JobActualization JobActualization { get; set; }
+    public virtual ICollection<JobActualization> JobActualization { get; set; }
     public virtual Address Address { get; set; }
 }
