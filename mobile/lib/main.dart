@@ -1,3 +1,5 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/features/calendar/views/calendar_screen.dart';
@@ -92,7 +94,7 @@ class BuildBuddyApp extends StatelessWidget {
         '/construction_calendar': (context) => const ConstructionCalendarScreen(),
         '/chat': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-          return ChatScreen(conversationName: args['conversationName'], participants: args['participants'],);
+          return ChatScreen(conversationName: args['conversationName'], participants: args['participants'], conversationId: args['conversationId'],);
         },
         '/register': (context) => RegisterScreen(),
       },
@@ -140,3 +142,4 @@ class BuildBuddyApp extends StatelessWidget {
 //     languageProvider.setLanguage(newLang);
 //   },
 // ),
+

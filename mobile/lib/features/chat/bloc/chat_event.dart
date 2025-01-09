@@ -55,3 +55,21 @@ class ReceiveHistoryEvent extends ChatEvent {
   @override
   List<Object?> get props => [messages];
 }
+
+class ChatLoadedEvent extends ChatEvent {
+  final int conversationId;
+
+  const ChatLoadedEvent({required this.conversationId});
+
+  @override
+  List<Object?> get props => [conversationId];
+}
+
+class FetchHistoryEvent extends ChatEvent {
+  final int conversationId;
+
+  const FetchHistoryEvent({required this.conversationId});
+
+  @override
+  List<Object?> get props => [conversationId];
+}

@@ -35,6 +35,7 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
     Future.delayed(const Duration(milliseconds: 500), () {
       context.read<ConversationBloc>().add(LoadConversationsEvent());
     });
+
   }
 
   Future<void> _loadUserId() async {
@@ -174,23 +175,22 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                                   }
 
                                       return ConversationItem(
-                                          name: conversationName,
-                                          onTap: () async {
-                                            final prefs = await SharedPreferences.getInstance();
-                                            await prefs.setInt('conversationId', conversationId);
+                                        name: conversationName,
+                                        onTap: () async {
+                                          // Przekazujemy conversationId bezpośrednio jako argument
+                                          Navigator.pushNamed(
+                                            context,
+                                            '/chat',
+                                            arguments: {
+                                              'conversationName': conversationName,
+                                              'participants': participants, // Przekazujemy listę uczestników
+                                              'conversationId': conversationId, // Przekazujemy conversationId
+                                            },
+                                          );
+                                        },
+                                        participantsList: participantsList,
+                                      );
 
-                                            Navigator.pushNamed(
-                                              context,
-                                              '/chat',
-                                              arguments: {
-                                                'conversationName': conversationName,
-                                                'participants': participants,  // Przekazujemy listę uczestników
-                                                'participantsList': participantsList, // Przekazujemy listę uczestników
-                                              },
-                                            );
-                                          },
-                                          participantsList: participantsList, // Dodajemy listę uczestników tutaj
-                                        );
                                   },
                                 );
                               }
