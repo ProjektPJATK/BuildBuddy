@@ -113,76 +113,83 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeContent(BuildContext context, List<dynamic> teams) {
-    return Column(
-      children: [
-        // Teams Section
-        Expanded(
-          flex: 4,
-          child: Container(
-            padding: const EdgeInsets.all(12.0),
-            decoration: const BoxDecoration(
-              color: AppStyles.transparentWhite,
-            ),
-            child: Column(
-              children: [
-                const Text(
-                  'Wybierz budowę',
-                  style: AppStyles.headerStyle,
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.zero,
-                    itemCount: teams.length,
-                    itemBuilder: (context, index) {
-                      final team = teams[index];
-                      return BuildOption(
-                        title: team['name'],
-                        addressId: team['addressId'], 
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/construction_home',
-                            arguments: {
-                              'teamId': team['id'],
-                              'addressId': team['addressId'],
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        // Notifications Section
-        Expanded(
-          flex: 4,
-          child: Container(
+  return Column(
+    children: [
+      // Teams Section
+      Expanded(
+        flex: 4,
+        child: Container(
+          padding: const EdgeInsets.all(12.0),
+          decoration: const BoxDecoration(
             color: AppStyles.transparentWhite,
-            child: Column(
-              children: [
-                const Text(
-                  'Powiadomienia',
-                  style: AppStyles.headerStyle,
+          ),
+          child: Column(
+            children: [
+              const Text(
+                'Wybierz budowę',
+                style: AppStyles.headerStyle,
+              ),
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount: teams.length,
+                  itemBuilder: (context, index) {
+                    final team = teams[index];
+                    return BuildOption(
+                      title: team['name'],
+                      addressId: team['addressId'],
+                      onTap: () async {
+                        // Save addressId to SharedPreferences
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setInt('addressId', team['addressId']);
+                        print('Saved addressId: ${team['addressId']}');
+
+                        // Navigate to the construction home
+                        Navigator.pushNamed(
+                          context,
+                          '/construction_home',
+                          arguments: {
+                            'teamId': team['id'],
+                            'addressId': team['addressId'],
+                          },
+                        );
+                      },
+                    );
+                  },
                 ),
-                Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    children: const [
-                      NotificationItem(title: 'Powiadomienie 1'),
-                      NotificationItem(title: 'Powiadomienie 2'),
-                      NotificationItem(title: 'Powiadomienie 3'),
-                      NotificationItem(title: 'Powiadomienie 4'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      ],
-    );
-  }
+      ),
+      // Notifications Section
+      Expanded(
+        flex: 4,
+        child: Container(
+          color: AppStyles.transparentWhite,
+          child: Column(
+            children: [
+              const Text(
+                'Powiadomienia',
+                style: AppStyles.headerStyle,
+              ),
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: const [
+                    NotificationItem(title: 'Powiadomienie 1'),
+                    NotificationItem(title: 'Powiadomienie 2'),
+                    NotificationItem(title: 'Powiadomienie 3'),
+                    NotificationItem(title: 'Powiadomienie 4'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
 }

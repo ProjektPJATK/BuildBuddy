@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile/features/calendar/views/widgets/task_item.dart';
-import 'package:mobile/features/construction_calendar/services/calendar_service,dart';
+import 'package:mobile/features/calendar/views/widgets/calendar_widget.dart';
+import 'package:mobile/features/calendar/views/widgets/task_list.dart';
+import 'package:mobile/shared/services/task_service.dart';
 import 'package:mobile/shared/themes/styles.dart';
 import 'package:mobile/shared/widgets/bottom_navigation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../models/task_model.dart';
 
 class ConstructionCalendarScreen extends StatefulWidget {
   const ConstructionCalendarScreen({super.key});
@@ -17,100 +19,116 @@ class ConstructionCalendarScreen extends StatefulWidget {
 
 class _ConstructionCalendarScreenState
     extends State<ConstructionCalendarScreen> {
-  DateTime? _selectedDay;
+  DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
-  List<TaskModel> _tasks = [];
+  late List<Map<String, dynamic>> _tasks = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchTasks();
-    _selectedDay = DateTime.now();
+    initializeDateFormatting('pl_PL');
+    
+    _loadTasks();
   }
 
-  Future<void> _fetchTasks() async {
-    try {
-      final tasks = await CalendarService.fetchTasks();
-      setState(() {
-        _tasks = tasks;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to load tasks')),
-      );
+  // Fetch tasks from the backend
+  Future<void> _loadTasks() async {
+  try {
+    // Log the start of the task loading process
+  
+    print('Loading tasks...');
+
+    // Fetch SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final int? userId = prefs.getInt('userId');
+    final int? addressId = prefs.getInt('addressId');
+  
+
+    // Log the fetched SharedPreferences values
+    print('Fetched userId: $userId, addressId: $addressId');
+
+    if (userId == null || addressId == null) {
+      throw Exception('User ID or Address ID not found in SharedPreferences');
     }
-  }
 
-  List<TaskModel> _getTasksForSelectedDay() {
-    return _tasks.where((task) {
-      return isSameDay(task.startTime, _selectedDay);
-    }).toList();
+    // Log the attempt to fetch tasks
+    print('Fetching tasks for userId: $userId, addressId: $addressId');
+
+    // Fetch tasks
+    List<Map<String, dynamic>> tasks =
+        await TaskService.fetchTasksByAddress(userId, addressId);
+
+    // Log the fetched tasks
+    print('Tasks fetched successfully: $tasks');
+
+    // Update state with the fetched tasks
+    setState(() {
+      _tasks = tasks;
+      _isLoading = false;
+    });
+  } catch (e) {
+    // Log the error details
+    print('Failed to load tasks: $e');
+
+    setState(() {
+      _isLoading = false;
+    });
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
-    final tasksForSelectedDay = _getTasksForSelectedDay();
+    // Filter tasks for the selected day
+    final tasksForSelectedDay = TaskService.getTasksForDay(_tasks, _selectedDay);
 
     return Scaffold(
       body: Stack(
         children: [
+          // Background
           Container(decoration: AppStyles.backgroundDecoration),
           Container(color: AppStyles.filterColor.withOpacity(0.75)),
-          Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8.0),
-                color: AppStyles.transparentWhite,
-                child: TableCalendar(
-                  locale: 'pl_PL',
-                  firstDay: DateTime.utc(2020, 1, 1),
-                  lastDay: DateTime.utc(2030, 12, 31),
+
+          // Main content
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Column(
+              children: [
+                // Calendar widget for day selection
+                CalendarWidget(
+                  selectedDay: _selectedDay,
                   focusedDay: _focusedDay,
-                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                   onDaySelected: (selectedDay, focusedDay) {
                     setState(() {
                       _selectedDay = selectedDay;
                       _focusedDay = focusedDay;
                     });
                   },
-                  calendarStyle: const CalendarStyle(
-                    todayDecoration: BoxDecoration(
-                        color: Colors.blueAccent, shape: BoxShape.circle),
-                    selectedDecoration: BoxDecoration(
-                        color: Colors.black, shape: BoxShape.circle),
+                ),
+                Container(
+                  color: AppStyles.transparentWhite,
+                  child: const Divider(
+                    color: Colors.white,
+                    thickness: 1,
                   ),
                 ),
-              ),
-              Expanded(
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : tasksForSelectedDay.isEmpty
-                        ? const Center(child: Text('No tasks for this day'))
-                        : ListView.builder(
-                            itemCount: tasksForSelectedDay.length,
-                            itemBuilder: (context, index) {
-                              final task = tasksForSelectedDay[index];
-                              // return TaskItem(
-                              //   title: task.name,
-                              //   description: task.message,
-                              //   startTime: DateFormat('HH:mm')
-                              //       .format(task.startTime),
-                              //   endTime:
-                              //       DateFormat('HH:mm').format(task.endTime),
-                              //   taskDate: DateFormat('dd.MM.yyyy')
-                              //       .format(task.startTime),
-                              //   jobId: task.jobId ?? 0,  // Default to 0 if jobId is null
-                              // );
-                            },
-                          ),
-              ),
-              BottomNavigation(onTap: (_) {}),
-            ],
+                // Task List or Loading Spinner
+                Expanded(
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : TaskList(
+                          selectedDay: _selectedDay,
+                          tasks: tasksForSelectedDay,
+                        ),
+                ),
+                // Bottom Navigation
+                BottomNavigation(onTap: (_) {}),
+              ],
+            ),
           ),
         ],
       ),

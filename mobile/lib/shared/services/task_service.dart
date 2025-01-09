@@ -154,4 +154,50 @@ class TaskService {
       throw Exception('Failed to upload image');
     }
   }
+static Future<List<Map<String, dynamic>>> fetchTasksByAddress(
+    int userId, int addressId) async {
+  try {
+    print('Fetching tasks for userId: $userId and addressId: $addressId');
+
+    final endpoint = AppConfig.getUserJobActualizationByAddress(userId, addressId);
+    final response = await http.get(Uri.parse(endpoint));
+
+    if (response.statusCode != 200) {
+      print('Failed to fetch tasks. Response Body: ${response.body}');
+      throw Exception('Failed to fetch tasks with status code: ${response.statusCode}');
+    }
+
+    final List<dynamic> jsonData = json.decode(response.body);
+    print('Decoded JSON Data: $jsonData');
+
+    final tasks = jsonData.map<Map<String, dynamic>>((task) {
+      try {
+        final startTime = DateTime.parse(task['startTime']?.toString() ?? '');
+        final endTime = DateTime.parse(task['endTime']?.toString() ?? '');
+
+        return {
+          'id': int.tryParse(task['id']?.toString() ?? '') ?? 0,
+          'addressId': int.tryParse(task['addressId']?.toString() ?? '') ?? 0,
+          'name': task['name']?.toString() ?? 'Unknown',
+          'message': task['message']?.toString() ?? '',
+          'startTime': startTime, // Now parsed as DateTime
+          'endTime': endTime,     // Now parsed as DateTime
+          'allDay': task['allDay'] ?? false,
+        };
+      } catch (parseError) {
+        print('Error parsing task: $task, Error: $parseError');
+        throw parseError;
+      }
+    }).toList();
+
+    print('Mapped tasks: $tasks');
+    return tasks;
+  } catch (e) {
+    print('Error fetching tasks: $e');
+    rethrow;
+  }
+}
+
+
+
 }
