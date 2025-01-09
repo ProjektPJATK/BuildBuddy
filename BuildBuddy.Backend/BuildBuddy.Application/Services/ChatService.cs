@@ -109,7 +109,7 @@ public class ChatService : IChatService
         return translatedMessages;
     }
     
-    public async Task<bool> GetUnreadMessagesCount(int userId, int conversationId)
+    public async Task<DateTime> GetUnreadMessagesCount(int userId, int conversationId)
     {
         var userConversations = await _repositoryCatalog.UserConversations
             .GetAsync(filter: uc => uc.UserId == userId && uc.ConversationId == conversationId);
@@ -117,14 +117,14 @@ public class ChatService : IChatService
         var userConversation = userConversations.FirstOrDefault();
         if (userConversation == null)
         {
-            return false;
+            return DateTime.MinValue;
         }
         var lastReadTime = userConversation.LastReadTime ?? DateTime.MinValue;
 
         var unreadMessages = await _repositoryCatalog.Messages
             .GetAsync(filter: m => m.ConversationId == conversationId && m.DateTimeDate > lastReadTime);
 
-        return unreadMessages.Count > 0;
+        return unreadMessages.FirstOrDefault()?.DateTimeDate ?? DateTime.MinValue;
     }
     public async Task ResetReadStatus(int conversationId, int userId)
     {
