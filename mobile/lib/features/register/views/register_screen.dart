@@ -35,6 +35,8 @@ class RegisterScreen extends StatelessWidget {
 }
 
 class RegisterForm extends StatefulWidget {
+  const RegisterForm({super.key});
+
   @override
   _RegisterFormState createState() => _RegisterFormState();
 }

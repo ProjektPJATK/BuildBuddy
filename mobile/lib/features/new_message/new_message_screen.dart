@@ -36,49 +36,99 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
     });
     print('Załadowano userId: $userId');
   }
+Future<List<Map<String, dynamic>>> _getParticipantsWithIds(List<String> recipientNames) async {
+  List<Map<String, dynamic>> participants = [];
+  
+  final teamsResponse = await http.get(
+    Uri.parse(AppConfig.getTeamsEndpoint(userId!)),
+  );
 
-  Future<void> _handleSendMessage() async {
-    if (selectedRecipients.isEmpty || messageController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Dodaj odbiorców i wpisz wiadomość'),
-          backgroundColor: Colors.red,
-        ),
+  if (teamsResponse.statusCode == 200) {
+    List<dynamic> teams = json.decode(teamsResponse.body);
+    for (var team in teams) {
+      final teamId = team['id'];
+      final membersResponse = await http.get(
+        Uri.parse(AppConfig.getTeammatesEndpoint(teamId)),
       );
-      return;
-    }
 
-    try {
-      final recipientIds = await _getRecipientIds(selectedRecipients);
-      print('Recipient IDs: $recipientIds');
-
-      final conversationId = await _findOrCreateConversation(recipientIds);
-      print('Używana konwersacja: $conversationId');
-
-      widget.chatBloc.add(SendMessageEvent(
-        senderId: userId!,
-        conversationId: conversationId,
-        text: messageController.text,
-      ));
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('conversationId', conversationId);
-
-      Navigator.pushNamed(
-        context,
-        '/chat',
-        arguments: {'conversationName': selectedRecipients.join(', ')},
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Błąd podczas wysyłania wiadomości'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      print('Błąd wysyłania wiadomości: $e');
+      if (membersResponse.statusCode == 200) {
+        List<dynamic> teammates = json.decode(membersResponse.body);
+        for (var mate in teammates) {
+          String fullName = '${mate['name']} ${mate['surname']}';
+          if (recipientNames.contains(fullName) && mate['id'] != userId) {
+            participants.add({
+              'id': mate['id'],  // Correctly adding the participant ID
+              'name': fullName,
+            });
+          }
+        }
+      }
     }
   }
+  return participants;
+}
+
+  Future<void> _handleSendMessage() async {
+  if (selectedRecipients.isEmpty || messageController.text.trim().isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Dodaj odbiorców i wpisz wiadomość'),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+
+  try {
+    final recipientIds = await _getRecipientIds(selectedRecipients); // Fetch actual recipient IDs
+    print('Recipient IDs: $recipientIds');
+
+    final conversationId = await _findOrCreateConversation(recipientIds);
+    print('Używana konwersacja: $conversationId');
+
+    widget.chatBloc.add(SendMessageEvent(
+      senderId: userId!,
+      conversationId: conversationId,
+      text: messageController.text,
+    ));
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('conversationId', conversationId);
+
+    // Preparing conversation name and participants with actual IDs
+    String conversationName = '';
+    List<Map<String, dynamic>> participants = [];
+
+    if (selectedRecipients.length == 1) {
+      // Czatujemy tylko z jednym użytkownikiem
+      conversationName = selectedRecipients[0];
+      participants = await _getParticipantsWithIds(selectedRecipients);
+    } else {
+      // Czat grupowy
+      conversationName = 'Konwersacja grupowa';
+      participants = await _getParticipantsWithIds(selectedRecipients); // Fetch participant IDs
+    }
+
+    Navigator.pushNamed(
+      context,
+      '/chat',
+      arguments: {
+        'conversationId': conversationId,
+        'conversationName': conversationName,
+        'participants': participants,
+      },
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Błąd podczas wysyłania wiadomości'),
+        backgroundColor: Colors.red,
+      ),
+    );
+    print('Błąd wysyłania wiadomości: $e');
+  }
+}
+
 
   Future<List<int>> _getRecipientIds(List<String> recipientNames) async {
     List<int> recipientIds = [];

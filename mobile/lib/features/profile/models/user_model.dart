@@ -1,3 +1,5 @@
+import 'package:mobile/shared/config/config.dart';
+
 class User {
   final int id;
   final String name;
@@ -5,7 +7,7 @@ class User {
   final String email;
   final String telephoneNr;
   final String? password;
-  final String userImageUrl;
+  late final String userImageUrl;
   final String preferredLanguage;
 
   User({
@@ -19,7 +21,7 @@ class User {
     required this.preferredLanguage,
   });
 
-  // Metoda do deserializacji z JSON
+  // Method to deserialize from JSON
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],
@@ -28,12 +30,12 @@ class User {
       email: json['mail'],
       telephoneNr: json['telephoneNr'],
       password: json['password'],
-      userImageUrl: json['userImageUrl'] ?? '',
+      userImageUrl: _getFullImageUrl(json['userImageUrl'] ?? ''),
       preferredLanguage: json['preferredLanguage'] ?? 'en',
     );
   }
 
-  // Metoda do serializacji do JSON
+  // Method to serialize to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -45,5 +47,13 @@ class User {
       'userImageUrl': userImageUrl,
       'preferredLanguage': preferredLanguage,
     };
+  }
+
+  // Helper function to construct full image URL
+  static String _getFullImageUrl(String imagePath) {
+    if (imagePath.startsWith('http') || imagePath.startsWith('https')) {
+      return imagePath;
+    }
+    return Uri.encodeFull("${AppConfig.s3BaseUrl}/$imagePath");
   }
 }

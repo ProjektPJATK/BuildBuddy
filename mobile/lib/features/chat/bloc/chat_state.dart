@@ -22,4 +22,3 @@ class ChatError extends ChatState {
 
   ChatError(this.errorMessage);
 }
-

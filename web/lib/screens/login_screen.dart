@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -33,7 +35,7 @@ class LoginScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.7),
                       borderRadius: BorderRadius.circular(20.0),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black45,
                           blurRadius: 10,
@@ -44,7 +46,7 @@ class LoginScreen extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Text(
+                        const Text(
                           'Build Buddy',
                           style: TextStyle(
                             color: Colors.white,
@@ -54,7 +56,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 30),
                         TextField(
-                          style: TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Login',
                             hintStyle: const TextStyle(color: Colors.white54),
@@ -77,7 +79,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         TextField(
-                          style: TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Hasło',
                             hintStyle: const TextStyle(color: Colors.white54),
@@ -104,7 +106,6 @@ class LoginScreen extends StatelessWidget {
                           onPressed: () {
                             Navigator.pushReplacementNamed(context, '/home');
                           },
-                          child: const Text('Zaloguj się'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
                             foregroundColor: Colors.white,
@@ -113,13 +114,13 @@ class LoginScreen extends StatelessWidget {
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                           ),
+                          child: const Text('Zaloguj się'),
                         ),
                         const SizedBox(height: 10),
                         TextButton(
                           onPressed: () {
                             // Dodaj logikę dla rejestracji
                           },
-                          child: const Text('Rejestracja'),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.blueAccent,
                             textStyle: const TextStyle(
@@ -127,6 +128,7 @@ class LoginScreen extends StatelessWidget {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
+                          child: const Text('Rejestracja'),
                         ),
                       ],
                     ),

@@ -5,7 +5,7 @@ class TaskModel {
   final DateTime startTime;
   final DateTime endTime;
   final bool allDay;
-  final int placeId;
+  final int? jobId;  // Nullable jobId
 
   TaskModel({
     required this.id,
@@ -14,18 +14,18 @@ class TaskModel {
     required this.startTime,
     required this.endTime,
     required this.allDay,
-    required this.placeId,
+    this.jobId,  // Nullable
   });
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
-      id: json['id'],
-      name: json['name'],
-      message: json['message'],
+      id: json['id'] ?? 0,
+      name: json['name'] ?? 'Brak nazwy',
+      message: json['message'] ?? '',
       startTime: DateTime.parse(json['startTime']),
       endTime: DateTime.parse(json['endTime']),
-      allDay: json['allDay'],
-      placeId: json['placeId'],
+      allDay: json['allDay'].toString().toLowerCase() == 'true',
+      jobId: json['jobId'],  // Keep null if not provided
     );
   }
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class EmployeeDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> employee;
 
-  const EmployeeDetailsScreen({Key? key, required this.employee}) : super(key: key);
+  const EmployeeDetailsScreen({super.key, required this.employee});
 
   @override
   Widget build(BuildContext context) {
@@ -25,27 +25,27 @@ class EmployeeDetailsScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Name: ${employee['name']}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               'Surname: ${employee['surname']}',
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 8),
             Text(
               'Email: ${employee['email']}',
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 8),
             Text(
               'Telephone: ${employee['telephoneNr']}',
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 8),
             Text(
               'Team ID: ${employee['teamId']}',
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
           ],
         ),

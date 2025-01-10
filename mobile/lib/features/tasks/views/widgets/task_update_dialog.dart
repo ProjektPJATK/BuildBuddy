@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile/shared/services/task_service.dart';
 import 'image_carousel.dart';
 
 class TaskUpdateDialog extends StatefulWidget {
   final Function(String, List<File>) onSave;
+  final int jobId;
 
-  const TaskUpdateDialog({super.key, required this.onSave});
+  const TaskUpdateDialog({super.key, required this.onSave, required this.jobId});
 
   @override
   _TaskUpdateDialogState createState() => _TaskUpdateDialogState();
@@ -14,12 +16,13 @@ class TaskUpdateDialog extends StatefulWidget {
 
 class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
   final TextEditingController _commentController = TextEditingController();
-  List<File> _selectedImages = [];
+  final List<File> _selectedImages = [];
+  bool _isLoading = false;
 
   Future<void> _selectImage() async {
     final picker = ImagePicker();
-    final List<XFile>? images = await picker.pickMultiImage();
-    if (images != null) {
+    final List<XFile> images = await picker.pickMultiImage();
+    if (images.isNotEmpty) {
       setState(() {
         _selectedImages.addAll(images.map((xfile) => File(xfile.path)));
       });
@@ -42,12 +45,54 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
     });
   }
 
+  Future<void> _saveUpdate() async {
+    if (_commentController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Komentarz nie może być pusty.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      int actualizationId = await TaskService.createTaskActualization(
+          widget.jobId, _commentController.text);
+
+      if (_selectedImages.isNotEmpty) {
+        for (File image in _selectedImages) {
+          await TaskService.uploadImage(actualizationId, image);
+        }
+      }
+
+      widget.onSave(_commentController.text, _selectedImages);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Aktualizacja zapisana pomyślnie.')),
+      );
+    } catch (e) {
+      print('Failed to save update: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Błąd zapisu aktualizacji.')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+      Navigator.pop(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.black.withOpacity(0.8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text('Dodaj Aktualizację', style: TextStyle(color: Colors.white)),
+      title: const Text(
+        'Dodaj Aktualizację',
+        style: TextStyle(color: Colors.white),
+      ),
       content: SingleChildScrollView(
         child: Column(
           children: [
@@ -56,10 +101,16 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: 'Dodaj komentarz',
-                hintStyle: const TextStyle(color: Colors.white54),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Colors.white54),
+                hintStyle: const TextStyle(color: Colors.white70),
+                filled: true,
+                fillColor: Colors.grey.withOpacity(0.2),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(color: Colors.white),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(color: Colors.blue),
                 ),
               ),
             ),
@@ -70,13 +121,42 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
-                  onPressed: _selectImage,
-                  child: const Text('Dodaj Zdjęcia', style: TextStyle(fontSize: 12)),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _selectImage,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'Dodaj Zdjęcia',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
                 ),
-                ElevatedButton(
-                  onPressed: _takePhoto,
-                  child: const Text('Zrób Zdjęcie', style: TextStyle(fontSize: 12)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _takePhoto,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'Zrób Zdjęcie',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -86,14 +166,23 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Anuluj', style: TextStyle(color: Colors.white)),
+          child: const Text(
+            'Anuluj',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
         ElevatedButton(
-          onPressed: () {
-            widget.onSave(_commentController.text, _selectedImages);
-            Navigator.pop(context);
-          },
-          child: const Text('Zapisz', style: TextStyle(color: Colors.white)),
+          onPressed: _isLoading ? null : _saveUpdate,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          child: Text(
+            _isLoading ? 'Zapisywanie...' : 'Zapisz',
+            style: const TextStyle(color: Colors.white),
+          ),
         ),
       ],
     );

@@ -57,6 +57,9 @@ void main() {
         BlocProvider<ProfileBloc>(
           create: (context) => ProfileBloc(UserService()),
         ),
+           BlocProvider<ProfileBloc>(
+          create: (context) => ProfileBloc(UserService()),
+        ),
          BlocProvider<ConversationBloc>(
         create: (context) => ConversationBloc(ConversationService()),
          ),
@@ -79,7 +82,7 @@ class BuildBuddyApp extends StatelessWidget {
       routes: {
         '/': (context) => const LoginScreen(), // Show splash screen first
         '/home': (context) => const HomeScreen(),
-        '/chats': (context) => ConversationListScreen(),
+        '/chats': (context) => const ConversationListScreen(),
         '/calendar': (context) => const CalendarScreen(), // Calendar screen
         '/profile': (context) => const UserProfileScreen(),
         '/new_message': (context) {

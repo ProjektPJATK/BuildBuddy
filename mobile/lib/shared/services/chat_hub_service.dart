@@ -86,8 +86,6 @@ void _registerSignalRListeners(ChatBloc chatBloc, int conversationId) {
 }
 
 
-
-
   // Ponowne połączenie
   Future<void> _retryConnection(String baseUrl, int conversationId, int userId, ChatBloc chatBloc) async {
     while (!_connected) {
