@@ -12,36 +12,21 @@ public class ChatHub : Hub
         _chatService = chatService;
     }
 
-    public async Task SendMessage(int senderId, int conversationId, string text)
-{
-    Console.WriteLine($"SendMessage called with senderId={senderId}, conversationId={conversationId}, text={text}");
-
-    var message = await _chatService.HandleIncomingMessage(senderId, conversationId, text);
-
-    var translations = await _chatService.PrepareMessageForUsers(senderId, conversationId, text);
-
-    Console.WriteLine("Translations:");
-    foreach (var translation in translations)
-    {
-        Console.WriteLine($"UserId: {translation.Key}, Message: {translation.Value}");
-        if (translation.Key != senderId)
-        {
-            await Clients.OthersInGroup(conversationId.ToString()).SendAsync(
-                "ReceiveMessage",
-                senderId,
-                translation.Value,
-                message.DateTimeDate
-            );
-        }
-    }
-    
-    await Clients.Caller.SendAsync(
-        "ReceiveMessage",
-        senderId,
-        text,  
-        message.DateTimeDate
-    );
-}
+   public async Task SendMessage(int senderId, int conversationId, string text)
+   {
+       Console.WriteLine($"SendMessage called with senderId={senderId}, conversationId={conversationId}, text={text}");
+   
+       var message = await _chatService.HandleIncomingMessage(senderId, conversationId, text);
+   
+       var translations = await _chatService.PrepareMessageForUsers(senderId, conversationId, text);
+   
+       await Clients.Group(conversationId.ToString()).SendAsync(
+           "ReceiveMessage",
+           senderId,
+           translations 
+       );
+       
+   }
 
     
     public async Task FetchHistory(int conversationId, int userId)
