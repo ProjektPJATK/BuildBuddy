@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
                     top: 20,
                     left: 20,
                     child: Image.asset(
-                      'assets/logo.png',
+                      'lib/assets/logo.png',
                       width: 60,
                       height: 60,
                     ),
@@ -104,7 +104,7 @@ class HomeScreen extends StatelessWidget {
                       height: screenHeight * 0.6,
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                          image: AssetImage('assets/homeback.png'),
+                          image: AssetImage('lib/assets/homeback.png'),
                           fit: BoxFit.cover,
                           alignment: Alignment.bottomCenter,
                         ),
