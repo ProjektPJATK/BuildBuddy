@@ -10,6 +10,7 @@ import 'widgets/chat_bubble.dart';
 import 'widgets/chat_input_field.dart';
 import 'widgets/chat_header.dart'; // Importujemy ChatHeader
 import 'package:mobile/shared/themes/styles.dart';
+import 'package:http/http.dart' as http;
 
 class ChatScreen extends StatefulWidget {
   final String conversationName;
@@ -131,6 +132,8 @@ class _ChatScreenState extends State<ChatScreen> {
     return 'Nieznany użytkownik';
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     List<String> filteredParticipants = widget.participants
@@ -154,6 +157,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 conversationName: widget.conversationName,
                 participants: filteredParticipants,
                 onBackPressed: () {
+                  Navigator.pop(context, 'refresh');
                   Navigator.pushNamedAndRemoveUntil(
                     context,
                     '/chats', // Change to your conversation list path

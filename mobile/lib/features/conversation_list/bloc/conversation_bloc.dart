@@ -15,32 +15,32 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
 
   Future<void> _onLoadConversationsFromCache(
       LoadConversationsFromCacheEvent event, Emitter<ConversationState> emit) async {
-    print("[conversation_bloc] _onLoadConversationsFromCache -> start");
+  //  print("[conversation_bloc] _onLoadConversationsFromCache -> start");
     final cachedConversations = await conversationService.loadConversationsFromCache();
 
     if (cachedConversations.isNotEmpty) {
-      print("[conversation_bloc] _onLoadConversationsFromCache -> loaded ${cachedConversations.length} conv from cache");
+   //   print("[conversation_bloc] _onLoadConversationsFromCache -> loaded ${cachedConversations.length} conv from cache");
       emit(ConversationLoaded(conversations: cachedConversations));
-      print("[conversation_bloc] _onLoadConversationsFromCache -> Emit ConversationLoaded (cache)");
+     // print("[conversation_bloc] _onLoadConversationsFromCache -> Emit ConversationLoaded (cache)");
     } else {
-      print("[conversation_bloc] _onLoadConversationsFromCache -> no cached data available");
+    //  print("[conversation_bloc] _onLoadConversationsFromCache -> no cached data available");
       // Nie emitujemy błędu, bo za chwilę wczytamy z endpointu
     }
   }
 
   Future<void> _onLoadConversations(
       LoadConversationsEvent event, Emitter<ConversationState> emit) async {
-    print("[conversation_bloc] _onLoadConversations -> start");
+  //  print("[conversation_bloc] _onLoadConversations -> start");
     emit(ConversationLoading());
     try {
       final rawConversations = await conversationService.fetchConversations();
-      print("[conversation_bloc] _onLoadConversations -> fetched ${rawConversations.length} conv from endpoint");
+    //  print("[conversation_bloc] _onLoadConversations -> fetched ${rawConversations.length} conv from endpoint");
       await conversationService.saveConversationsToCache(rawConversations);
 
       emit(ConversationLoaded(conversations: rawConversations));
-      print("[conversation_bloc] _onLoadConversations -> Emit ConversationLoaded (endpoint)");
+    //  print("[conversation_bloc] _onLoadConversations -> Emit ConversationLoaded (endpoint)");
     } catch (e) {
-      print("[conversation_bloc] _onLoadConversations -> error=$e");
+     // print("[conversation_bloc] _onLoadConversations -> error=$e");
       emit(ConversationError('Failed to load data: $e'));
     }
   }

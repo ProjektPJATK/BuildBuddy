@@ -124,7 +124,7 @@ public class ChatService : IChatService
         var unreadMessages = await _repositoryCatalog.Messages
             .GetAsync(filter: m => m.ConversationId == conversationId && m.DateTimeDate > lastReadTime);
 
-        return unreadMessages.FirstOrDefault()?.DateTimeDate ?? DateTime.MinValue;
+        return unreadMessages.LastOrDefault()?.DateTimeDate ?? DateTime.MinValue;
     }
     public async Task ResetReadStatus(int conversationId, int userId)
     {

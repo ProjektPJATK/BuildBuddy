@@ -1,4 +1,4 @@
-using BuildBuddy.Application.Abstractions;
+﻿using BuildBuddy.Application.Abstractions;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BuildBuddy.WebSocets;
@@ -23,7 +23,7 @@ public class ChatHub : Hub
     Console.WriteLine("Translations:");
     foreach (var translation in translations)
     {
-        Console.WriteLine($"UserId: {translation.Key}, Message: {translation.Value}");
+        Console.WriteLine($"UserId: {translation.Key}, Message: {translation.Value},senderId: {senderId}");
         if (translation.Key != senderId)
         {
             await Clients.OthersInGroup(conversationId.ToString()).SendAsync(
@@ -34,7 +34,6 @@ public class ChatHub : Hub
             );
         }
     }
-    
     await Clients.Caller.SendAsync(
         "ReceiveMessage",
         senderId,
@@ -42,8 +41,6 @@ public class ChatHub : Hub
         message.DateTimeDate
     );
 }
-
-    
     public async Task FetchHistory(int conversationId, int userId)
     {
         var messages = await _chatService.GetChatHistory(conversationId, userId);
