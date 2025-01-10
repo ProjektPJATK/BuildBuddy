@@ -1,117 +1,168 @@
 import 'package:flutter/material.dart';
+import 'package:universal_html/html.dart' as html;
 import 'employees_screen.dart';
 import 'projects_screens.dart';
 import 'reports_screens.dart';
 import 'tasks_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Nasłuchiwanie strzałki wstecz w przeglądarce
+    html.window.onPopState.listen((event) {
+      // Przywracanie bieżącego stanu
+      if (ModalRoute.of(context)?.isCurrent ?? false) {
+        html.window.history.pushState(null, '', '/home');
+        print('Cofanie do logowania zablokowane.');
+      }
+    });
+  }
+
+  void _logout(BuildContext context) {
+    print('Logging out user.');
+    // Usunięcie ciasteczek
+    html.document.cookie = 'userToken=; path=/; max-age=0';
+    // Usunięcie localStorage
+    html.window.localStorage.remove('userToken');
+    html.window.localStorage.remove('userId');
+    html.window.localStorage.remove('powerLevel');
+    // Przekierowanie na ekran logowania
+    Navigator.pushReplacementNamed(context, '/');
+  }
+
+  void checkLoginState(BuildContext context) {
+    final cookies = html.document.cookie?.split('; ') ?? [];
+    final isLoggedIn = cookies.any((cookie) => cookie.startsWith('userToken='));
+
+    if (!isLoggedIn) {
+      // Przekierowanie na ekran logowania, jeśli użytkownik nie jest zalogowany
+      Navigator.pushReplacementNamed(context, '/');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    checkLoginState(context);
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minWidth: 800,
-              minHeight: 700,
-              maxWidth: screenWidth < 800 ? 800 : screenWidth,
-              maxHeight: screenHeight < 700 ? 700 : screenHeight,
-            ),
-            child: Container(
-              color: Colors.grey[800],
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 20,
-                    left: 20,
-                    child: Image.asset(
-                      'lib/assets/logo.png',
-                      width: 60,
-                      height: 60,
+    return WillPopScope(
+      onWillPop: () async {
+        // Blokowanie cofania w aplikacji Flutter
+        print('Cofanie do logowania zablokowane przez WillPopScope.');
+        return false; // Uniemożliwienie cofania
+      },
+      child: Scaffold(
+        body: Center(
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: 800,
+                minHeight: 700,
+                maxWidth: screenWidth < 800 ? 800 : screenWidth,
+                maxHeight: screenHeight < 700 ? 700 : screenHeight,
+              ),
+              child: Container(
+                color: Colors.grey[800],
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 20,
+                      left: 20,
+                      child: Image.asset(
+                        'lib/assets/logo.png',
+                        width: 60,
+                        height: 60,
+                      ),
                     ),
-                  ),
-                  Positioned(
-                    top: 20,
-                    right: 80,
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.settings, color: Colors.white, size: 32),
-                          onPressed: () {
-                            // Navigation to settings screen if required
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.logout, color: Colors.white, size: 32),
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/');
-                          },
-                        ),
-                      ],
+                    Positioned(
+                      top: 20,
+                      right: 80,
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.settings, color: Colors.white, size: 32),
+                            onPressed: () {
+                              // Navigation to settings screen if required
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.logout, color: Colors.white, size: 32),
+                            onPressed: () => _logout(context),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 120.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => EmployeesScreen()),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 120.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => EmployeesScreen()),
+                              ),
+                              child: _buildButton(context, 'Employees', Icons.people,
+                                  const Color.fromARGB(87, 61, 70, 192)),
                             ),
-                            child: _buildButton(context, 'Employees', Icons.people, Colors.blue),
                           ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => TasksScreen()),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => TasksScreen()),
+                              ),
+                              child: _buildButton(context, 'Tasks', Icons.task,
+                                  const Color.fromARGB(36, 38, 132, 209)),
                             ),
-                            child: _buildButton(context, 'Tasks', Icons.task, Colors.green),
                           ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => ProjectsScreen()),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => ProjectsScreen()),
+                              ),
+                              child: _buildButton(context, 'Projects', Icons.apartment,
+                                  const Color.fromARGB(106, 33, 149, 243)),
                             ),
-                            child: _buildButton(context, 'Projects', Icons.apartment, Colors.orange),
                           ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => ReportsScreen()),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => ReportsScreen()),
+                              ),
+                              child: _buildButton(context, 'Reports', Icons.report,
+                                  const Color.fromARGB(255, 76, 135, 175)),
                             ),
-                            child: _buildButton(context, 'Reports', Icons.report, Colors.red),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      width: screenWidth,
-                      height: screenHeight * 0.6,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('lib/assets/homeback.png'),
-                          fit: BoxFit.cover,
-                          alignment: Alignment.bottomCenter,
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        width: screenWidth,
+                        height: screenHeight * 0.6,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('lib/assets/homeback.png'),
+                            fit: BoxFit.cover,
+                            alignment: Alignment.bottomCenter,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

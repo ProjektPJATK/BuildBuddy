@@ -1,5 +1,5 @@
 class AppConfig {
-  static const String backendIP = "10.0.2.2"; 
+  static const String backendIP = "127.0.0.1"; 
   static const String backendPort = "5159";
   static const String backendChatPort = "5088";
 

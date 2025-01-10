@@ -11,32 +11,41 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final LoginService _loginService = LoginService();
-
   bool _isLoading = false;
   String? _errorMessage;
 
   void _handleLogin() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+  setState(() {
+    _isLoading = true;
+    _errorMessage = null;
+    //print("Before login - is logged in: ${_loginService.isLoggedIn()}");
+  });
 
-    try {
-      final email = _emailController.text;
-      final password = _passwordController.text;
-      LoginResponse response = await _loginService.login(email, password);
+  try {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    final response = await _loginService.login(email, password);
 
+   // print("After login - is logged in: ${_loginService.isLoggedIn()}");
+      print("Pomyślnie zalogowano");
+    if (_loginService.isLoggedIn()) {
       Navigator.pushReplacementNamed(context, '/home');
-    } catch (e) {
+    } else {
       setState(() {
-        _errorMessage = e.toString();
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
+        _errorMessage = 'Login failed: unable to verify session.';
       });
     }
+  } catch (e) {
+    setState(() {
+      _errorMessage = e.toString();
+    });
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -152,15 +161,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
                               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                            ),
-                          ),
-                        if (_errorMessage != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 16.0),
-                            child: Text(
-                              _errorMessage!,
-                              style: TextStyle(color: Colors.red),
-                              textAlign: TextAlign.center,
                             ),
                           ),
                         const SizedBox(height: 10),
