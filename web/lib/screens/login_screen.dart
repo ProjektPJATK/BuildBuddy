@@ -1,6 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:web/services/login_service.dart';
+import 'package:web/models/login_response.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final LoginService _loginService = LoginService();
+
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  void _handleLogin() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final email = _emailController.text;
+      final password = _passwordController.text;
+      LoginResponse response = await _loginService.login(email, password);
+
+      Navigator.pushReplacementNamed(context, '/home');
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -54,6 +91,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 30),
                         TextField(
+                          controller: _emailController,
                           style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Login',
@@ -77,6 +115,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         TextField(
+                          controller: _passwordController,
                           style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Hasło',
@@ -100,20 +139,30 @@ class LoginScreen extends StatelessWidget {
                           obscureText: true,
                         ),
                         const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/home');
-                          },
-                          child: const Text('Zaloguj się'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
+                        if (_isLoading)
+                          CircularProgressIndicator()
+                        else
+                          ElevatedButton(
+                            onPressed: _handleLogin,
+                            child: const Text('Zaloguj się'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                           ),
-                        ),
+                        if (_errorMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16.0),
+                            child: Text(
+                              _errorMessage!,
+                              style: TextStyle(color: Colors.red),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         const SizedBox(height: 10),
                         TextButton(
                           onPressed: () {

@@ -1,49 +1,66 @@
 import 'dart:convert';
-
+import 'dart:html'; // Używamy do localStorage
+import 'package:http/http.dart' as http;
 import 'package:web/config/config.dart';
+import 'package:web/models/login_response.dart';
 
 class LoginService {
-  final LocalStorage storage = LocalStorage();
-
   Future<LoginResponse> login(String email, String password) async {
-    final url = AppConfig.getLoginEndpoint();
-    print('Sending POST request to $url with email: $email');
+    final loginUrl = AppConfig.getLoginEndpoint();
+    print('Sending POST request to $loginUrl with email: $email');
 
     try {
       final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
+        Uri.parse(loginUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        final token = json.decode(response.body)['token'];
-        await storage.setItem('userToken', token);
         final data = jsonDecode(response.body);
-        return LoginResponse.fromJson(data);
+        final token = data['token'];
+        final userId = data['userId'];
+        final roleId = data['roleId'];
+
+        // Fetch role details
+        final powerLevel = await _fetchPowerLevel(roleId);
+
+        if (powerLevel == 2 || powerLevel == 3) {
+          // Save to localStorage
+          window.localStorage['userToken'] = token;
+          window.localStorage['userId'] = userId.toString();
+          window.localStorage['powerLevel'] = powerLevel.toString();
+
+          return LoginResponse.fromJson(data);
+        } else {
+          throw Exception('Access denied: insufficient power level.');
+        }
       } else {
         throw Exception('Failed to log in: ${response.body}');
       }
     } catch (e) {
-      print('Error during login: $e');
+      print('Login error: $e');
       rethrow;
     }
   }
 
-  Future<void> logout() async {
-    print('Logging out user.');
-    await storage.deleteItem('userToken');
+  Future<int> _fetchPowerLevel(int roleId) async {
+    final roleUrl = AppConfig.getRoleEndpoint(roleId);
+    final response = await http.get(Uri.parse(roleUrl), headers: {'Content-Type': 'application/json'});
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['powerLevel'];
+    } else {
+      throw Exception('Failed to fetch role details: ${response.body}');
+    }
   }
 
-  Future<String?> getToken() async {
-    return await storage.getItem('userToken');
+  void logout() {
+    window.localStorage.remove('userToken');
+    window.localStorage.remove('userId');
+    window.localStorage.remove('powerLevel');
   }
+
+  String? getToken() => window.localStorage['userToken'];
 }
