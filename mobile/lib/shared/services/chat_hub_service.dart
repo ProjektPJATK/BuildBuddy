@@ -15,10 +15,10 @@ class ChatHubService {
 }) async {
   if (_connected) return;
 
-  final hubUrl = '$baseUrl/Chat?conversationId=$conversationId';
+  final hubUrl = '$baseUrl/Chat?conversationId=$conversationId&userId=$userId';
   _hubConnection = HubConnectionBuilder()
-      .withUrl(hubUrl, options: HttpConnectionOptions())
-      .build();
+    .withUrl(hubUrl, options: HttpConnectionOptions())
+    .build();
 
   _registerSignalRListeners(chatBloc, conversationId);
 
