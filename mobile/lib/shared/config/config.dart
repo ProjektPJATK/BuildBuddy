@@ -14,8 +14,8 @@ class AppConfig {
   static String getLoginEndpoint() => "${getBaseUrl()}/api/User/login";
   static String getTeamsEndpoint(int userId) => "${getBaseUrl()}/api/User/$userId/teams";
   static String getProfileEndpoint(int userId) => "${getBaseUrl()}/api/User/$userId";
-  static String getInventoryEndpoint(int placeId) =>
-      "${getBaseUrl()}/api/BuildingArticles/address/1?placeId=$placeId";
+  static String getInventoryEndpoint(int addressId) =>
+      "${getBaseUrl()}/api/BuildingArticles/address/$addressId";
   static String getTeammatesEndpoint(int teamId) => "${getBaseUrl()}/api/Team/$teamId/users";
   static String getChatListEndpoint(int userId) =>
       '${getBaseUrl()}/api/Conversation/user/$userId/conversations';

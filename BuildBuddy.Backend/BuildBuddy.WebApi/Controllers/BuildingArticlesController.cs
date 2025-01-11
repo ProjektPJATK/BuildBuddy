@@ -55,9 +55,9 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         [HttpGet("address/{addressId}")]
-        public async Task<IActionResult> GetItemsByPlace(int placeId)
+        public async Task<IActionResult> GetItemsByPlace(int addressId)
         {
-            var items = await _buildingArticlesService.GetAllItemsByPlaceAsync(placeId);
+            var items = await _buildingArticlesService.GetAllItemsByPlaceAsync(addressId);
         
             if (items == null || !items.Any())
             {

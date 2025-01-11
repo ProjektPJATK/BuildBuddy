@@ -92,7 +92,7 @@ namespace BuildBuddy.Application.Services
                 await _dbContext.SaveChangesAsync();
             }
         }
-        public async Task<IEnumerable<BuildingArticlesDto>> GetAllItemsByPlaceAsync(int placeId)
+        public async Task<IEnumerable<BuildingArticlesDto>> GetAllItemsByPlaceAsync(int addressId)
         {
             return await _dbContext.BuildingArticles.GetAsync(item => new BuildingArticlesDto
             {

@@ -206,7 +206,7 @@ Future<void> _loadUnreadConversations() async {
                         title: team['name'],
                         addressId: team['addressId'],
                         onTap: () async {
-  await _saveAddressId(team['addressId']);
+await _saveAddressAndPlaceId(team['addressId']);
   Navigator.pushNamed(
     context,
     '/construction_home',
@@ -254,10 +254,17 @@ Future<void> _loadUnreadConversations() async {
       ],
     );
   }
-  Future<void> _saveAddressId(int addressId) async {
+// Method to save `addressId` and `placeId` in SharedPreferences
+Future<void> _saveAddressAndPlaceId(int addressId) async {
   final prefs = await SharedPreferences.getInstance();
+  
+  // Store addressId
   await prefs.setInt('addressId', addressId);
   print("Saved addressId: $addressId");
+
+  // Store placeId (assuming placeId is the same as addressId)
+  await prefs.setInt('placeId', addressId);
+  print("Saved placeId: $addressId");
 }
 
 }
