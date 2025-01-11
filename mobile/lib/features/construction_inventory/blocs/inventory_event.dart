@@ -15,7 +15,7 @@ class FilterInventoryEvent extends InventoryEvent {
 
 class UpdateInventoryItemEvent extends InventoryEvent {
   final int itemId;
-  final int newRemaining;
+  final double newRemaining;
 
   UpdateInventoryItemEvent({required this.itemId, required this.newRemaining});
 }

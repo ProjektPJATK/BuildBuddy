@@ -34,7 +34,7 @@ class AppStyles {
   // Input field (text field) decoration style
   static InputDecoration inputFieldStyle({
     required String hintText,
-    bool isPassword = false,
+    bool isPassword = false, 
   }) {
     return InputDecoration(
       hintText: hintText,

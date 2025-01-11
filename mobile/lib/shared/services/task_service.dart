@@ -34,15 +34,14 @@ class TaskService {
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = json.decode(response.body);
-        List<Map<String, dynamic>> tasks =
-            jsonData.map<Map<String, dynamic>>((task) {
+        List<Map<String, dynamic>> tasks = jsonData.map<Map<String, dynamic>>((task) {
           return {
             'id': task['id'],
             'name': task['name'],
             'message': task['message'],
             'startTime': DateTime.parse(task['startTime']),
             'endTime': DateTime.parse(task['endTime']),
-            'jobId': task['id'],
+            'jobId': task['id'], // Reflects the correct jobId
           };
         }).toList();
 
@@ -58,16 +57,40 @@ class TaskService {
     }
   }
 
-  // Create a new task actualization and return jobId instead of actualizationId
+  static Future<List<Map<String, dynamic>>> fetchJobActualizations(int jobId) async {
+    try {
+      final response = await http.get(
+        Uri.parse(AppConfig.getJobActualizationEndpoint(jobId)),
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonData = json.decode(response.body);
+        return jsonData.map<Map<String, dynamic>>((actualization) {
+          return {
+            'id': actualization['id'],
+            'message': actualization['message'],
+            'isDone': actualization['isDone'],
+            'jobImageUrl': List<String>.from(actualization['jobImageUrl'] ?? []),
+            'jobId': actualization['jobId'],
+          };
+        }).toList();
+      } else {
+        throw Exception('Failed to fetch job actualizations: ${response.statusCode}');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+  // Create a new task actualization
   static Future<int> createTaskActualization(int jobId, String message) async {
-    final url = Uri.parse('${AppConfig.getBaseUrl()}/api/JobActualization');
+    final url = Uri.parse(AppConfig.postJobActualizationEndpoint());
 
     final body = jsonEncode({
       "id": 0,
       "message": message,
       "isDone": false,
       "jobImageUrl": [],
-      "jobId": jobId,
+      "jobId": jobId, // Updated to use jobId
     });
 
     print('Creating task actualization for jobId: $jobId...');
@@ -84,46 +107,31 @@ class TaskService {
     if (response.statusCode == 200 || response.statusCode == 201) {
       final jsonResponse = json.decode(response.body);
       print('Task Actualization created successfully. ID: ${jsonResponse['id']}');
-      return jobId;
+      return jsonResponse['id'];
     } else {
       print('Failed to create task actualization.');
       throw Exception('Failed to create task actualization');
     }
   }
 
-  // Upload images to the newly created actualization
-  static Future<void> uploadImages(int jobId, List<File> images) async {
-    print('Uploading ${images.length} images for Job ID: $jobId');
-
-    List<String> uploadedPaths = [];
+  // Upload images to the actualization using jobActualizationId
+  static Future<void> uploadImages(int jobActualizationId, List<File> images) async {
+    print('Uploading ${images.length} images for JobActualization ID: $jobActualizationId');
 
     for (File image in images) {
-      int retries = 0;
-      bool uploaded = false;
-
-      while (!uploaded && retries < 3) {
-        try {
-          print('Attempting to upload image: ${image.path} (Try: ${retries + 1}/3)');
-          final imagePath = await uploadImage(jobId, image);  // Get image path after upload
-          uploadedPaths.add(imagePath);  // Store image paths
-          print('Image uploaded successfully: ${image.path}');
-          uploaded = true;
-        } catch (e) {
-          retries++;
-          print('Failed to upload image: ${image.path}');
-          if (retries == 3) {
-            print('ERROR: Image upload failed after 3 attempts.');
-            throw Exception('Failed to upload image: ${image.path}');
-          }
-        }
+      try {
+        await uploadImage(jobActualizationId, image);
+        print('Image uploaded successfully: ${image.path}');
+      } catch (e) {
+        print('Failed to upload image: ${image.path}');
+        throw Exception('Failed to upload image: ${image.path}');
       }
     }
-    print('All image paths uploaded: $uploadedPaths');
   }
 
-  // Upload a single image to the correct endpoint using jobId
-  static Future<String> uploadImage(int jobId, File image) async {
-    final url = Uri.parse(AppConfig.postAddImageEndpoint(jobId));
+  // Upload a single image to the correct endpoint using jobActualizationId
+  static Future<String> uploadImage(int jobActualizationId, File image) async {
+    final url = Uri.parse(AppConfig.postAddImageEndpoint(jobActualizationId));
 
     var request = http.MultipartRequest('POST', url);
     request.files.add(
@@ -139,13 +147,57 @@ class TaskService {
     final response = await http.Response.fromStream(streamedResponse);
 
     if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
-      print('Image uploaded successfully for Job ID: $jobId');
-      
-      // Simulate returning the uploaded image path (extract from response or generate)
-      return 'images/job/${image.path.split('/').last}';
+      print('Image uploaded successfully for JobActualization ID: $jobActualizationId');
+      return 'images/job/${image.path.split('/').last}'; // Return image path
     } else {
       print('Failed to upload image.');
       throw Exception('Failed to upload image');
     }
   }
+static Future<List<Map<String, dynamic>>> fetchTasksByAddress(
+    int userId, int addressId) async {
+  try {
+    print('Fetching tasks for userId: $userId and addressId: $addressId');
+
+    final endpoint = AppConfig.getUserJobActualizationByAddress(userId, addressId);
+    final response = await http.get(Uri.parse(endpoint));
+
+    if (response.statusCode != 200) {
+      print('Failed to fetch tasks. Response Body: ${response.body}');
+      throw Exception('Failed to fetch tasks with status code: ${response.statusCode}');
+    }
+
+    final List<dynamic> jsonData = json.decode(response.body);
+    print('Decoded JSON Data: $jsonData');
+
+    final tasks = jsonData.map<Map<String, dynamic>>((task) {
+      try {
+        final startTime = DateTime.parse(task['startTime']?.toString() ?? '');
+        final endTime = DateTime.parse(task['endTime']?.toString() ?? '');
+
+        return {
+          'id': int.tryParse(task['id']?.toString() ?? '') ?? 0,
+          'addressId': int.tryParse(task['addressId']?.toString() ?? '') ?? 0,
+          'name': task['name']?.toString() ?? 'Unknown',
+          'message': task['message']?.toString() ?? '',
+          'startTime': startTime, // Now parsed as DateTime
+          'endTime': endTime,     // Now parsed as DateTime
+          'allDay': task['allDay'] ?? false,
+        };
+      } catch (parseError) {
+        print('Error parsing task: $task, Error: $parseError');
+        throw parseError;
+      }
+    }).toList();
+
+    print('Mapped tasks: $tasks');
+    return tasks;
+  } catch (e) {
+    print('Error fetching tasks: $e');
+    rethrow;
+  }
+}
+
+
+
 }

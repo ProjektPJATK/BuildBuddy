@@ -205,14 +205,15 @@ Future<void> _loadUnreadConversations() async {
                       return BuildOption(
                         title: team['name'],
                         addressId: team['addressId'],
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/construction_home',
-                            arguments: {
-                              'teamId': team['id'],
-                              'addressId': team['addressId'],
-                            },
+                        onTap: () async {
+  await _saveAddressId(team['addressId']);
+  Navigator.pushNamed(
+    context,
+    '/construction_home',
+    arguments: {
+      'teamId': team['id'],
+      'addressId': team['addressId'],
+    },
                           );
                         },
                       );
@@ -253,4 +254,10 @@ Future<void> _loadUnreadConversations() async {
       ],
     );
   }
+  Future<void> _saveAddressId(int addressId) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setInt('addressId', addressId);
+  print("Saved addressId: $addressId");
+}
+
 }

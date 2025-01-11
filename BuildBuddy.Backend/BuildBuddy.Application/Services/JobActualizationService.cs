@@ -31,26 +31,30 @@ namespace BuildBuddy.Application.Services
         }
         
 
-        public async Task<JobActualizationDto> GetJobActualizationByIdAsync(int jobActualizationId)
-        {
-            var jobActualization = await _dbContext.JobActualizations
-                .GetByID(jobActualizationId);
+public async Task<List<JobActualizationDto>> GetJobActualizationByIdAsync(int jobId)
+{
+    var jobActualizations = await _dbContext.JobActualizations
+        .GetAsync(filter: ja => ja.JobId == jobId); // Use the repository method with a filter
 
-            if (jobActualization == null)
-            {
-                return null;
-            }
+    if (jobActualizations == null || !jobActualizations.Any())
+    {
+        return new List<JobActualizationDto>(); // Return an empty list if no data is found
+    }
 
-            var ta = jobActualization;
-            return new JobActualizationDto
-            {
-                Id = ta.Id,
-                Message = ta.Message,
-                IsDone = ta.IsDone,
-                JobImageUrl = ta.JobImageUrl,
-                JobId = ta.JobId
-            };
-        }
+    // Map the list of JobActualizations to a list of JobActualizationDto
+    return jobActualizations.Select(ja => new JobActualizationDto
+    {
+        Id = ja.Id,
+        Message = ja.Message,
+        IsDone = ja.IsDone,
+        JobImageUrl = ja.JobImageUrl,
+        JobId = ja.JobId
+    }).ToList();
+}
+
+
+
+
 
         public async Task<JobActualizationDto> CreateJobActualizationAsync(JobActualizationDto jobActualizationDto)
         {

@@ -5,6 +5,8 @@ import 'package:mobile/features/profile/models/user_model.dart';
 import 'package:mobile/features/profile/services/user_service.dart';
 import 'dart:io';
 
+import 'language_picker.dart';  // Import the picker
+
 class EditProfileDialog extends StatefulWidget {
   final User user;
   final Function(User) onSave;
@@ -91,6 +93,22 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     Navigator.pop(context);
   }
 
+  // Show Language Picker Modal
+  void _showLanguagePicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return LanguagePicker(
+          onLanguageSelected: (String selectedLanguage) {
+            setState(() {
+              languageController.text = selectedLanguage;
+            });
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -140,10 +158,17 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               decoration: AppStyles.inputFieldStyle(hintText: 'Telefon'),
             ),
             const SizedBox(height: 8),
-            TextField(
-              controller: languageController,
-              style: const TextStyle(color: Colors.white),
-              decoration: AppStyles.inputFieldStyle(hintText: 'Preferowany język'),
+            GestureDetector(
+              onTap: _showLanguagePicker,
+              child: AbsorbPointer(
+                child: TextField(
+                  controller: languageController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: AppStyles.inputFieldStyle(
+                    hintText: 'Preferowany język',
+                  ),
+                ),
+              ),
             ),
           ],
         ),
