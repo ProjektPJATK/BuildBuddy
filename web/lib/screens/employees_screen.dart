@@ -1,32 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:universal_io/io.dart';
 import 'dart:convert';
-import 'employeedetails_screen.dart';
 
-class EmployeesScreen extends StatefulWidget {
-  const EmployeesScreen({super.key});
+class TeamsScreen extends StatefulWidget {
+  final int loggedInUserId;
+
+  TeamsScreen({required this.loggedInUserId});
 
   @override
-  _EmployeesScreenState createState() => _EmployeesScreenState();
+  _TeamsScreenState createState() => _TeamsScreenState();
 }
 
-class _EmployeesScreenState extends State<EmployeesScreen> {
-  List<Map<String, dynamic>> employees = [];
+class _TeamsScreenState extends State<TeamsScreen> {
+  List<Map<String, dynamic>> teams = [];
   bool _isLoading = true;
   bool _isError = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchEmployees();
+    _fetchTeams();
   }
 
-  Future<void> _fetchEmployees() async {
+  Future<void> _fetchTeams() async {
     final client = HttpClient();
     try {
-      final request = await client.getUrl(Uri.parse('http://localhost:5119/api/User'));
+      final teamsUrl = 'http://localhost:5159/api/User/${widget.loggedInUserId}/teams';
+      final request = await client.getUrl(Uri.parse(teamsUrl));
       request.headers.set('Accept', 'application/json');
-      request.headers.set('Authorization', 'lSkdJ3kdLs72FjiwlSkdLf93kdDfLsmK'); // Wstaw token
 
       final response = await request.close();
 
@@ -34,20 +35,24 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
         final responseBody = await response.transform(utf8.decoder).join();
         final List<dynamic> data = jsonDecode(responseBody);
 
-        if (mounted) { // Sprawdzanie, czy widżet jest nadal zamontowany
+        List<Map<String, dynamic>> allTeams = [];
+
+        for (var team in data) {
+          final teamId = team['id'];
+          final teamName = team['name'];
+
+          final members = await _fetchTeamMembers(teamId);
+
+          allTeams.add({
+            'id': teamId,
+            'name': teamName,
+            'members': members,
+          });
+        }
+
+        if (mounted) {
           setState(() {
-            employees = data.map((item) {
-              return {
-                'id': item['id'],
-                'name': item['name'],
-                'surname': item['surname'],
-                'email': item['mail'],
-                'telephoneNr': item['telephoneNr'],
-                'userImageUrl': item['userImageUrl'],
-                'teamId': item['teamId'],
-              };
-            }).toList();
-            employees.sort((a, b) => a['teamId'].compareTo(b['teamId'])); // Sortowanie po teamId
+            teams = allTeams;
             _isLoading = false;
           });
         }
@@ -66,50 +71,102 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
           _isLoading = false;
         });
       }
-      print('Error fetching employees: $e');
+      print('Error fetching teams: $e');
     } finally {
       client.close();
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  Future<List<Map<String, String>>> _fetchTeamMembers(int teamId) async {
+    final client = HttpClient();
+    try {
+      final membersUrl = 'http://localhost:5159/api/Team/$teamId/users';
+      final request = await client.getUrl(Uri.parse(membersUrl));
+      request.headers.set('Accept', 'application/json');
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final responseBody = await response.transform(utf8.decoder).join();
+        final List<dynamic> data = jsonDecode(responseBody);
+
+        List<Map<String, String>> members = [];
+
+        for (var member in data) {
+          if (member['id'] != widget.loggedInUserId) {
+            final roleName = await _fetchRoleName(member['roleId']);
+
+            members.add({
+              'name': '${member['name']} ${member['surname']}',
+              'role': roleName,
+            });
+          }
+        }
+
+        return members;
+      }
+    } catch (e) {
+      print('Error fetching team members for team $teamId: $e');
+    } finally {
+      client.close();
+    }
+
+    return [];
+  }
+
+  Future<String> _fetchRoleName(int roleId) async {
+    final client = HttpClient();
+    try {
+      final roleUrl = 'http://localhost:5159/api/Roles/$roleId';
+      final request = await client.getUrl(Uri.parse(roleUrl));
+      request.headers.set('Accept', 'application/json');
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final responseBody = await response.transform(utf8.decoder).join();
+        final Map<String, dynamic> data = jsonDecode(responseBody);
+
+        return data['name'] ?? 'Unknown Role';
+      }
+    } catch (e) {
+      print('Error fetching role name for roleId $roleId: $e');
+    } finally {
+      client.close();
+    }
+
+    return 'Unknown Role';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Employees'),
+        title: const Text('Teams'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _isError
               ? const Center(
                   child: Text(
-                    'Failed to load employees.',
+                    'Failed to load teams.',
                     style: TextStyle(color: Colors.red),
                   ),
                 )
               : ListView.builder(
-                  itemCount: employees.length,
+                  itemCount: teams.length,
                   itemBuilder: (context, index) {
-                    final employee = employees[index];
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(employee['userImageUrl']),
-                      ),
-                      title: Text('${employee['name']} ${employee['surname']}'),
-                      subtitle: Text('Team ID: ${employee['teamId']}'),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EmployeeDetailsScreen(employee: employee),
-                          ),
-                        );
-                      },
+                    final team = teams[index];
+                    return ExpansionTile(
+                      title: Text(team['name']),
+                      children: (team['members'] as List<Map<String, String>>)
+                          .map(
+                            (member) => ListTile(
+                              title: Text(member['name']!),
+                              subtitle: Text(member['role']!),
+                            ),
+                          )
+                          .toList(),
                     );
                   },
                 ),

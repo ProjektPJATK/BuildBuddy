@@ -165,7 +165,8 @@ namespace BuildBuddy.Application.Services
                     Mail = tu.User.Mail,
                     TelephoneNr = tu.User.TelephoneNr,
                     UserImageUrl = tu.User.UserImageUrl,
-                    PreferredLanguage = tu.User.PreferredLanguage
+                    PreferredLanguage = tu.User.PreferredLanguage,
+                    RoleId = tu.User.RoleId
                 },
                 includeProperties:"User");
             return users;

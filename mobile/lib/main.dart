@@ -68,10 +68,11 @@ class BuildBuddyApp extends StatefulWidget {
 
 class _BuildBuddyAppState extends State<BuildBuddyApp> {
   @override
-  void dispose() {
+  void dispose() async{
     widget.chatPollingService.stopPolling();
     super.dispose();
   }
+
  @override
   void initState() {
     super.initState();

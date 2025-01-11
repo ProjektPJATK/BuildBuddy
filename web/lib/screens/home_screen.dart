@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart' as html;
-import 'employees_screen.dart';
+import 'package:web/screens/employees_screen.dart';
 import 'projects_screens.dart';
 import 'reports_screens.dart';
 import 'tasks_screen.dart';
@@ -8,6 +8,11 @@ import 'tasks_screen.dart';
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
+}
+
+int? getLoggedInUserId() {
+  final userId = html.window.localStorage['userId'];
+  return userId != null ? int.tryParse(userId) : null;
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -106,11 +111,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Expanded(
                             child: GestureDetector(
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => EmployeesScreen()),
-                              ),
-                              child: _buildButton(context, 'Employees', Icons.people,
+                              onTap: () {final loggedInUserId = getLoggedInUserId();
+                              if (loggedInUserId != null) {
+                                 print('Logged in user ID: $loggedInUserId');
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TeamsScreen(loggedInUserId: loggedInUserId),
+                                  ),
+                                );
+                              } else {
+                                print('Error: Logged in user ID not found: $loggedInUserId');
+                              }
+                            },
+                              child: _buildButton(context, 'Teams', Icons.people,
                                   const Color.fromARGB(87, 61, 70, 192)),
                             ),
                           ),

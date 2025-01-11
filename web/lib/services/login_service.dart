@@ -25,17 +25,12 @@ class LoginService {
         final token = data['token'] ?? '';
         final userId = int.tryParse(data['id']?.toString() ?? '0') ?? 0;
         final roleId = int.tryParse(data['roleId']?.toString() ?? '0') ?? 0;
-
+        print('Setting userId in localStorage: $userId');
+        html.window.localStorage['userId'] = userId.toString();
         if (roleId == 0) {
           throw Exception('Invalid roleId returned by the server.');
         }
-
-        //print('Role ID: $roleId'); // Log roleId to debug
-
         final powerLevel = await _fetchPowerLevel(roleId);
-
-        //print('powerLevel: $powerLevel'); // Log powerLevel to debug
-
         if (powerLevel == 2 || powerLevel == 3) {
           // Ustawienie ciasteczka
           setLoginCookie(token);
