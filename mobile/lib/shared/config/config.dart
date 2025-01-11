@@ -21,6 +21,13 @@ class AppConfig {
       '${getBaseUrl()}/api/Conversation/user/$userId/conversations';
   static String createConversationEndpoint() => '${getBaseUrl()}/api/Conversation/create';
   static String registerEndpoint() => '${getBaseUrl()}/api/User/register';
+  
+  // Nowe endpointy
+  static String exitChatEndpoint(int conversationId, int userId) => 
+      '${getBaseUrl()}/api/Chat/exit-chat?conversationId=$conversationId&userId=$userId';
+  
+  static String unreadCountEndpoint(int conversationId, int userId) =>
+      '${getBaseUrl()}/api/Chat/unread-count?conversationId=$conversationId&userId=$userId';
 
   // Endpoints for Job Actualization
   static String getJobActualizationEndpoint(int jobId) =>

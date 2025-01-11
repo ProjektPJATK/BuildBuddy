@@ -6,7 +6,7 @@ import '../../features/chat/bloc/chat_bloc.dart';
 class ChatHubService {
   late HubConnection _hubConnection;
   bool _connected = false;
-
+bool get isConnected => _connected;
   Future<void> connect({
   required String baseUrl,
   required int conversationId,
@@ -15,10 +15,10 @@ class ChatHubService {
 }) async {
   if (_connected) return;
 
-  final hubUrl = '$baseUrl/Chat?conversationId=$conversationId';
+  final hubUrl = '$baseUrl/Chat?conversationId=$conversationId&userId=$userId';
   _hubConnection = HubConnectionBuilder()
-      .withUrl(hubUrl, options: HttpConnectionOptions())
-      .build();
+    .withUrl(hubUrl, options: HttpConnectionOptions())
+    .build();
 
   _registerSignalRListeners(chatBloc, conversationId);
 

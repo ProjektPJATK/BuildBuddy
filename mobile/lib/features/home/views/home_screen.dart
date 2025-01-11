@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_const, avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +18,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<Map<String, dynamic>> unreadConversations = []; // Lista rozmów z nowymi wiadomościami
+  bool hasNewMessages = false; // Flaga do wykrywania nowych wiadomości
+
   @override
   void initState() {
     super.initState();
@@ -37,17 +38,83 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       context.read<HomeBloc>().add(FetchTeamsFromCacheEvent());
     }
+
+    _loadUnreadConversations();
+  }
+
+Future<void> _loadUnreadConversations() async {
+  final prefs = await SharedPreferences.getInstance();
+  final List<String> keys = prefs.getKeys().toList();
+
+  print("[HomeScreen] Unread conversations loading... Keys: $keys");
+
+  setState(() {
+    unreadConversations = keys
+        .where((key) => key.startsWith('lastMessageTime_') && prefs.getString(key) != null)
+        .map((key) {
+          final conversationId = int.parse(key.replaceFirst('lastMessageTime_', ''));
+          final lastMessageTimeStr = prefs.getString('lastMessageTime_$conversationId');
+          final lastMessageTime = DateTime.parse(lastMessageTimeStr ?? DateTime(1970).toIso8601String());
+
+          // Log the current state of lastMessageTime
+          print("[HomeScreen] conversationId: $conversationId");
+          print("[HomeScreen] Last message time: $lastMessageTime");
+
+          final lastCheckedStr = prefs.getString('lastChecked_$conversationId');
+          final lastCheckedDate = lastCheckedStr != null ? DateTime.parse(lastCheckedStr) : DateTime(1970);
+
+          // Log the state of lastChecked
+          print("[HomeScreen] Last checked str $lastCheckedStr");
+          print("[HomeScreen] Last checked time: $lastCheckedDate");
+
+          // Check if the last message time is after the last checked date
+          if (lastMessageTime.isAfter(lastCheckedDate)) {
+            print("[HomeScreen] New message detected for conversationId: $conversationId");
+            return {'conversationId': conversationId, 'lastMessageTime': lastMessageTime};
+          }
+          print("[HomeScreen] No new message for conversationId: $conversationId");
+          return null;
+        })
+        .where((conversation) => conversation != null) // Remove null elements
+        .map((conversation) => conversation!) // Safely unwrap the non-null elements
+        .toList();
+
+    hasNewMessages = unreadConversations.isNotEmpty;
+    print("[HomeScreen] Unread conversations: $unreadConversations");
+  });
+
+  // Log if there are new messages
+  if (hasNewMessages) {
+    print("[HomeScreen] There are new unread messages.");
+  } else {
+    print("[HomeScreen] No new unread messages.");
+  }
+}
+
+
+
+
+  Future<void> _clearAddressIdCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('addressId');
+  }
+
+  Future<void> _clearNotifications() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Usuwamy tylko powiadomienia o nieprzeczytanych wiadomościach
+    for (var conversation in unreadConversations) {
+      await prefs.remove('lastMessageTime_${conversation['conversationId']}');
+    }
+    setState(() {
+      unreadConversations.clear();
+      hasNewMessages = false; // Resetujemy flagę
+    });
   }
 
   @override
   void dispose() {
     _clearAddressIdCache();
     super.dispose();
-  }
-
-  Future<void> _clearAddressIdCache() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('addressId');
   }
 
   @override
@@ -113,83 +180,77 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeContent(BuildContext context, List<dynamic> teams) {
-  return Column(
-    children: [
-      // Teams Section
-      Expanded(
-        flex: 4,
-        child: Container(
-          padding: const EdgeInsets.all(12.0),
-          decoration: const BoxDecoration(
-            color: AppStyles.transparentWhite,
-          ),
-          child: Column(
-            children: [
-              const Text(
-                'Wybierz budowę',
-                style: AppStyles.headerStyle,
-              ),
-              Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: teams.length,
-                  itemBuilder: (context, index) {
-                    final team = teams[index];
-                    return BuildOption(
-                      title: team['name'],
-                      addressId: team['addressId'],
-                      onTap: () async {
-                        // Save addressId to SharedPreferences
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.setInt('addressId', team['addressId']);
-                        print('Saved addressId: ${team['addressId']}');
-
-                        // Navigate to the construction home
-                        Navigator.pushNamed(
-                          context,
-                          '/construction_home',
-                          arguments: {
-                            'teamId': team['id'],
-                            'addressId': team['addressId'],
-                          },
-                        );
-                      },
-                    );
-                  },
+    return Column(
+      children: [
+        // Teams Section
+        Expanded(
+          flex: 4,
+          child: Container(
+            padding: const EdgeInsets.all(12.0),
+            decoration: const BoxDecoration(
+              color: AppStyles.transparentWhite,
+            ),
+            child: Column(
+              children: [
+                const Text(
+                  'Wybierz budowę',
+                  style: AppStyles.headerStyle,
                 ),
-              ),
-            ],
+                Expanded(
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    itemCount: teams.length,
+                    itemBuilder: (context, index) {
+                      final team = teams[index];
+                      return BuildOption(
+                        title: team['name'],
+                        addressId: team['addressId'],
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/construction_home',
+                            arguments: {
+                              'teamId': team['id'],
+                              'addressId': team['addressId'],
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      // Notifications Section
-      Expanded(
-        flex: 4,
-        child: Container(
-          color: AppStyles.transparentWhite,
-          child: Column(
-            children: [
-              const Text(
-                'Powiadomienia',
-                style: AppStyles.headerStyle,
+        // Notifications Section
+        if (hasNewMessages) // Pokazujemy powiadomienie tylko wtedy, gdy są nieprzeczytane wiadomości
+          Expanded(
+            flex: 4,
+            child: Container(
+              color: AppStyles.transparentWhite,
+              child: Column(
+                children: [
+                  const Text(
+                    'Powiadomienia',
+                    style: AppStyles.headerStyle,
+                  ),
+                  Expanded(
+                    child: ListView(
+                      padding: EdgeInsets.zero,
+                      children: [
+                        NotificationItem(
+                          title: 'Masz nowe wiadomości',
+                          onClose: _clearNotifications,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  children: const [
-                    NotificationItem(title: 'Powiadomienie 1'),
-                    NotificationItem(title: 'Powiadomienie 2'),
-                    NotificationItem(title: 'Powiadomienie 3'),
-                    NotificationItem(title: 'Powiadomienie 4'),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-    ],
-  );
-}
-
+      ],
+    );
+  }
 }

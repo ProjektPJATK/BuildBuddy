@@ -1,13 +1,20 @@
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
+import 'package:web/services/login_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 
-void main() {
-  runApp(BuildBuddyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final loginService = LoginService();
+  final bool isLoggedIn = await Future.delayed(Duration.zero, loginService.isLoggedIn);
+  runApp(BuildBuddyApp(isLoggedIn: isLoggedIn));
 }
 
 class BuildBuddyApp extends StatelessWidget {
-  const BuildBuddyApp({super.key});
+  final bool isLoggedIn;
+
+  const BuildBuddyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +24,24 @@ class BuildBuddyApp extends StatelessWidget {
         primarySwatch: Colors.blueGrey,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => LoginScreen(),
-        '/home': (context) => HomeScreen(),
+      initialRoute: isLoggedIn ? '/home' : '/',
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/':
+            return MaterialPageRoute(builder: (_) => LoginScreen());
+          case '/home':
+            return MaterialPageRoute(builder: (_) => HomeScreen());
+          default:
+            return MaterialPageRoute(
+              builder: (_) => Scaffold(
+                body: Center(
+                  child: Text('404 - Page not found'),
+                ),
+              ),
+            );
+        }
       },
+      debugShowCheckedModeBanner: false,
     );
   }
 }

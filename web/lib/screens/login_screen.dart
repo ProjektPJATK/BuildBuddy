@@ -1,7 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:web/services/login_service.dart';
+import 'package:web/models/login_response.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final LoginService _loginService = LoginService();
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  void _handleLogin() async {
+  setState(() {
+    _isLoading = true;
+    _errorMessage = null;
+    //print("Before login - is logged in: ${_loginService.isLoggedIn()}");
+  });
+
+  try {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    final response = await _loginService.login(email, password);
+
+   // print("After login - is logged in: ${_loginService.isLoggedIn()}");
+      print("Pomyślnie zalogowano");
+    if (_loginService.isLoggedIn()) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      setState(() {
+        _errorMessage = 'Login failed: unable to verify session.';
+      });
+    }
+  } catch (e) {
+    setState(() {
+      _errorMessage = e.toString();
+    });
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +56,7 @@ class LoginScreen extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background.png'),
+            image: AssetImage('lib/assets/background.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -35,7 +79,7 @@ class LoginScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.7),
                       borderRadius: BorderRadius.circular(20.0),
-                      boxShadow: const [
+                      boxShadow: [
                         BoxShadow(
                           color: Colors.black45,
                           blurRadius: 10,
@@ -46,7 +90,7 @@ class LoginScreen extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        const Text(
+                        Text(
                           'Build Buddy',
                           style: TextStyle(
                             color: Colors.white,
@@ -56,7 +100,8 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 30),
                         TextField(
-                          style: const TextStyle(color: Colors.white),
+                          controller: _emailController,
+                          style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Login',
                             hintStyle: const TextStyle(color: Colors.white54),
@@ -79,7 +124,8 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         TextField(
-                          style: const TextStyle(color: Colors.white),
+                          controller: _passwordController,
+                          style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Hasło',
                             hintStyle: const TextStyle(color: Colors.white54),
@@ -102,25 +148,27 @@ class LoginScreen extends StatelessWidget {
                           obscureText: true,
                         ),
                         const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/home');
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
+                        if (_isLoading)
+                          CircularProgressIndicator()
+                        else
+                          ElevatedButton(
+                            onPressed: _handleLogin,
+                            child: const Text('Zaloguj się'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                           ),
-                          child: const Text('Zaloguj się'),
-                        ),
                         const SizedBox(height: 10),
                         TextButton(
                           onPressed: () {
                             // Dodaj logikę dla rejestracji
                           },
+                          child: const Text('Rejestracja'),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.blueAccent,
                             textStyle: const TextStyle(
@@ -128,7 +176,6 @@ class LoginScreen extends StatelessWidget {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          child: const Text('Rejestracja'),
                         ),
                       ],
                     ),

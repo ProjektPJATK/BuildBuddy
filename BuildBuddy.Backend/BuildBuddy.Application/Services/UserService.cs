@@ -43,6 +43,7 @@ namespace BuildBuddy.Application.Services
                 TelephoneNr = user.TelephoneNr,
                 UserImageUrl = user.UserImageUrl,
                 PreferredLanguage = user.PreferredLanguage,
+                RoleId = user.RoleId
             };
         }
         public async Task<UserDto?> GetUserByEmailAsync(string email)
@@ -59,6 +60,7 @@ namespace BuildBuddy.Application.Services
                     Password = user.Password,
                     UserImageUrl = user.UserImageUrl,
                     PreferredLanguage = user.PreferredLanguage,
+                    RoleId = user.RoleId
                 })).FirstOrDefault();
             return result;
         }
@@ -76,6 +78,7 @@ namespace BuildBuddy.Application.Services
                     TelephoneNr = user.TelephoneNr,
                     UserImageUrl = user.UserImageUrl,
                     PreferredLanguage = user.PreferredLanguage,
+                    RoleId = user.RoleId
                 });
         }
 

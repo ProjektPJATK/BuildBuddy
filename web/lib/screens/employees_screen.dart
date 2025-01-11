@@ -24,7 +24,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   Future<void> _fetchEmployees() async {
     final client = HttpClient();
     try {
-      final request = await client.getUrl(Uri.parse('http://localhost:5007/api/User'));
+      final request = await client.getUrl(Uri.parse('http://localhost:5119/api/User'));
       request.headers.set('Accept', 'application/json');
       request.headers.set('Authorization', 'lSkdJ3kdLs72FjiwlSkdLf93kdDfLsmK'); // Wstaw token
 

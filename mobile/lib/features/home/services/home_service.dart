@@ -4,6 +4,7 @@ import 'package:mobile/shared/config/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeService {
+  // Fetch teams for a user
   Future<List<dynamic>> fetchTeams(int userId) async {
     print('Fetching teams for userId: $userId');
 
@@ -12,7 +13,10 @@ class HomeService {
     String? token = prefs.getString('token');
 
     if (token == null || token.isEmpty) {
-      throw Exception('Brak tokena użytkownika.');
+      print('[HomeService] Token not found. Resetting user data...');
+      // Jeśli nie ma tokena, zresetuj dane użytkownika
+      await _resetUserData();
+      throw Exception('Brak tokena użytkownika. Użytkownik jest wylogowany.');
     }
 
     // Dynamiczny URL
@@ -42,5 +46,13 @@ class HomeService {
       print('Error during fetchTeams: $e');
       throw Exception('Błąd podczas pobierania zespołów: $e');
     }
+  }
+
+  // Funkcja resetująca dane użytkownika w SharedPreferences
+  Future<void> _resetUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+    await prefs.remove('token'); // Usuwamy token użytkownika
+    print('[HomeService] User data reset.');
   }
 }

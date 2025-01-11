@@ -35,7 +35,6 @@ dependencies:
   table_calendar: ^3.0.0
   permission_handler: ^10.4.3
   web_socket_channel: 3.0.1
- 
   country_picker: ^2.0.17
 
 

@@ -86,11 +86,29 @@ Future<List<Map<String, dynamic>>> _getParticipantsWithIds(List<String> recipien
     final conversationId = await _findOrCreateConversation(recipientIds);
     print('Używana konwersacja: $conversationId');
 
-    widget.chatBloc.add(SendMessageEvent(
-      senderId: userId!,
-      conversationId: conversationId,
-      text: messageController.text,
-    ));
+    // Zamiast _connected używamy isConnected
+    if (widget.chatBloc.chatHubService.isConnected) {
+      // Jeśli połączenie jest aktywne, wysyłamy wiadomość
+      widget.chatBloc.add(SendMessageEvent(
+        senderId: userId!,
+        conversationId: conversationId,
+        text: messageController.text,
+      ));
+    } else {
+      // Jeśli połączenie jest nieaktywne, próbujemy ponownie się połączyć
+      await widget.chatBloc.chatHubService.connect(
+        baseUrl: AppConfig.getChatUrl(),
+        conversationId: conversationId,
+        userId: userId!,
+        chatBloc: widget.chatBloc,
+      );
+      // Po ponownym połączeniu wysyłamy wiadomość
+      widget.chatBloc.add(SendMessageEvent(
+        senderId: userId!,
+        conversationId: conversationId,
+        text: messageController.text,
+      ));
+    }
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('conversationId', conversationId);
@@ -128,7 +146,6 @@ Future<List<Map<String, dynamic>>> _getParticipantsWithIds(List<String> recipien
     print('Błąd wysyłania wiadomości: $e');
   }
 }
-
 
   Future<List<int>> _getRecipientIds(List<String> recipientNames) async {
     List<int> recipientIds = [];
