@@ -14,7 +14,7 @@ void main() async {
 class BuildBuddyApp extends StatelessWidget {
   final bool isLoggedIn;
 
-  BuildBuddyApp({required this.isLoggedIn});
+  const BuildBuddyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {

@@ -32,11 +32,18 @@ class TaskList extends StatelessWidget {
                     itemCount: tasks.length,
                     itemBuilder: (context, index) {
                       final task = tasks[index];
+
+                      // Ensure startTime and endTime are formatted
+                      final String startTime = DateFormat('yyyy-MM-dd HH:mm').format(task['startTime']);
+                      final String endTime = DateFormat('yyyy-MM-dd HH:mm').format(task['endTime']);
+
+                      // Pass formatted times to TaskItem
                       return TaskItem(
-                        title: task['name'],
-                        description: task['message'],
-                        startTime: DateFormat('HH:mm').format(task['startTime']),
-                        endTime: DateFormat('HH:mm').format(task['endTime']),
+                        task: {
+                          ...task,
+                          'startTime': startTime,
+                          'endTime': endTime,
+                        },
                       );
                     },
                   ),

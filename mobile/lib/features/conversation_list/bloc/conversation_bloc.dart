@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../services/conversation_service.dart';
 import 'conversation_event.dart';
 import 'conversation_state.dart';

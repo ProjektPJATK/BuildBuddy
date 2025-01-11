@@ -84,8 +84,8 @@ class _BuildBuddyAppState extends State<BuildBuddyApp> {
       routes: {
         '/': (context) => const LoginScreen(), // Show splash screen first
         '/home': (context) => const HomeScreen(),
-        '/chats': (context) => ConversationListScreen(),
-        '/calendar': (context) => const CalendarScreen(),
+        '/chats': (context) => const ConversationListScreen(),
+        '/calendar': (context) => const CalendarScreen(), // Calendar screen
         '/profile': (context) => const UserProfileScreen(),
         '/new_message': (context) {
           final chatBloc = BlocProvider.of<ChatBloc>(context);

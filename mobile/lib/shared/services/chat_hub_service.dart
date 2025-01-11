@@ -10,15 +10,59 @@ class ChatHubService {
   bool _connected = false;
   bool get isConnected => _connected;
   Future<void> connect({
-    required String baseUrl,
-    required int conversationId,
-    required int userId,
-    required ChatBloc chatBloc,
-  }) async {
-    if (_connected) {
-      print("[ChatHubService] Already connected. Disconnecting before reconnecting...");
-      await _hubConnection.stop();
-      _connected = false;
+  required String baseUrl,
+  required int conversationId,
+  required int userId,
+  required ChatBloc chatBloc,
+}) async {
+  if (_connected) return;
+
+  final hubUrl = '$baseUrl/Chat?conversationId=$conversationId&userId=$userId';
+  _hubConnection = HubConnectionBuilder()
+    .withUrl(hubUrl, options: HttpConnectionOptions())
+    .build();
+
+  _registerSignalRListeners(chatBloc, conversationId);
+
+  _hubConnection.onclose(({Exception? error}) async {
+    _connected = false;
+    print("[ChatHubService] Connection closed: $error");
+    await _retryConnection(baseUrl, conversationId, userId, chatBloc);
+  });
+
+  try {
+    await _hubConnection.start();
+    _connected = true;
+    print("[ChatHubService] Connected to SignalR Hub");
+
+    // Pobranie historii po połączeniu
+    await fetchHistory(conversationId, userId);
+  } catch (e) {
+    print("[ChatHubService] Error connecting: $e");
+    rethrow;
+  }
+}
+
+void _registerSignalRListeners(ChatBloc chatBloc, int conversationId) {
+  // Najpierw usuń istniejące nasłuchiwacze, jeśli istnieją
+  _hubConnection.off("ReceiveMessage");
+  _hubConnection.off("ReceiveHistory");
+
+  print("[ChatHubService] Registering SignalR listeners...");
+
+  _hubConnection.on("ReceiveMessage", (params) {
+    print("[ChatHubService] ReceiveMessage triggered with params: $params");
+    if (params != null && params.length >= 3) {
+      final message = ChatMessage(
+        senderId: params[0] as int,
+        text: params[1] as String,
+        timestamp: DateTime.parse(params[2] as String),
+        conversationId: conversationId,
+      );
+      print("[ChatHubService] Received message: ${message.text}");
+      chatBloc.add(ReceiveMessageEvent(message: message));
+    } else {
+      print("[ChatHubService] Invalid ReceiveMessage params: $params");
     }
 
     final hubUrl = '$baseUrl/Chat?conversationId=$conversationId';
