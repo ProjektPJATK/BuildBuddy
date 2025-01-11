@@ -19,20 +19,20 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
       LoadInventoryEvent event, Emitter<InventoryState> emit) async {
     emit(InventoryLoading());
 
-    // Spróbuj wczytać dane z cache
+    // Try loading data from the cache
     final cachedItems = await _loadFromCache();
     if (cachedItems.isNotEmpty) {
       emit(InventoryLoaded(items: cachedItems, filteredItems: cachedItems));
     }
 
-    // Ładowanie z backendu
+    // Load data from the backend
     try {
       final items = await inventoryService.fetchInventoryItems(
         event.token,
         event.addressId,
       );
 
-      // Zapis do cache
+      // Save to cache
       await _saveToCache(items);
 
       emit(InventoryLoaded(items: items, filteredItems: items));
@@ -55,29 +55,47 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
     }
   }
 
-  void _handleUpdateInventoryItemEvent(
-    UpdateInventoryItemEvent event, Emitter<InventoryState> emit) {
-  if (state is InventoryLoaded) {
-    final currentState = state as InventoryLoaded;
-    final updatedItems = currentState.items.map((item) {
-      if (item.id == event.itemId) {
-        return item.copyWith(remaining: event.newRemaining); // Use double here
+  Future<void> _handleUpdateInventoryItemEvent(
+      UpdateInventoryItemEvent event, Emitter<InventoryState> emit) async {
+    if (state is InventoryLoaded) {
+      final currentState = state as InventoryLoaded;
+
+      // Get the token from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      if (token == null) {
+        print('[InventoryBloc] Error: Missing token');
+        return;
       }
-      return item;
-    }).toList();
-    emit(currentState.copyWith(items: updatedItems, filteredItems: updatedItems));
+
+      // Optimistic UI update
+      final updatedItems = currentState.items.map((item) {
+        if (item.id == event.itemId) {
+          return item.copyWith(remaining: event.newRemaining);
+        }
+        return item;
+      }).toList();
+      emit(currentState.copyWith(items: updatedItems, filteredItems: updatedItems));
+
+      // Sync with the backend
+      try {
+        await inventoryService.updateInventoryItem(token, event.itemId, event.newRemaining);
+      } catch (e) {
+        print('[InventoryBloc] Failed to update inventory item: $e');
+        // Optionally, revert UI changes or notify the user
+        emit(currentState); // Revert to the previous state
+      }
+    }
   }
-}
 
-
-  // Zapis danych do cache
+  // Save data to cache
   Future<void> _saveToCache(List<InventoryItemModel> items) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonData = jsonEncode(items.map((item) => item.toJson()).toList());
     await prefs.setString('inventory_cache', jsonData);
   }
 
-  // Odczyt danych z cache
+  // Load data from cache
   Future<List<InventoryItemModel>> _loadFromCache() async {
     final prefs = await SharedPreferences.getInstance();
     final cachedData = prefs.getString('inventory_cache');

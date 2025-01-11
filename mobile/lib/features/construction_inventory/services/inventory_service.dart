@@ -46,4 +46,64 @@ class InventoryService {
           '[InventoryService] Failed to fetch inventory items. Error: $e');
     }
   }
+
+  // Update inventory item with all fields
+  Future<void> updateInventoryItem(
+      String token, int itemId, double newRemaining) async {
+    final url = AppConfig.getUpdateInventoryEndpoint(itemId);
+    print('[InventoryService] Updating inventory item at: $url');
+
+    // Fetch the current item details first
+    final currentItem = await fetchInventoryItemDetails(token, itemId);
+
+    // Update only the `quantityLeft` field and retain other fields
+    final body = jsonEncode({
+      'id': currentItem.id,
+      'name': currentItem.name,
+      'metrics': currentItem.metrics,
+      'quantityMax': currentItem.remaining,
+      'quantityLeft': newRemaining, // Update only this field
+      'addressId': currentItem.addressId,
+    });
+
+    final response = await http.put(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: body,
+    );
+
+    print('[InventoryService] Response status: ${response.statusCode}');
+    print('[InventoryService] Response body: ${response.body}');
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception(
+          '[InventoryService] Failed to update inventory item on the server. Status: ${response.statusCode}');
+    }
+  }
+
+  // Fetch inventory item details (helper method)
+  Future<InventoryItemModel> fetchInventoryItemDetails(
+      String token, int itemId) async {
+    final url = '${AppConfig.getBaseUrl()}/api/BuildingArticles/$itemId';
+    print('[InventoryService] Fetching inventory item details from: $url');
+
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200  ) {
+      throw Exception(
+          '[InventoryService] Failed to fetch inventory item details. Status: ${response.statusCode}');
+    }
+
+    final data = jsonDecode(response.body);
+    return InventoryItemModel.fromJson(data);
+  }
 }
