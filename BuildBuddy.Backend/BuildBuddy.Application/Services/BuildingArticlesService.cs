@@ -1,4 +1,4 @@
-﻿using BuildBuddy.Application.Abstractions;
+﻿﻿using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
 using BuildBuddy.Data.Model;
@@ -108,7 +108,7 @@ namespace BuildBuddy.Application.Services
                 await _dbContext.SaveChangesAsync();
             }
         }
-        public async Task<IEnumerable<BuildingArticlesDto>> GetAllItemsByPlaceAsync(int addressId)
+        public async Task<IEnumerable<BuildingArticlesDto>> GetAllItemsByPlaceAsync(int placeId)
         {
             return await _dbContext.BuildingArticles
                 .GetAsync(item => new BuildingArticlesDto

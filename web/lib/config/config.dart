@@ -19,10 +19,10 @@ class AppConfig {
       '${getBaseUrl()}/api/Conversation/user/$userId/conversations';
   static String createConversationEndpoint() => '${getBaseUrl()}/api/Conversation/create';
   static String registerEndpoint() => '${getBaseUrl()}/api/User/register';
-    static String updateInventoryItemEndpoint(int itemId) =>
-      '${getBaseUrl()}/api/BuildingArticles/$itemId';
-static String getUpdateInventoryEndpoint(int itemId) =>
-    "${getBaseUrl()}/api/BuildingArticles/$itemId";
+  static String getUpdateInventoryItemEndpoint(int itemId) =>
+    '${getBaseUrl()}/api/BuildingArticles/$itemId';
+
+
 
   
   // Nowe endpointy
