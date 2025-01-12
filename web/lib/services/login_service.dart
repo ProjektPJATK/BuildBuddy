@@ -43,7 +43,7 @@ class LoginService {
             'powerLevel': powerLevel,
           });
         }
-
+        print(teamsWithPowerLevels);
         if (!hasValidRole) {
           throw Exception('Access denied: No valid powerLevel found.');
         }
