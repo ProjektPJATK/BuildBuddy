@@ -103,7 +103,7 @@ namespace BuildBuddy.WebApi.Controllers;
             }
 
             var token = _userService.GenerateJwtToken(user);
-            return Ok(new { token, user.Id });
+            return Ok(new { token, user.Id, user.RolesInTeams });
         }
         
         [HttpPost("{userId}/upload-image")]
