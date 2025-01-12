@@ -1,4 +1,4 @@
-﻿
+﻿﻿
 using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using Microsoft.AspNetCore.JsonPatch;
@@ -133,4 +133,3 @@ namespace BuildBuddy.WebApi.Controllers;
         }
 
     }
-

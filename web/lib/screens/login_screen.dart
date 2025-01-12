@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:web/services/login_service.dart';
-import 'package:web/models/login_response.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -25,7 +24,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text;
     final password = _passwordController.text;
     final response = await _loginService.login(email, password);
-
    // print("After login - is logged in: ${_loginService.isLoggedIn()}");
       print("Pomyślnie zalogowano");
     if (_loginService.isLoggedIn()) {

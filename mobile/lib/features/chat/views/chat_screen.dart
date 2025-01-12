@@ -10,7 +10,6 @@ import 'widgets/chat_bubble.dart';
 import 'widgets/chat_input_field.dart';
 import 'widgets/chat_header.dart'; // Importujemy ChatHeader
 import 'package:mobile/shared/themes/styles.dart';
-import 'package:http/http.dart' as http;
 
 class ChatScreen extends StatefulWidget {
   final String conversationName;
@@ -89,7 +88,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
-        final targetOffset = _scrollController.position.maxScrollExtent + 400;
+        final targetOffset = _scrollController.position.maxScrollExtent;
         if (_scrollController.offset != targetOffset) {
           _scrollController.animateTo(
             targetOffset,
