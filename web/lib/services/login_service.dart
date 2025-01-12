@@ -5,12 +5,10 @@ import 'package:web/config/config.dart';
 import 'package:web/models/login_response.dart';
 
 class LoginService {
-
   Future<LoginResponse> login(String email, String password) async {
     final loginUrl = AppConfig.getLoginEndpoint();
-   // print('Sending POST request to $loginUrl with email: $email');
-
     final client = HttpClient();
+
     try {
       final request = await client.postUrl(Uri.parse(loginUrl));
       request.headers.set('Content-Type', 'application/json');
@@ -20,51 +18,65 @@ class LoginService {
       if (response.statusCode == 200) {
         final responseBody = await response.transform(utf8.decoder).join();
         final data = jsonDecode(responseBody);
-        print('Response data: $data'); // Log response data for debugging
+        print('Response data: $data');
 
         final token = data['token'] ?? '';
         final userId = int.tryParse(data['id']?.toString() ?? '0') ?? 0;
-        final roleId = int.tryParse(data['roleId']?.toString() ?? '0') ?? 0;
-        print('Setting userId in localStorage: $userId');
         html.window.localStorage['userId'] = userId.toString();
-        if (roleId == 0) {
-          throw Exception('Invalid roleId returned by the server.');
-        }
-        final powerLevel = await _fetchPowerLevel(roleId);
-        if (powerLevel == 2 || powerLevel == 3) {
-          // Ustawienie ciasteczka
-          setLoginCookie(token);
 
-          return LoginResponse(
-            token: token,
-            userId: userId,
-            roleId: roleId,
-          );
-        } else {
-          throw Exception('Access denied: insufficient power level.');
+        final rolesInTeams = data['rolesInTeams'] as List<dynamic>;
+        final List<Map<String, dynamic>> teamsWithPowerLevels = [];
+
+        bool hasValidRole = false;
+
+        for (var roleData in rolesInTeams) {
+          final teamId = roleData['teamId'];
+          final roleId = roleData['roleId'];
+          final powerLevel = await _fetchPowerLevel(roleId);
+
+          if (powerLevel == 2 || powerLevel == 3) {
+            hasValidRole = true;
+          }
+
+          teamsWithPowerLevels.add({
+            'teamId': teamId,
+            'powerLevel': powerLevel,
+          });
         }
+
+        if (!hasValidRole) {
+          throw Exception('Access denied: No valid powerLevel found.');
+        }
+
+        // Zapisanie listy ról w localStorage
+        html.window.localStorage['teamsWithPowerLevels'] = jsonEncode(teamsWithPowerLevels);
+        setLoginCookie(token);
+
+        return LoginResponse(
+          token: token,
+          userId: userId,
+          roleId: null, // RoleId nie jest już jednoznaczne, można usunąć z modelu, jeśli niepotrzebne
+        );
       } else {
         throw Exception('Failed to log in: ${response.statusCode}');
       }
     } catch (e) {
-      //print('Login error: $e');
+      print('Login error: $e');
       rethrow;
     } finally {
       client.close();
     }
   }
 
+  void setLoginCookie(String token) {
+    final cookie = 'userToken=$token; path=/; max-age=3600'; // Ważność 1 godzina
+    html.document.cookie = cookie;
 
- void setLoginCookie(String token) {
-  final cookie = 'userToken=$token; path=/; max-age=3600'; // Ważność 1 godzina
-  html.document.cookie = cookie;
+    print('Cookie set: $cookie');
+    print('Current cookies: ${html.document.cookie}');
+  }
 
-  // Debugowanie: wyświetlenie wszystkich ciasteczek
-  print('Cookie set: $cookie');
-  print('Current cookies: ${html.document.cookie}');
-}
-
- bool isLoggedIn() {
+  bool isLoggedIn() {
     final cookies = html.document.cookie?.split('; ') ?? [];
     return cookies.any((cookie) => cookie.startsWith('userToken='));
   }
@@ -78,8 +90,6 @@ class LoginService {
       final request = await client.getUrl(Uri.parse(roleUrl));
       request.headers.set('Content-Type', 'application/json');
       final response = await request.close();
-
-      print('Response status: ${response.statusCode}'); // Log response status
 
       if (response.statusCode == 200) {
         final responseBody = await response.transform(utf8.decoder).join();
