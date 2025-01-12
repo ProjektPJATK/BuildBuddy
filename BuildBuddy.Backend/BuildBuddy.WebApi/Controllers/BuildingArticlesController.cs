@@ -1,6 +1,7 @@
 ﻿
 using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuildBuddy.WebApi.Controllers;
@@ -41,12 +42,32 @@ namespace BuildBuddy.WebApi.Controllers;
             return CreatedAtAction(nameof(GetItemById), new { id = createdItem.Id }, createdItem);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateItem(int id, BuildingArticlesDto buildingArticlesDto)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchItem(int id, JsonPatchDocument<BuildingArticlesDto> patchDocument)
         {
-            await _buildingArticlesService.UpdateItemAsync(id, buildingArticlesDto);
+            if (patchDocument == null)
+            {
+                return BadRequest("Patch document cannot be null.");
+            }
+
+            var item = await _buildingArticlesService.GetItemByIdAsync(id);
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            patchDocument.ApplyTo(item, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _buildingArticlesService.PatchItemAsync(id, item);
+
             return NoContent();
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteItem(int id)
@@ -55,9 +76,9 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         [HttpGet("address/{addressId}")]
-        public async Task<IActionResult> GetItemsByPlace(int placeId)
+        public async Task<IActionResult> GetItemsByPlace(int addressId)
         {
-            var items = await _buildingArticlesService.GetAllItemsByPlaceAsync(placeId);
+            var items = await _buildingArticlesService.GetAllItemsByPlaceAsync(addressId);
         
             if (items == null || !items.Any())
             {

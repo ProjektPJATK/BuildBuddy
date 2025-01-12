@@ -134,8 +134,7 @@ namespace BuildBuddy.Application.Services
 
             await _dbContext.SaveChangesAsync();
         }
-
-
+        
         public async Task DeleteUserAsync(int userId)
         {
             var user = await _dbContext.Users.GetByID(userId);
@@ -145,8 +144,7 @@ namespace BuildBuddy.Application.Services
                 await _dbContext.SaveChangesAsync();
             }
         }
-
-
+        
         public async Task<List<TeamDto>> GetTeamsByUserId(int userId)
         {
             var teams = await _dbContext.TeamUsers.GetAsync(

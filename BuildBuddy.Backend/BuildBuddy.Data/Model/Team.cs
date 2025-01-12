@@ -7,6 +7,8 @@ public class Team : IHaveId<int>
     public int? AddressId { get; set; }
     
     public virtual Address? Address { get; set; }
+    public virtual ICollection<TeamUserRole> TeamUserRoles { get; set; }
+
     public virtual ICollection<TeamUser> TeamUsers { get; set; }
     public virtual Conversation Conversation { get; set; }
 }
