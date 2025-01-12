@@ -23,6 +23,7 @@ namespace BuildBuddy.Data.Repositories
                 .AddScoped<IRepository<UserConversation, int>, MainRepository<UserConversation, int>>()
                 .AddScoped<IRepository<UserJob,int>,MainRepository<UserJob,int>>()
                 .AddScoped<IRepository<Role,int>,MainRepository<Role,int>>()
+                .AddScoped<IRepository<TeamUserRole,int>,MainRepository<TeamUserRole,int>>()
                 .AddScoped<IRepositoryCatalog, UnitOfWork>();
         }
     }
