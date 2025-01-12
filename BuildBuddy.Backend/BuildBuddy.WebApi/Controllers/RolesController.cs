@@ -78,8 +78,8 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
 
-        [HttpPost("{roleId}/users/{userId}")]
-        public async Task<IActionResult> AssignRoleToUser(int roleId, int userId)
+        [HttpPost("{roleId}/users/{userId}/teams/{teamId}")]
+        public async Task<IActionResult> AssignRoleToUserInTeam(int roleId, int userId, int teamId)
         {
             var role = await _roleService.GetRoleByIdAsync(roleId);
             if (role == null)
@@ -87,12 +87,12 @@ namespace BuildBuddy.WebApi.Controllers;
                 return NotFound($"Rola o ID {roleId} nie została znaleziona.");
             }
 
-            await _roleService.AssignRoleToUserAsync(userId, roleId);
+            await _roleService.AssignRoleToUserInTeamAsync(userId, roleId, teamId);
             return Ok();
         }
 
-        [HttpDelete("{roleId}/users/{userId}")]
-        public async Task<IActionResult> RemoveRoleFromUser(int roleId, int userId)
+        [HttpDelete("{roleId}/users/{userId}/teams/{teamId}")]
+        public async Task<IActionResult> RemoveRoleFromUserInTeam(int roleId, int userId, int teamId)
         {
             var role = await _roleService.GetRoleByIdAsync(roleId);
             if (role == null)
@@ -100,9 +100,16 @@ namespace BuildBuddy.WebApi.Controllers;
                 return NotFound($"Rola o ID {roleId} nie została znaleziona.");
             }
 
-            await _roleService.RemoveRoleFromUserAsync(userId);
-            return Ok();
+            var userRoles = await _roleService.GetUsersByRoleIdAsync(roleId);
+            if (!userRoles.Any(u => u.Id == userId))
+            {
+                return NotFound($"Użytkownik o ID {userId} nie ma przypisanej roli o ID {roleId}.");
+            }
+
+            await _roleService.RemoveRoleFromUserInTeamAsync(userId, roleId, teamId);
+            return Ok($"Rola o ID {roleId} została usunięta z użytkownika o ID {userId} w zespole o ID {teamId}.");
         }
+
         
         [HttpGet("role/{roleId}")]
         public async Task<IActionResult> GetUsersByRoleIdAsync(int roleId)

@@ -27,14 +27,77 @@ namespace BuildBuddy.Application.Services
         public async Task<UserDto> GetUserByIdAsync(int userId)
         {
             var user = await _dbContext.Users
-                .GetByID(userId);
+                .GetAsync(
+                    filter: u => u.Id == userId,
+                    includeProperties: "TeamUserRoles.Role,TeamUserRoles.Team"
+                );
 
             if (user == null)
             {
                 return null;
             }
 
+            var userEntity = user.FirstOrDefault();
+
             return new UserDto
+            {
+                Id = userEntity.Id,
+                Name = userEntity.Name,
+                Surname = userEntity.Surname,
+                Mail = userEntity.Mail,
+                TelephoneNr = userEntity.TelephoneNr,
+                UserImageUrl = userEntity.UserImageUrl,
+                PreferredLanguage = userEntity.PreferredLanguage,
+                RolesInTeams = userEntity.TeamUserRoles
+                    .Select(tur => new RoleInTeamDto
+                    {
+                        RoleId = tur.Role.Id,
+                        TeamId = tur.Team.Id
+                    }).ToList()
+            };
+        }
+        public async Task<UserDto?> GetUserByEmailAsync(string email)
+        {
+            var user = await _dbContext.Users
+                .GetAsync(
+                    filter: u => u.Mail == email,
+                    includeProperties: "TeamUserRoles.Role,TeamUserRoles.Team"
+                );
+
+            var userEntity = user.FirstOrDefault();
+
+            if (userEntity == null)
+            {
+                return null;
+            }
+
+            return new UserDto
+            {
+                Id = userEntity.Id,
+                Name = userEntity.Name,
+                Surname = userEntity.Surname,
+                Mail = userEntity.Mail,
+                TelephoneNr = userEntity.TelephoneNr,
+                Password = userEntity.Password,
+                UserImageUrl = userEntity.UserImageUrl,
+                PreferredLanguage = userEntity.PreferredLanguage,
+                RolesInTeams = userEntity.TeamUserRoles
+                    .Select(tur => new RoleInTeamDto
+                    {
+                        RoleId = tur.Role.Id,
+                        TeamId = tur.Team.Id
+                    }).ToList()
+            };
+        }
+        
+        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        {
+            var users = await _dbContext.Users
+                .GetAsync(
+                    includeProperties: "TeamUserRoles.Role,TeamUserRoles.Team"
+                );
+
+            return users.Select(user => new UserDto
             {
                 Id = user.Id,
                 Name = user.Name,
@@ -43,43 +106,13 @@ namespace BuildBuddy.Application.Services
                 TelephoneNr = user.TelephoneNr,
                 UserImageUrl = user.UserImageUrl,
                 PreferredLanguage = user.PreferredLanguage,
-                RoleId = user.RoleId
-            };
-        }
-        public async Task<UserDto?> GetUserByEmailAsync(string email)
-        {
-            var result = (await _dbContext.Users.GetAsync(
-                filter: u => u.Mail == email,
-                mapper: user => new UserDto
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Surname = user.Surname,
-                    Mail = user.Mail,
-                    TelephoneNr = user.TelephoneNr,
-                    Password = user.Password,
-                    UserImageUrl = user.UserImageUrl,
-                    PreferredLanguage = user.PreferredLanguage,
-                    RoleId = user.RoleId
-                })).FirstOrDefault();
-            return result;
-        }
-        
-        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
-        {
-            return await _dbContext.Users
-                .GetAsync(user => new UserDto
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Mail = user.Mail,
-                    Surname = user.Surname,
-                    Password = user.Password,
-                    TelephoneNr = user.TelephoneNr,
-                    UserImageUrl = user.UserImageUrl,
-                    PreferredLanguage = user.PreferredLanguage,
-                    RoleId = user.RoleId
-                });
+                RolesInTeams = user.TeamUserRoles
+                    .Select(tur => new RoleInTeamDto
+                    {
+                        RoleId = tur.Role.Id,
+                        TeamId = tur.Team.Id
+                    }).ToList()
+            });
         }
 
         public async Task<UserDto> CreateUserAsync(UserDto userDto)
@@ -134,8 +167,7 @@ namespace BuildBuddy.Application.Services
 
             await _dbContext.SaveChangesAsync();
         }
-
-
+        
         public async Task DeleteUserAsync(int userId)
         {
             var user = await _dbContext.Users.GetByID(userId);
@@ -145,8 +177,7 @@ namespace BuildBuddy.Application.Services
                 await _dbContext.SaveChangesAsync();
             }
         }
-
-
+        
         public async Task<List<TeamDto>> GetTeamsByUserId(int userId)
         {
             var teams = await _dbContext.TeamUsers.GetAsync(
