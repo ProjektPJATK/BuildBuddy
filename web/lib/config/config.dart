@@ -17,4 +17,6 @@ class AppConfig {
   static String getRoleEndpoint(int roleId) => "${getBaseUrl()}/api/Roles/$roleId";
   static String exitChatEndpoint(int conversationId, int userId) => '${getBaseUrl()}/api/Chat/exit-chat?conversationId=$conversationId&userId=$userId';
   static String unreadCountEndpoint(int conversationId, int userId) =>  '${getBaseUrl()}/api/Chat/unread-count?conversationId=$conversationId&userId=$userId';  
+  static String getAddressEndpoint(int addressId) => "${getBaseUrl()}/api/Address/$addressId";
+
 }

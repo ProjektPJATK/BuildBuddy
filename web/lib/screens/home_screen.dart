@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:web/screens/employees_screen.dart';
+import 'package:web/screens/teams_screen.dart';
 import 'projects_screens.dart';
 import 'reports_screens.dart';
 import 'tasks_screen.dart';
@@ -113,7 +113,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: GestureDetector(
                               onTap: () {final loggedInUserId = getLoggedInUserId();
                               if (loggedInUserId != null) {
-                                 print('Logged in user ID: $loggedInUserId');
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
