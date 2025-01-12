@@ -1,4 +1,4 @@
-﻿
+﻿﻿
 using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using Microsoft.AspNetCore.JsonPatch;
@@ -103,7 +103,7 @@ namespace BuildBuddy.WebApi.Controllers;
             }
 
             var token = _userService.GenerateJwtToken(user);
-            return Ok(new { token, user.Id, user.RoleId});
+            return Ok(new { token, user.Id });
         }
         
         [HttpPost("{userId}/upload-image")]
@@ -133,4 +133,3 @@ namespace BuildBuddy.WebApi.Controllers;
         }
 
     }
-
