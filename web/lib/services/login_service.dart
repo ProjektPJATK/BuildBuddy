@@ -55,7 +55,7 @@ class LoginService {
         return LoginResponse(
           token: token,
           userId: userId,
-          roleId: null, // RoleId nie jest już jednoznaczne, można usunąć z modelu, jeśli niepotrzebne
+          rolesInTeams: teamsWithPowerLevels, // Dodajemy listę ról z powerLevel
         );
       } else {
         throw Exception('Failed to log in: ${response.statusCode}');

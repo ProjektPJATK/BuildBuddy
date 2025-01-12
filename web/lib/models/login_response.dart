@@ -1,19 +1,24 @@
 class LoginResponse {
   final String token;
   final int userId;
-  final int roleId;
+  final List<Map<String, dynamic>> rolesInTeams;
 
   LoginResponse({
     required this.token,
     required this.userId,
-    required this.roleId,
+    required this.rolesInTeams,
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
       token: json['token'],
       userId: json['userId'],
-      roleId: json['roleId'],
+      rolesInTeams: (json['rolesInTeams'] as List<dynamic>).map((role) {
+        return {
+          'teamId': role['teamId'],
+          'powerLevel': role['powerLevel'],
+        };
+      }).toList(),
     );
   }
 
@@ -21,7 +26,7 @@ class LoginResponse {
     return {
       'token': token,
       'userId': userId,
-      'roleId': roleId,
+      'rolesInTeams': rolesInTeams,
     };
   }
 }
