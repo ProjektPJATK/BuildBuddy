@@ -123,7 +123,7 @@ public class RoleService : IRoleService
             includeProperties: "User"
         );
 
-        return users;
+        return users.DistinctBy(u => u.Id).ToList();
     }
 }
 
