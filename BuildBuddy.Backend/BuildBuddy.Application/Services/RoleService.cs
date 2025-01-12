@@ -82,6 +82,23 @@ public class RoleService : IRoleService
 
     public async Task AssignRoleToUserInTeamAsync(int userId, int roleId, int teamId)
     {
+        var userInTeam = await _dbContext.TeamUsers.GetAsync(
+            filter: tu => tu.UserId == userId && tu.TeamId == teamId
+        );
+
+        if (!userInTeam.Any())
+        {
+            throw new Exception("User is not part of the specified team.");
+        }
+        
+        var existingRoleAssignment = await _dbContext.TeamUserRoles.GetAsync(
+            filter: tur => tur.UserId == userId && tur.RoleId == roleId && tur.TeamId == teamId
+        );
+
+        if (existingRoleAssignment.Any())
+        {
+            throw new Exception("Role is already assigned to the user in this team.");
+        }
         var teamUserRole = new TeamUserRole
         {
             UserId = userId,

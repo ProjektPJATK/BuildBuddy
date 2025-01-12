@@ -79,5 +79,11 @@ namespace BuildBuddy.WebApi.Controllers;
             }
             return Ok(images);
         }
+        [HttpPost("{id}/toggle-status")]
+        public async Task<IActionResult> ToggleJobActualizationStatus(int id)
+        {
+            await _jobActualizationService.ToggleJobActualizationStatusAsync(id);
+            return NoContent();
+        }
     }
 

@@ -12,4 +12,5 @@ public interface IJobActualizationService
     Task AddJobImageAsync(int taskId, Stream imageStream, string imageName);
     Task<IEnumerable<string>> GetJobImagesAsync(int taskId);
     Task RemoveJobImageAsync(int taskId, string imageUrl);
+    Task ToggleJobActualizationStatusAsync(int jobActualizationId);
 }
