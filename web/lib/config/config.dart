@@ -53,5 +53,15 @@ class AppConfig {
   // New Endpoint for Job Actualization by User ID and Address
   static String getUserJobActualizationByAddress(int userId, int addressId) =>
       '${getBaseUrl()}/api/Job/user/$userId/address/$addressId';
+       static String getAddressEndpoint(int addressId) => "${getBaseUrl()}/api/Address/$addressId";
+
+       // Fetch jobs by address ID
+static String getJobsByAddressEndpoint(int addressId) =>
+    '${getBaseUrl()}/api/Job/address/$addressId';
+
+// Toggle job actualization status
+static String toggleJobActualizationStatusEndpoint(int id) =>
+    '${getBaseUrl()}/api/JobActualization/$id/toggle-status';
+
 }
   
