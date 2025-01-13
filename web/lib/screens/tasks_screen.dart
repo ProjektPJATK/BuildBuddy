@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart';
 import 'package:web/config/config.dart';
 import 'package:web/services/task_service.dart';
 import 'package:web/themes/styles.dart';
+import 'package:universal_html/html.dart' as html;
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -24,47 +27,53 @@ class _TasksScreenState extends State<TasksScreen> {
     _fetchData();
   }
 
-  Future<void> _fetchData() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _isError = false;
-      });
+  Map<int, int> teamPowerLevels = {}; // Store power levels for teams
 
-      final userId = window.localStorage['userId'];
-      if (userId == null) throw Exception('User ID is missing from localStorage.');
+Future<void> _fetchData() async {
+  try {
+    setState(() {
+      _isLoading = true;
+      _isError = false;
+    });
 
-      addresses = await TaskService.getAddressesForUser(int.parse(userId));
-      print('[UI] Addresses fetched: $addresses');
+    // Fetch and parse power levels
+    teamPowerLevels = getTeamPowerLevels();
+    print('Team Power Levels: $teamPowerLevels');
 
-      for (final address in addresses) {
-        final addressId = address['addressId'];
-        final tasks = await TaskService.fetchTasksByAddress(addressId);
-        jobs[addressId] = tasks;
+    final userId = window.localStorage['userId'];
+    if (userId == null) throw Exception('User ID is missing from localStorage.');
 
-        for (final job in tasks) {
-          final jobId = job['id'];
-          try {
-            final jobActualizations = await TaskService.fetchJobActualizations(jobId);
-            actualizations[jobId] = jobActualizations;
-            print('[UI] Job Actualizations for Job ID: $jobId: $jobActualizations');
-          } catch (e) {
-            actualizations[jobId] = [];
-            print('[UI] No actualizations found for Job ID: $jobId');
-          }
+    addresses = await TaskService.getAddressesForUser(int.parse(userId));
+    print('[UI] Addresses fetched: $addresses');
+
+    for (final address in addresses) {
+      final addressId = address['addressId'];
+      final tasks = await TaskService.fetchTasksByAddress(addressId);
+      jobs[addressId] = tasks;
+
+      for (final job in tasks) {
+        final jobId = job['id'];
+        try {
+          final jobActualizations = await TaskService.fetchJobActualizations(jobId);
+          actualizations[jobId] = jobActualizations;
+          print('[UI] Job Actualizations for Job ID: $jobId: $jobActualizations');
+        } catch (e) {
+          actualizations[jobId] = [];
+          print('[UI] No actualizations found for Job ID: $jobId');
         }
       }
-    } catch (e) {
-      setState(() {
-        _isError = true;
-      });
-      print('Error fetching data: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
+  } catch (e) {
+    setState(() {
+      _isError = true;
+    });
+    print('Error fetching data: $e');
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
   }
+}
 
   Future<void> _reloadDataForJob(int jobId) async {
     try {
@@ -258,67 +267,107 @@ class _TasksScreenState extends State<TasksScreen> {
   );
 }
 
+Future<void> _manageUsers(int jobId, int addressId) async {
+  try {
+    final assignedUsers = await TaskService.fetchAssignedUsers(jobId);
+    final allTeammates = await TaskService.fetchTeamMembers(addressId);
+    final availableUsers = allTeammates
+        .where((user) => !assignedUsers.any((assigned) => assigned['id'] == user['id']))
+        .toList();
 
-  Future<void> _assignUser(int jobId, int teamId) async {
-    try {
-      final teammates = await TaskService.fetchTeammates(teamId);
-      int? selectedUserId;
-      String selectedUserName = "Select a user";
+    List<int> selectedUserIds = [];
+    List<Map<String, dynamic>> selectedUsers = [];
 
-      await showDialog(
-        context: context,
-        builder: (context) => StatefulBuilder(
-          builder: (context, setState) => AlertDialog(
-            title: const Text('Assign User'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButton<int>(
-                  value: selectedUserId,
-                  isExpanded: true,
-                  hint: Text(selectedUserName),
-                  items: teammates.map((user) {
-                    return DropdownMenuItem<int>(
-                      value: user['id'],
-                      child: Text('${user['name']} ${user['surname']}'),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedUserId = value;
-                      final selectedUser = teammates.firstWhere((user) => user['id'] == value);
-                      selectedUserName = '${selectedUser['name']} ${selectedUser['surname']}';
-                    });
-                  },
-                ),
-              ],
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Manage Users'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Show Assigned Users with Delete Option
+                  if (assignedUsers.isNotEmpty)
+                    ...assignedUsers.map((user) {
+                      return ListTile(
+                        title: Text('${user['name']} ${user['surname']}'),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Color.fromARGB(255, 0, 0, 0)),
+                          onPressed: () async {
+                            await TaskService.deleteUserFromJob(jobId, user['id']);
+                            setState(() {
+                              assignedUsers.remove(user);
+                              availableUsers.add(user);
+                            });
+                            await _reloadDataForJob(jobId);
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  const Divider(), // Separator between assigned users and add user section
+                  // Add Unassigned Users Section
+                  if (availableUsers.isNotEmpty)
+                    ...availableUsers.map((user) {
+                      final isSelected = selectedUserIds.contains(user['id']);
+                      return CheckboxListTile(
+                        title: Text('${user['name']} ${user['surname']}'),
+                        value: isSelected,
+                        onChanged: (value) {
+                          setState(() {
+                            if (value == true) {
+                              selectedUserIds.add(user['id']);
+                              selectedUsers.add(user);
+                            } else {
+                              selectedUserIds.remove(user['id']);
+                              selectedUsers.removeWhere((u) => u['id'] == user['id']);
+                            }
+                          });
+                        },
+                      );
+                    }).toList(),
+                ],
+              ),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Cancel'),
               ),
-              TextButton(
+              ElevatedButton(
                 onPressed: () async {
-                  if (selectedUserId != null) {
-                    await TaskService.assignUserToTask(jobId, selectedUserId!);
-                    Navigator.pop(context);
+                  if (selectedUserIds.isNotEmpty) {
+                    for (int userId in selectedUserIds) {
+                      await TaskService.assignUserToTask(jobId, userId);
+                      final assignedUser =
+                          availableUsers.firstWhere((user) => user['id'] == userId);
+                      setState(() {
+                        availableUsers.remove(assignedUser);
+                        assignedUsers.add(assignedUser);
+                      });
+                    }
+                    selectedUserIds.clear();
+                    selectedUsers.clear();
                     await _reloadDataForJob(jobId);
                   }
                 },
-                child: const Text('Assign'),
+                child: const Text('Add Selected Users'),
               ),
             ],
-          ),
-        ),
-      );
-    } catch (e) {
-      print('Error assigning user to job ID $jobId: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to assign user: $e')),
-      );
-    }
+          );
+        },
+      ),
+    );
+  } catch (e) {
+    print('Error managing users for job ID $jobId: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to manage users: $e')),
+    );
   }
+}
+
+
 
   Widget _buildImageList(List<String> images) {
     return images.isNotEmpty
@@ -376,6 +425,7 @@ return Scaffold(
       children: addresses.map((address) {
         final addressId = address['addressId'];
         final addressJobs = jobs[addressId] ?? [];
+        final teamId = address['teamId'];
 
         return Card(
           color: AppStyles.transparentWhite, // Apply semi-transparent background for cards
@@ -409,16 +459,17 @@ return Scaffold(
                           children: [
                             IconButton(
                               icon: const Icon(Icons.person_add, color: AppStyles.primaryBlue), // Icon color
-                              onPressed: () {
-                                final teamId = address['teamId'];
-                                if (teamId != null) {
-                                  _assignUser(jobId, teamId);
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Team ID not found for this job.')),
-                                  );
-                                }
-                              },
+                             onPressed: () {
+  final addressId = address['addressId']; // Correctly fetch addressId instead of teamId
+  if (addressId != null) {
+    _manageUsers(jobId, addressId); // Pass the correct addressId to _assignUser
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Address ID not found for this job.')), // Updated message
+    );
+  }
+},
+
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Color.fromARGB(255, 7, 7, 7)), // Delete icon in red
@@ -480,4 +531,42 @@ return Scaffold(
 
 
 }
+int getUserPowerLevel(int teamId) {
+  final String? powerLevelsJson = html.window.localStorage['teamsWithPowerLevels'];
+  if (powerLevelsJson == null || powerLevelsJson.isEmpty) {
+    return 0; // No power level found
+  }
+
+  try {
+    final List<dynamic> teamsWithPowerLevels = json.decode(powerLevelsJson);
+    final team = teamsWithPowerLevels.firstWhere(
+      (entry) => entry['teamId'] == teamId,
+      orElse: () => null,
+    );
+
+    if (team != null && team['powerLevel'] != null) {
+      return int.tryParse(team['powerLevel'].toString()) ?? 0;
+    }
+  } catch (e) {
+    print('Error fetching user power level: $e');
+  }
+  return 0; // Default to no privileges
+}
+
+Map<int, int> getTeamPowerLevels() {
+  final String? powerLevelsJson = html.window.localStorage['teamsWithPowerLevels'];
+  if (powerLevelsJson == null || powerLevelsJson.isEmpty) {
+    return {}; // Return an empty map if nothing is stored
+  }
+
+  try {
+    final List<dynamic> teamsWithPowerLevels = json.decode(powerLevelsJson);
+    return {for (var entry in teamsWithPowerLevels) entry['teamId']: entry['powerLevel']};
+  } catch (e) {
+    print('Error parsing team power levels: $e');
+    return {};
+  }
+}
+
+
 }

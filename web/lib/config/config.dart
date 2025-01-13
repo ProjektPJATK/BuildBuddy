@@ -70,6 +70,15 @@ static String toggleJobActualizationStatusEndpoint(int id) =>
      static String postJobEndpoint() => "${getBaseUrl()}/api/Job";
      static String deleteJobEndpoint(int jobId) => '${getBaseUrl()}/api/Job/$jobId';
 
+       static String getTeamMembersEndpoint(int addressId) => 
+      '${getBaseUrl()}/api/Address/$addressId/teammembers';
+
+  static String deleteUserFromJobEndpoint(int jobId, int userId) =>
+      '${getBaseUrl()}/api/Job/$jobId/user/$userId';
+
+static String getAssignedUsersEndpoint(int jobId) =>
+    '${getBaseUrl()}/api/User/job/$jobId';
+
 
 
 }

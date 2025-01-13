@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:html'; // For HttpRequest and localStorage
 import 'package:web/config/config.dart';
+import 'package:universal_html/html.dart' as html;
 
 class TaskService {
   // Fetch tasks by address ID
@@ -39,6 +40,7 @@ class TaskService {
     rethrow;
   }
 }
+
 
 
 static Future<int> addJob({
@@ -90,62 +92,64 @@ static Future<int> addJob({
 
 
 
-  // Fetch teammates for a specific team
-  static Future<List<Map<String, dynamic>>> fetchTeammates(int teamId) async {
-    final url = AppConfig.getTeammatesEndpoint(teamId);
-    print('[TaskService] Fetching teammates for team ID: $teamId at $url');
+  // Fetch team members for a specific address
+static Future<List<Map<String, dynamic>>> fetchTeamMembers(int addressId) async {
+  final url = AppConfig.getTeamMembersEndpoint(addressId);
+  print('[TaskService] Fetching team members for address ID: $addressId at $url');
 
-    try {
-      final response = await HttpRequest.request(
-        url,
-        method: 'GET',
-        requestHeaders: {'Content-Type': 'application/json'},
-      );
+  try {
+    final response = await HttpRequest.request(
+      url,
+      method: 'GET',
+      requestHeaders: {'Content-Type': 'application/json'},
+    );
 
-      if (response.status == 200) {
-        final List<dynamic> data = json.decode(response.responseText!);
-        print('[TaskService] Teammates fetched successfully: ${data.length}');
+    if (response.status == 200) {
+      final List<dynamic> data = json.decode(response.responseText!);
+      print('[TaskService] Team members fetched successfully: ${data.length}');
 
-        return data.map<Map<String, dynamic>>((user) {
-          return {
-            'id': user['id'], // User ID
-            'name': user['name'], // First name
-            'surname': user['surname'], // Surname
-          };
-        }).toList();
-      } else {
-        print('[TaskService] Failed to fetch teammates. Status: ${response.status}');
-        throw Exception('Failed to fetch teammates for team ID: $teamId');
-      }
-    } catch (e) {
-      print('[TaskService] Error fetching teammates: $e');
-      rethrow;
+      return data.map<Map<String, dynamic>>((user) {
+        return {
+          'id': user['id'], // User ID
+          'name': user['name'], // First name
+          'surname': user['surname'], // Surname
+          'email': user['mail'], // Email (if needed)
+        };
+      }).toList();
+    } else {
+      print('[TaskService] Failed to fetch team members. Status: ${response.status}');
+      throw Exception('Failed to fetch team members for address ID: $addressId');
     }
+  } catch (e) {
+    print('[TaskService] Error fetching team members: $e');
+    rethrow;
   }
+}
 
-  // Assign a user to a task
-  static Future<void> assignUserToTask(int taskId, int userId) async {
-    final url = AppConfig.assignTaskEndpoint(taskId, userId);
-    print('[TaskService] Assigning user ID $userId to task ID $taskId at $url');
 
-    try {
-      final response = await HttpRequest.request(
-        url,
-        method: 'POST',
-        requestHeaders: {'Content-Type': 'application/json'},
-      );
+ static Future<void> assignUserToTask(int taskId, int userId) async {
+  final url = '${AppConfig.getBaseUrl()}/api/Job/assign?taskId=$taskId&userId=$userId';
+  print('[TaskService] Assigning user ID $userId to task ID $taskId at $url');
 
-      if (response.status == 200 && response.status ==204) {
-        print('[TaskService] Successfully assigned user ID $userId to task ID $taskId');
-      } else {
-        print('[TaskService] Failed to assign user. Status: ${response.status}');
-        throw Exception('Failed to assign user to task');
-      }
-    } catch (e) {
-      print('[TaskService] Error assigning user to task: $e');
-      rethrow;
+  try {
+    final response = await HttpRequest.request(
+      url,
+      method: 'POST', // Ensure you are using the correct HTTP method
+      requestHeaders: {'Content-Type': 'application/json'},
+    );
+
+    if (response.status == 200 || response.status == 204) {
+      print('[TaskService] Successfully assigned user ID $userId to task ID $taskId');
+    } else {
+      print('[TaskService] Failed to assign user. Status: ${response.status}');
+      throw Exception('Failed to assign user ID $userId to task ID $taskId');
     }
+  } catch (e) {
+    print('[TaskService] Error assigning user to task: ${e.toString()}');
+    rethrow; // Re-throw the error after logging it
   }
+}
+
 
   // Toggle job actualization status
 static Future<void> toggleJobActualizationStatus(int id) async {
@@ -306,6 +310,68 @@ static Future<void> deleteJob(int jobId) async {
     throw Exception('Failed to delete job. Status code: ${response.status}');
   }
 }
+
+  // Fetch Assigned Users for a Job
+  static Future<List<Map<String, dynamic>>> fetchAssignedUsers(int jobId) async {
+    final url = AppConfig.getAssignedUsersEndpoint(jobId);
+    print('[TaskService] Fetching assigned users for Job ID: $jobId at $url');
+
+    try {
+      final response = await HttpRequest.request(
+        url,
+        method: 'GET',
+        requestHeaders: {'Content-Type': 'application/json'},
+      );
+
+      if (response.status == 200) {
+        final List<dynamic> data = json.decode(response.responseText!);
+        print('[TaskService] Assigned users fetched successfully: ${data.length}');
+
+        return data.map<Map<String, dynamic>>((user) {
+          return {
+            'id': user['id'], // User ID
+            'name': user['name'], // First name
+            'surname': user['surname'], // Surname
+            'email': user['email'], // Email
+          };
+        }).toList();
+      } else if (response.status == 204) {
+        print('[TaskService] No assigned users found for Job ID: $jobId');
+        return []; // Return an empty list for 204 responses
+      } else {
+        print('[TaskService] Failed to fetch assigned users. Status: ${response.status}');
+        throw Exception('Failed to fetch assigned users for Job ID: $jobId');
+      }
+    } catch (e) {
+      print('[TaskService] Error fetching assigned users: $e');
+      rethrow;
+    }
+  }
+
+  // Delete User from a Job
+  static Future<void> deleteUserFromJob(int jobId, int userId) async {
+    final url = AppConfig.deleteUserFromJobEndpoint(jobId, userId);
+    print('[TaskService] Deleting user ID: $userId from Job ID: $jobId at $url');
+
+    try {
+      final response = await HttpRequest.request(
+        url,
+        method: 'DELETE',
+        requestHeaders: {'Content-Type': 'application/json'},
+      );
+
+      if (response.status == 200 || response.status == 204) {
+        print('[TaskService] Successfully deleted user ID: $userId from Job ID: $jobId');
+      } else {
+        print('[TaskService] Failed to delete user. Status: ${response.status}');
+        throw Exception('Failed to delete user ID: $userId from Job ID: $jobId');
+      }
+    } catch (e) {
+      print('[TaskService] Error deleting user from Job ID: $jobId: $e');
+      rethrow;
+    }
+  }
+
 
 
 }
