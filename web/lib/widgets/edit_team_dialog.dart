@@ -1,17 +1,69 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:web/config/config.dart';
+import 'package:web/services/teams_service.dart';
 
 class EditTeamDialog extends StatelessWidget {
+  final int teamId; // Dodano teamId
   final String teamName;
   final Map<String, String> addressData;
   final Function(String, Map<String, String>) onSubmit;
   final VoidCallback onCancel;
 
   EditTeamDialog({
+    required this.teamId, // Oczekiwany parametr
     required this.teamName,
     required this.addressData,
     required this.onSubmit,
     required this.onCancel,
   });
+
+
+  void _showDeleteConfirmation(BuildContext context) async {
+    final TeamsService teamsService = TeamsService();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Usuń Team'),
+        content: Text('Czy na pewno chcesz usunąć ten team?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('Anuluj'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+                await teamsService.deleteTeam(teamId);
+                Navigator.pop(context); // Zamknięcie dialogu potwierdzenia
+                Navigator.pop(context); // Zamknięcie dialogu edycji
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Team został pomyślnie usunięty.'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } catch (e) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Nie udało się usunąć teamu: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            child: Text('Usuń'),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +76,16 @@ class EditTeamDialog extends StatelessWidget {
     final TextEditingController postalCodeController = TextEditingController(text: addressData['postalCode']);
 
     return AlertDialog(
-      title: Text('Edytuj Team'),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('Edytuj Team'),
+          IconButton(
+            icon: Icon(Icons.delete, color: Colors.red),
+            onPressed: () => _showDeleteConfirmation(context),
+          ),
+        ],
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -84,5 +145,27 @@ class EditTeamDialog extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+extension TeamsServiceExtensions on TeamsService {
+  Future<void> deleteTeam(int teamId) async {
+    final client = HttpClient();
+    try {
+      final url = '${AppConfig.getBaseUrl()}/api/Team/$teamId';
+      final request = await client.deleteUrl(Uri.parse(url));
+      final response = await request.close();
+
+      if (response.statusCode == 204) {
+        print('Team deleted successfully.');
+      } else {
+        throw Exception('Failed to delete team: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error deleting team: $e');
+      rethrow;
+    } finally {
+      client.close();
+    }
   }
 }

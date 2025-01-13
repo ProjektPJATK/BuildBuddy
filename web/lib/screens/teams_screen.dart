@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:web/widgets/add_project_dialog.dart';
 import 'package:web/services/teams_service.dart';
 import 'package:web/widgets/add_user_dialog.dart';
-import 'package:web/widgets/edit_item_dialog.dart';
+import 'package:web/widgets/edit_team_dialog.dart';
 
 class TeamsScreen extends StatefulWidget {
   final int loggedInUserId;
@@ -152,15 +152,15 @@ void _showEditTeamDialog(BuildContext context, Map<String, dynamic> team) {
   showDialog(
     context: context,
     builder: (context) => EditTeamDialog(
+      teamId: team['id'], // Przekazanie teamId
       teamName: team['name'],
       addressData: team['address'] as Map<String, String>,
       onSubmit: (updatedName, updatedAddress) async {
-        final teamId = team['id'];
         final addressId = team['addressId'];
 
         try {
           await _teamsService.updateAddress(addressId, updatedAddress);
-          await _teamsService.updateTeam(teamId, updatedName, addressId);
+          await _teamsService.updateTeam(team['id'], updatedName, addressId);
 
           _showSuccessNotification(context, 'Team został pomyślnie zaktualizowany.');
           _fetchTeams(); // Odświeżenie listy zespołów
@@ -175,6 +175,7 @@ void _showEditTeamDialog(BuildContext context, Map<String, dynamic> team) {
     ),
   );
 }
+
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,4 @@
+// Plik AddProjectDialog
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart' as html;
@@ -87,6 +88,14 @@ class AddProjectDialog extends StatelessWidget {
               if (userId > 0) {
                 await teamsService.addUserToTeam(teamId, userId);
                 print('User $userId added to team $teamId');
+
+                // Krok 4: Przypisanie roli użytkownikowi w zespole
+                await teamsService.addRoleToUserInTeam(
+                  userId: userId,
+                  teamId: teamId,
+                  roleId: 2, // Domyślna rola
+                );
+                print('Role assigned to user $userId in team $teamId');
               } else {
                 print('Error: User ID not found in localStorage');
               }
