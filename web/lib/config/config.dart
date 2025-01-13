@@ -3,6 +3,9 @@ class AppConfig {
   static const String backendPort = "5159";
   static const String backendChatPort = "5088";
 
+
+static const String s3BaseUrl = "https://buildbuddybucket.s3.amazonaws.com";
+
   static String getBaseUrl() => "http://$backendIP:$backendPort";
   static String getChatUrl() => "http://$backendIP:$backendChatPort";
 
@@ -62,6 +65,12 @@ static String getJobsByAddressEndpoint(int addressId) =>
 // Toggle job actualization status
 static String toggleJobActualizationStatusEndpoint(int id) =>
     '${getBaseUrl()}/api/JobActualization/$id/toggle-status';
+    static String assignTaskEndpoint(int taskId, int userId) =>
+    '${getBaseUrl()}/api/Job/assign?taskId=$taskId&userId=$userId';
+     static String postJobEndpoint() => "${getBaseUrl()}/api/Job";
+     static String deleteJobEndpoint(int jobId) => '${getBaseUrl()}/api/Job/$jobId';
+
+
 
 }
   
