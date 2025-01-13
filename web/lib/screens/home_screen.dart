@@ -19,9 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Nasłuchiwanie strzałki wstecz w przeglądarce
     html.window.onPopState.listen((event) {
-      // Przywracanie bieżącego stanu
       if (ModalRoute.of(context)?.isCurrent ?? false) {
         html.window.history.pushState(null, '', '/home');
         print('Cofanie do logowania zablokowane.');
@@ -31,13 +29,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _logout(BuildContext context) {
     print('Logging out user.');
-    // Usunięcie ciasteczek
     html.document.cookie = 'userToken=; path=/; max-age=0';
-    // Usunięcie localStorage
     html.window.localStorage.remove('userToken');
     html.window.localStorage.remove('userId');
     html.window.localStorage.remove('powerLevel');
-    // Przekierowanie na ekran logowania
     Navigator.pushReplacementNamed(context, '/');
   }
 
@@ -46,7 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final isLoggedIn = cookies.any((cookie) => cookie.startsWith('userToken='));
 
     if (!isLoggedIn) {
-      // Przekierowanie na ekran logowania, jeśli użytkownik nie jest zalogowany
       Navigator.pushReplacementNamed(context, '/');
     }
   }
@@ -59,9 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return WillPopScope(
       onWillPop: () async {
-        // Blokowanie cofania w aplikacji Flutter
         print('Cofanie do logowania zablokowane przez WillPopScope.');
-        return false; // Uniemożliwienie cofania
+        return false;
       },
       child: Scaffold(
         body: Center(
@@ -111,20 +104,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Expanded(
                             child: GestureDetector(
-                              onTap: () {final loggedInUserId = getLoggedInUserId();
-                              if (loggedInUserId != null) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => TeamsScreen(loggedInUserId: loggedInUserId),
-                                  ),
-                                );
-                              } else {
-                                print('Error: Logged in user ID not found: $loggedInUserId');
-                              }
-                            },
-                              child: _buildButton(context, 'Teams', Icons.people,
-                                  const Color.fromARGB(87, 61, 70, 192)),
+                              onTap: () {
+                                final loggedInUserId = getLoggedInUserId();
+                                if (loggedInUserId != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => TeamsScreen(loggedInUserId: loggedInUserId),
+                                    ),
+                                  );
+                                } else {
+                                  print('Error: Logged in user ID not found: $loggedInUserId');
+                                }
+                              },
+                              child: _buildButton(
+                                context,
+                                'Teams and Projects',
+                                Icons.people, // Ikonka ludzi
+                                Icons.apartment, // Ikonka budynku
+                                const Color.fromARGB(87, 61, 70, 192),
+                              ),
                             ),
                           ),
                           Expanded(
@@ -133,8 +132,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 context,
                                 MaterialPageRoute(builder: (context) => TasksScreen()),
                               ),
-                              child: _buildButton(context, 'Tasks', Icons.task,
-                                  const Color.fromARGB(36, 38, 132, 209)),
+                              child: _buildButton(
+                                context,
+                                'Tasks',
+                                Icons.task,
+                                null,
+                                const Color.fromARGB(36, 38, 132, 209),
+                              ),
                             ),
                           ),
                           Expanded(
@@ -143,8 +147,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 context,
                                 MaterialPageRoute(builder: (context) => ProjectsScreen()),
                               ),
-                              child: _buildButton(context, 'Projects', Icons.apartment,
-                                  const Color.fromARGB(106, 33, 149, 243)),
+                              child: _buildButton(
+                                context,
+                                'Projects',
+                                Icons.apartment,
+                                null,
+                                const Color.fromARGB(106, 33, 149, 243),
+                              ),
                             ),
                           ),
                           Expanded(
@@ -153,8 +162,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 context,
                                 MaterialPageRoute(builder: (context) => ReportsScreen()),
                               ),
-                              child: _buildButton(context, 'Reports', Icons.report,
-                                  const Color.fromARGB(255, 76, 135, 175)),
+                              child: _buildButton(
+                                context,
+                                'Reports',
+                                Icons.report,
+                                null,
+                                const Color.fromARGB(255, 76, 135, 175),
+                              ),
                             ),
                           ),
                         ],
@@ -184,7 +198,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildButton(BuildContext context, String title, IconData icon, Color color) {
+  Widget _buildButton(
+    BuildContext context,
+    String title,
+    IconData mainIcon,
+    IconData? secondaryIcon,
+    Color color,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8.0),
       height: 100,
@@ -202,7 +222,17 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 32, color: Colors.white),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(mainIcon, size: 32, color: Colors.white),
+              if (secondaryIcon != null)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Icon(secondaryIcon, size: 32, color: Colors.white),
+                ),
+            ],
+          ),
           const SizedBox(height: 8),
           Text(
             title,

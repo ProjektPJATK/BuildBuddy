@@ -3,12 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:web/services/login_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'dart:ui' as ui;
+import 'dart:async';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final loginService = LoginService();
   final bool isLoggedIn = await Future.delayed(Duration.zero, loginService.isLoggedIn);
   runApp(BuildBuddyApp(isLoggedIn: isLoggedIn));
+
+  html.window.addEventListener('error', (event) {
+    if (event is html.ErrorEvent) {
+      final errorMessage = event.message ?? '';
+      if (errorMessage.contains('The targeted input element must be the active input element')) {
+        print('Zignorowano błąd PointerBinding: $errorMessage');
+      } else {
+        print('Inny błąd: $errorMessage');
+      }
+    }
+  });
+  
 }
 
 class BuildBuddyApp extends StatelessWidget {
