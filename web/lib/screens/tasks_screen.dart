@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart';
 import 'package:web/config/config.dart';
 import 'package:web/services/task_service.dart';
+import 'package:web/themes/styles.dart';
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -52,20 +53,6 @@ class _TasksScreenState extends State<TasksScreen> {
             print('[UI] No actualizations found for Job ID: $jobId');
           }
         }
-
-       
-jobs[addressId] = tasks;
-
-for (final job in tasks) {
-  final jobId = job['id']; // Job ID
-  final teamId = job['addressId']; // Fetch teamId directly from the job data
-  if (teamId != null) {
-    print('[UI] Team ID for Job ID $jobId: $teamId');
-  } else {
-    print('[UI] Team ID not found for Job ID $jobId');
-  }
-}
-
       }
     } catch (e) {
       setState(() {
@@ -128,29 +115,38 @@ for (final job in tasks) {
     }
   }
 
-  Future<void> _addTask(int addressId) async {
-    final nameController = TextEditingController();
-    final messageController = TextEditingController();
-    DateTime? startTime, endTime;
+ Future<void> _addTask(int addressId) async {
+  final nameController = TextEditingController();
+  final messageController = TextEditingController();
+  DateTime? startTime, endTime;
 
-    await showDialog(
-      context: context,
-      builder: (context) {
-        bool allDay = false;
-        return StatefulBuilder(
-          builder: (context, setState) => AlertDialog(
-            title: const Text('Add Task'),
-            content: Column(
+  await showDialog(
+    context: context,
+    builder: (context) {
+      bool allDay = false;
+      return StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: AppStyles.transparentWhite, // Apply transparent background
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0), // Rounded corners for dialog
+          ),
+          title: const Text('Add Task', style: AppStyles.headerStyle), // Styled title
+          content: SingleChildScrollView(
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Name'),
+                  decoration: AppStyles.inputFieldStyle(hintText: 'Name'), // Styled input field
+                  cursorColor: AppStyles.cursorColor,
                 ),
+                const SizedBox(height: 10),
                 TextField(
                   controller: messageController,
-                  decoration: const InputDecoration(labelText: 'Message'),
+                  decoration: AppStyles.inputFieldStyle(hintText: 'Message'), // Styled input field
+                  cursorColor: AppStyles.cursorColor,
                 ),
+                const SizedBox(height: 20),
                 Row(
                   children: [
                     TextButton(
@@ -165,6 +161,7 @@ for (final job in tasks) {
                           setState(() => startTime = date);
                         }
                       },
+                      style: AppStyles.textButtonStyle(), // Styled button
                       child: const Text('Start Time'),
                     ),
                     const SizedBox(width: 10),
@@ -172,9 +169,11 @@ for (final job in tasks) {
                       startTime != null
                           ? '${startTime!.year}-${startTime!.month.toString().padLeft(2, '0')}-${startTime!.day.toString().padLeft(2, '0')}'
                           : 'Select Start Time',
+                      style: AppStyles.textStyle, // Styled text
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     TextButton(
@@ -189,6 +188,7 @@ for (final job in tasks) {
                           setState(() => endTime = date);
                         }
                       },
+                      style: AppStyles.textButtonStyle(), // Styled button
                       child: const Text('End Time'),
                     ),
                     const SizedBox(width: 10),
@@ -196,9 +196,11 @@ for (final job in tasks) {
                       endTime != null
                           ? '${endTime!.year}-${endTime!.month.toString().padLeft(2, '0')}-${endTime!.day.toString().padLeft(2, '0')}'
                           : 'Select End Time',
+                      style: AppStyles.textStyle, // Styled text
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     Checkbox(
@@ -209,49 +211,53 @@ for (final job in tasks) {
                         });
                       },
                     ),
-                    const Text('All Day'),
+                    const Text('All Day', style: AppStyles.textStyle), // Styled text
                   ],
                 ),
               ],
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  if (nameController.text.isNotEmpty &&
-                      messageController.text.isNotEmpty &&
-                      startTime != null &&
-                      endTime != null) {
-                    final adjustedStartTime = allDay
-                        ? DateTime(startTime!.year, startTime!.month, startTime!.day, 0, 0, 0).toUtc()
-                        : startTime!.toUtc();
-                    final adjustedEndTime = allDay
-                        ? DateTime(endTime!.year, endTime!.month, endTime!.day, 23, 59, 59).toUtc()
-                        : endTime!.toUtc();
-
-                    await TaskService.addJob(
-                      name: nameController.text,
-                      message: messageController.text,
-                      startTime: adjustedStartTime,
-                      endTime: adjustedEndTime,
-                      allDay: allDay,
-                      addressId: addressId,
-                    );
-                    Navigator.pop(context);
-                    await _fetchData();
-                  }
-                },
-                child: const Text('Add'),
-              ),
-            ],
           ),
-        );
-      },
-    );
-  }
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              style: AppStyles.textButtonStyle(), // Styled text button
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (nameController.text.isNotEmpty &&
+                    messageController.text.isNotEmpty &&
+                    startTime != null &&
+                    endTime != null) {
+                  final adjustedStartTime = allDay
+                      ? DateTime(startTime!.year, startTime!.month, startTime!.day, 0, 0, 0).toUtc()
+                      : startTime!.toUtc();
+                  final adjustedEndTime = allDay
+                      ? DateTime(endTime!.year, endTime!.month, endTime!.day, 23, 59, 59).toUtc()
+                      : endTime!.toUtc();
+
+                  await TaskService.addJob(
+                    name: nameController.text,
+                    message: messageController.text,
+                    startTime: adjustedStartTime,
+                    endTime: adjustedEndTime,
+                    allDay: allDay,
+                    addressId: addressId,
+                  );
+                  Navigator.pop(context);
+                  await _fetchData();
+                }
+              },
+              style: AppStyles.buttonStyle(), // Styled button
+              child: const Text('Add'),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 
   Future<void> _assignUser(int jobId, int teamId) async {
     try {
@@ -358,22 +364,31 @@ for (final job in tasks) {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Manage Tasks'),
-      ),
-      body: ListView(
-        children: addresses.map((address) {
-          final addressId = address['addressId'];
-          final addressJobs = jobs[addressId] ?? [];
+return Scaffold(
+  appBar: AppBar(
+    title: const Text('Manage Tasks'),
+    backgroundColor: Color.fromARGB(144, 81, 85, 87), // Apply primary blue to AppBar
+  ),
+  body: Container(
+    decoration: AppStyles.backgroundDecoration, // Apply background image
+    child: ListView(
+      padding: const EdgeInsets.all(16.0), // Add some padding for better spacing
+      children: addresses.map((address) {
+        final addressId = address['addressId'];
+        final addressJobs = jobs[addressId] ?? [];
 
-          return ExpansionTile(
+        return Card(
+          color: AppStyles.transparentWhite, // Apply semi-transparent background for cards
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0), // Rounded corners
+          ),
+          child: ExpansionTile(
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(address['name']),
+                Text(address['name'], style: AppStyles.headerStyle), // Use header style
                 IconButton(
-                  icon: const Icon(Icons.add),
+                  icon: const Icon(Icons.add, color: AppStyles.primaryBlue), // Change icon color
                   onPressed: () => _addTask(addressId),
                 ),
               ],
@@ -383,62 +398,86 @@ for (final job in tasks) {
               final jobActualizations = actualizations[jobId] ?? [];
 
               return ExpansionTile(
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(job['name']),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.person_add),
-                          onPressed: () {
-                            final teamId = address['teamId'];
-                            if (teamId != null) {
-                              _assignUser(jobId, teamId);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Team ID not found for this job.')),
-                              );
-                            }
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => _deleteJob(jobId, addressId),
+                        Text(job['name'], style: AppStyles.textStyle), // Use general text style
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.person_add, color: AppStyles.primaryBlue), // Icon color
+                              onPressed: () {
+                                final teamId = address['teamId'];
+                                if (teamId != null) {
+                                  _assignUser(jobId, teamId);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Team ID not found for this job.')),
+                                  );
+                                }
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Color.fromARGB(255, 7, 7, 7)), // Delete icon in red
+                              onPressed: () => _deleteJob(jobId, addressId),
+                            ),
+                          ],
                         ),
                       ],
                     ),
+                    if (jobActualizations.isNotEmpty) const Divider(color: Color.fromARGB(106, 0, 0, 0), thickness: 1, endIndent: 8, indent: 8, height: 16, ), // Divider after job title
                   ],
                 ),
                 children: jobActualizations.isEmpty
-                    ? [const ListTile(title: Text('No actualizations were posted'))]
-                    : jobActualizations.map((actualization) {
-                        final images = actualization['jobImageUrl'] as List<String>;
-                        return Column(
-                          children: [
-                            ListTile(
-                              title: Text(actualization['message']),
-                              trailing: IconButton(
-                                icon: Icon(
-                                  actualization['isDone']
-                                      ? Icons.check_circle
-                                      : Icons.radio_button_unchecked,
-                                  color: actualization['isDone'] ? Colors.green : Colors.grey,
+                    ? [
+                        const ListTile(
+                          title: Text('No actualizations were posted', style: AppStyles.textStyle), // Text style
+                        )
+                      ]
+                    : jobActualizations
+                        .map((actualization) {
+                          final images = actualization['jobImageUrl'] as List<String>;
+                          return Column(
+                            children: [
+                              ListTile(
+                                title: Text(actualization['message'], style: AppStyles.textStyle), // Text style
+                                trailing: IconButton(
+                                  icon: Icon(
+                                    actualization['isDone']
+                                        ? Icons.check_circle
+                                        : Icons.radio_button_unchecked,
+                                    color: actualization['isDone']
+                                        ? Color.fromARGB(255, 4, 169, 235)
+                                        : Colors.grey,
+                                  ),
+                                  onPressed: () async {
+                                    await _toggleJobActualizationStatus(
+                                      actualization['id'],
+                                      jobId,
+                                    );
+                                  },
                                 ),
-                                onPressed: () async {
-                                  await _toggleJobActualizationStatus(actualization['id'], jobId);
-                                },
                               ),
-                            ),
-                            _buildImageList(images),
-                          ],
-                        );
-                      }).toList(),
+                              _buildImageList(images),
+                            ],
+                          );
+                        })
+                        .toList()
+                        .expand((widget) => [widget, const Divider(color: Color.fromARGB(85, 0, 0, 0), thickness: 1, height: 16, indent: 8, endIndent: 8, )]) // Divider between actualizations
+                        .toList()
+                        .sublist(0, jobActualizations.length * 2 - 1), // Exclude last divider
               );
             }).toList(),
-          );
-        }).toList(),
-      ),
-    );
-  }
+          ),
+        );
+      }).toList(),
+    ),
+  ),
+);
+
+
+}
 }
