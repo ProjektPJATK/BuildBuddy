@@ -108,6 +108,12 @@ namespace BuildBuddy.Application.Services
             var team = await _dbContext.Teams.GetByID(id);
             if (team != null)
             {
+                var conversations = await _dbContext.Conversations.GetAsync(filter: c => c.TeamId == id);
+                foreach (var conversation in conversations)
+                {
+                    _dbContext.Conversations.Delete(conversation);
+                }
+
                 _dbContext.Teams.Delete(team);
                 await _dbContext.SaveChangesAsync();
             }

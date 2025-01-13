@@ -98,4 +98,11 @@ namespace BuildBuddy.WebApi.Controllers;
 
             return Ok(jobs);
         }
+        
+        [HttpDelete("{jobId}/user/{userId}")]
+        public async Task<IActionResult> RemoveUserFromJob(int jobId, int userId)
+        {
+            await _jobService.RemoveUserFromJobAsync(jobId, userId);
+            return NoContent();
+        }
     }

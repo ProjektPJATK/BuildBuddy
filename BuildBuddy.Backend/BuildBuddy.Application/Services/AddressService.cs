@@ -97,5 +97,25 @@ namespace BuildBuddy.Application.Services
                 await _dbContext.SaveChangesAsync();
             }
         }
+        public async Task<List<UserDto>> GetTeamMembersByAddressIdAsync(int addressId)
+        {
+            var teams = await _dbContext.Teams.GetAsync(
+                filter: t => t.AddressId == addressId,
+                includeProperties: "TeamUsers.User"
+            );
+
+            var users = teams.SelectMany(t => t.TeamUsers.Select(tu => new UserDto
+            {
+                Id = tu.User.Id,
+                Name = tu.User.Name,
+                Surname = tu.User.Surname,
+                Mail = tu.User.Mail,
+                TelephoneNr = tu.User.TelephoneNr,
+                UserImageUrl = tu.User.UserImageUrl,
+                PreferredLanguage = tu.User.PreferredLanguage,
+            })).DistinctBy(u => u.Id).ToList();
+
+            return users;
+        }
     }
 }

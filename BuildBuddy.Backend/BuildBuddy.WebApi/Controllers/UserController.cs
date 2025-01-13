@@ -131,5 +131,16 @@ namespace BuildBuddy.WebApi.Controllers;
 
             return Ok(image);
         }
+        
+        [HttpGet("job/{jobId}")]
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsersByJobId(int jobId)
+        {
+            var users = await _userService.GetUserByJobIdAsync(jobId);
+            if (users == null || !users.Any())
+            {
+                return NotFound($"No users found for job with ID {jobId}.");
+            }
+            return Ok(users);
+        }
 
     }

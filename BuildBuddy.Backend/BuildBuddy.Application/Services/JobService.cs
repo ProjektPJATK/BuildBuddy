@@ -187,5 +187,17 @@ namespace BuildBuddy.Application.Services
 
             return jobs;
         }
+        public async Task RemoveUserFromJobAsync(int jobId, int userId)
+        {
+            var userJob = await _dbContext.UserJobs.GetAsync(
+                filter: uj => uj.JobId == jobId && uj.UserId == userId
+            );
+
+            if (userJob != null)
+            {
+                _dbContext.UserJobs.Delete(userJob.FirstOrDefault());
+                await _dbContext.SaveChangesAsync();
+            }
+        }
     }
 }

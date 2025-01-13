@@ -215,6 +215,32 @@ namespace BuildBuddy.Application.Services
             return await _fileStorage.GetFilesByPrefixAsync(imageUrl);
         }
         
+        public async Task<IEnumerable<UserDto>> GetUserByJobIdAsync(int jobId)
+        {
+            var users = await _dbContext.UserJobs.GetAsync(
+                mapper: uj => new UserDto
+                {
+                    Id = uj.User.Id,
+                    Name = uj.User.Name,
+                    Surname = uj.User.Surname,
+                    Mail = uj.User.Mail,
+                    TelephoneNr = uj.User.TelephoneNr,
+                    UserImageUrl = uj.User.UserImageUrl,
+                    PreferredLanguage = uj.User.PreferredLanguage,
+                    RolesInTeams = uj.User.TeamUserRoles
+                        .Select(tur => new RoleInTeamDto
+                        {
+                            RoleId = tur.Role.Id,
+                            TeamId = tur.Team.Id
+                        }).ToList()
+                },
+                filter: uj => uj.JobId == jobId,
+                includeProperties: "User.TeamUserRoles.Role,User.TeamUserRoles.Team"
+            );
+
+            return users;
+        }
+        
         public string GenerateJwtToken(UserDto user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();

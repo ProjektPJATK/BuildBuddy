@@ -53,4 +53,15 @@ namespace BuildBuddy.WebApi.Controllers;
             await _addressService.DeleteAddressAsync(id);
             return NoContent();
         }
+        
+        [HttpGet("{addressId}/teammembers")]
+        public async Task<ActionResult<List<UserDto>>> GetTeamMembersByAddressId(int addressId)
+        {
+            var teamMembers = await _addressService.GetTeamMembersByAddressIdAsync(addressId);
+            if (teamMembers == null || !teamMembers.Any())
+            {
+                return NotFound();
+            }
+            return Ok(teamMembers);
+        }
     }
