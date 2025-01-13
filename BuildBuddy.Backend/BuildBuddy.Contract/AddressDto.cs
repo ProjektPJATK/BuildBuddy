@@ -9,4 +9,6 @@ public class AddressDto
     public string HouseNumber { get; set; }
     public string LocalNumber { get; set; }
     public string PostalCode { get; set; }
+    public string Description { get; set; }
+
 }
