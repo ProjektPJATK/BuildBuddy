@@ -105,24 +105,34 @@ namespace BuildBuddy.Application.Services
         {
             var teams = await _dbContext.Teams.GetAsync(
                 filter: t => t.AddressId == addressId,
-                includeProperties: "TeamUsers.User"
+                includeProperties: "TeamUsers.User,TeamUserRoles.Role"
             );
-
-            var users = teams.SelectMany(t => t.TeamUsers.Select(tu => new UserDto
+            
+            if (teams == null)
             {
-                Id = tu.User.Id,
-                Name = tu.User.Name,
-                Surname = tu.User.Surname,
-                Mail = tu.User.Mail,
-                TelephoneNr = tu.User.TelephoneNr,
-                UserImageUrl = tu.User.UserImageUrl,
-                PreferredLanguage = tu.User.PreferredLanguage,
-                RolesInTeams = tu.User.TeamUserRoles.Select(tur => new RoleInTeamDto
+                return new List<UserDto>();
+            }
+            var users = teams
+                .Where(t => t.TeamUsers != null)
+                .SelectMany(t => t.TeamUsers)
+                .Where(tu => tu.User != null)
+                .Select(tu => new UserDto
                 {
-                    RoleId = tur.Role.Id,
-                    TeamId = tur.Team.Id
-                }).ToList()
-            })).DistinctBy(u => u.Id).ToList();
+                    Id = tu.User.Id,
+                    Name = tu.User.Name,
+                    Surname = tu.User.Surname,
+                    Mail = tu.User.Mail,
+                    TelephoneNr = tu.User.TelephoneNr,
+                    UserImageUrl = tu.User.UserImageUrl,
+                    PreferredLanguage = tu.User.PreferredLanguage,
+                    RolesInTeams = tu.User.TeamUserRoles?.Select(tur => new RoleInTeamDto
+                    {
+                        RoleId = tur.Role?.Id ?? 0,
+                        TeamId = tur.Team?.Id ?? 0 
+                    }).ToList() ?? new List<RoleInTeamDto>()
+                })
+                .DistinctBy(u => u.Id)
+                .ToList();
 
             return users;
         }
