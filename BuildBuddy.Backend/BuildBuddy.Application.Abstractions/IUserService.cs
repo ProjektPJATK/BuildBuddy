@@ -15,5 +15,6 @@ public interface IUserService
     Task<List<TeamDto>> GetTeamsByUserId(int userId);
     Task UpdateUserImageAsync(int userId, Stream imageStream, string imageName);
     Task<IEnumerable<string>> GetUserImageAsync(string imageUrl);
+    Task<IEnumerable<UserDto>> GetUserByJobIdAsync(int jobId);
     string GenerateJwtToken(UserDto user);
 }

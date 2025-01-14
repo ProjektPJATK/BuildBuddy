@@ -140,5 +140,16 @@ public async Task<List<JobActualizationDto>> GetJobActualizationByIdAsync(int jo
             _dbContext.JobActualizations.Update(job);
             await _dbContext.SaveChangesAsync();
         }
+        public async Task ToggleJobActualizationStatusAsync(int jobActualizationId)
+        {
+            var jobActualization = await _dbContext.JobActualizations
+                .GetByID(jobActualizationId);
+
+            if (jobActualization != null)
+            {
+                jobActualization.IsDone = !jobActualization.IsDone;
+                await _dbContext.SaveChangesAsync();
+            }
+        }
     }
 }
