@@ -64,8 +64,24 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (state is LoginSuccess) {
                         Navigator.pushReplacementNamed(context, '/home');
                       } else if (state is LoginFailure) {
+                        // Handle specific error messages
+                        String errorMessage = 'Login Failed';
+                        if (state.error.contains('incorrect password')) {
+                          errorMessage = 'Incorrect password. Please try again.';
+                        } else if (state.error.contains('email not found')) {
+                          errorMessage = 'No account found for this email.';
+                        } else if (state.error.contains('invalid email')) {
+                          errorMessage = 'Invalid email format.';
+                        } else {
+                          errorMessage = state.error;
+                        }
+
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Login Failed: ${state.error}')),
+                          SnackBar(
+                            content: Text(errorMessage),
+                            backgroundColor: const Color.fromARGB(255, 43, 42, 42),
+                          ),
+                          
                         );
                       }
                     },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/main.dart';
 
 class AppStyles {
   // Define a constant blue color to use throughout the app
@@ -90,4 +91,32 @@ class AppStyles {
     fontSize: 24,
     fontWeight: FontWeight.bold,
   );
+
+
+  // Utility function to show a top-positioned SnackBar
+static void showTopSnackBar(
+  String message, {
+  Color backgroundColor = const Color.fromARGB(255, 34, 34, 34),
+  Duration duration = const Duration(seconds: 3),
+}) {
+  scaffoldMessengerKey.currentState?.showSnackBar(
+    SnackBar(
+      content: Text(
+        message,
+        style: const TextStyle(color: Colors.white),
+      ),
+      backgroundColor: backgroundColor,
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.only(top: 50, left: 16, right: 16),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 6,
+      duration: duration,
+    ),
+  );
+}
+
+
 }

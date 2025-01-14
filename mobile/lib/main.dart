@@ -65,6 +65,7 @@ class BuildBuddyApp extends StatefulWidget {
   @override
   _BuildBuddyAppState createState() => _BuildBuddyAppState();
 }
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 class _BuildBuddyAppState extends State<BuildBuddyApp> {
   @override
@@ -81,6 +82,7 @@ class _BuildBuddyAppState extends State<BuildBuddyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: scaffoldMessengerKey,
       initialRoute: '/', // Start at the SplashScreen
       routes: {
         '/': (context) => const LoginScreen(), // Show splash screen first
