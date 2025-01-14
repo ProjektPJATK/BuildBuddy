@@ -114,20 +114,23 @@ class _EditUserDialogState extends State<EditUserDialog> {
   }
 
   Future<void> _deleteUser() async {
-    try {
-      print('Usuwanie użytkownika ${widget.userId} z zespołu ${widget.teamId}');
-      await _teamsService.deleteUserFromTeam(widget.teamId, widget.userId);
-      widget.onDelete(); // Wywołanie funkcji odświeżenia widoku
-    } catch (e) {
-      print('Błąd podczas usuwania użytkownika: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Nie udało się usunąć użytkownika.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+  try {
+    print('Usuwanie użytkownika ${widget.userId} z zespołu ${widget.teamId}');
+    await _teamsService.deleteUserFromTeam(widget.teamId, widget.userId);
+    print('User ${widget.userId} successfully deleted from team ${widget.teamId}');
+    widget.onDelete(); // Wywołanie funkcji odświeżenia widoku
+    Navigator.pop(context); // Zamknięcie dialogu
+  } catch (e) {
+    print('Błąd podczas usuwania użytkownika: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Nie udało się usunąć użytkownika.'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

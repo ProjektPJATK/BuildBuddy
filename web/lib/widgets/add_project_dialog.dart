@@ -17,6 +17,7 @@ class AddProjectDialog extends StatelessWidget {
     final TextEditingController houseNumberController = TextEditingController();
     final TextEditingController localNumberController = TextEditingController();
     final TextEditingController postalCodeController = TextEditingController();
+    final TextEditingController descriptionController = TextEditingController(); // Dodano
     final TextEditingController teamNameController = TextEditingController();
 
     void _showErrorDialog(String message) {
@@ -42,7 +43,8 @@ class AddProjectDialog extends StatelessWidget {
           streetController.text.isEmpty ||
           houseNumberController.text.isEmpty ||
           localNumberController.text.isEmpty ||
-          postalCodeController.text.isEmpty) {
+          postalCodeController.text.isEmpty ||
+          descriptionController.text.isEmpty) { // Walidacja pola description
         _showErrorDialog('Wszystkie pola muszą być wypełnione.');
         return false;
       }
@@ -83,6 +85,10 @@ class AddProjectDialog extends StatelessWidget {
               controller: postalCodeController,
               decoration: InputDecoration(labelText: 'Kod Pocztowy'),
             ),
+            TextField(
+              controller: descriptionController,
+              decoration: InputDecoration(labelText: 'Opis (description)'), // Dodano
+            ),
           ],
         ),
       ),
@@ -96,7 +102,7 @@ class AddProjectDialog extends StatelessWidget {
             if (_validateFields()) {
               final teamsService = TeamsService();
               try {
-                // Kontynuacja procesu tworzenia projektu
+                // Tworzenie projektu
                 final addressData = {
                   'city': cityController.text,
                   'country': countryController.text,
@@ -104,6 +110,7 @@ class AddProjectDialog extends StatelessWidget {
                   'houseNumber': houseNumberController.text,
                   'localNumber': localNumberController.text,
                   'postalCode': postalCodeController.text,
+                  'description': descriptionController.text, // Dodano
                 };
                 final addressId = await teamsService.createAddress(addressData);
 

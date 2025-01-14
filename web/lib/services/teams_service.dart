@@ -219,6 +219,8 @@ Future<void> updateAddress(int addressId, Map<String, String> addressData) async
   final client = HttpClient();
   try {
     final addUserUrl = '${AppConfig.getBaseUrl()}/api/Team/$teamId/users/$userId';
+    print('Starting to add user $userId to team $teamId with URL: $addUserUrl');
+
     final request = await client.postUrl(Uri.parse(addUserUrl));
     request.headers.set('Content-Type', 'application/json');
 
@@ -226,12 +228,13 @@ Future<void> updateAddress(int addressId, Map<String, String> addressData) async
 
     if (response.statusCode == 204 || response.statusCode == 200 || response.statusCode == 201) {
       print('User $userId successfully added to team $teamId');
-      return; // Sukces
     } else {
+      final responseBody = await response.transform(utf8.decoder).join();
+      print('Failed to add user: ${response.statusCode}, Response: $responseBody');
       throw Exception('Failed to add user to team: ${response.statusCode}');
     }
   } catch (e) {
-    print('Error adding user to team: $e');
+    print('Error adding user $userId to team $teamId: $e');
     rethrow;
   } finally {
     client.close();

@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:universal_html/html.dart' as html;
 import 'package:flutter/material.dart';
-import 'package:web/config/config.dart';
 import 'package:web/widgets/add_project_dialog.dart';
 import 'package:web/services/teams_service.dart';
 import 'package:web/widgets/add_user_dialog.dart';
@@ -11,6 +9,7 @@ import 'package:web/widgets/edit_user_dialog.dart';
 
 class TeamsScreen extends StatefulWidget {
   final int loggedInUserId;
+  
 
   TeamsScreen({required this.loggedInUserId});
 
@@ -23,11 +22,12 @@ class _TeamsScreenState extends State<TeamsScreen> {
   List<Map<String, dynamic>> teams = [];
   bool _isLoading = true;
   bool _isError = false;
-
+late BuildContext _messengerContext;
   @override
   void initState() {
     super.initState();
     _fetchTeams();
+    _messengerContext = context;
   }
 
   void _showAlert(BuildContext context, String title, String message) {
@@ -135,21 +135,52 @@ class _TeamsScreenState extends State<TeamsScreen> {
     }
   }
   
-  void _showAddUserDialog(BuildContext context, int teamId) {
+void _showAddUserDialog(BuildContext context, int teamId, List<int> existingUserIds) {
+  final scaffoldMessengerContext = ScaffoldMessenger.of(context);
+
   showDialog(
     context: context,
     builder: (context) => AddUserDialog(
       teamId: teamId,
+      existingUserIds: existingUserIds,
       onCancel: () {
         Navigator.pop(context);
       },
-      onSuccess: (userId) {
-        _showSuccessNotification(context, 'Użytkownik został pomyślnie dodany do zespołu.');
-        _fetchTeams(); // Odśwież widok zespołów
+      onSuccess: (List<int> userIds) async {
+        try {
+          for (final userId in userIds) {
+            print('Dodawanie użytkownika $userId do zespołu $teamId');
+            await _teamsService.addUserToTeam(teamId, userId);
+          }
+
+          // Wyświetl komunikat o sukcesie
+          scaffoldMessengerContext.showSnackBar(
+            SnackBar(
+              content: Text('Użytkownicy zostali pomyślnie dodani do zespołu.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          // Odśwież widok zespołów
+          await _fetchTeams();
+
+        } catch (e) {
+          print('Błąd podczas dodawania użytkowników: $e');
+          scaffoldMessengerContext.showSnackBar(
+            SnackBar(
+              content: Text('Nie udało się dodać użytkowników do zespołu.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } finally {
+          Navigator.pop(context);
+        }
       },
     ),
   );
 }
+
+
 
 void _showEditTeamDialog(BuildContext context, Map<String, dynamic> team) {
   showDialog(
@@ -276,7 +307,11 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
                             onPressed: hasPermissionForTeam(team['id'], 3)
                                 ? () {
                                     print("Dodaj pracownika do teamu ${team['name']}");
-                                    _showAddUserDialog(context, team['id']);
+                                    _showAddUserDialog(
+                                    context,
+                                    team['id'],
+                                    team['members']?.map<int>((member) => int.parse(member['id'].toString()))?.toList() ?? [], // Lista istniejących użytkowników
+                                  );
                                   }
                                 : () => _handleUnauthorizedAction(context),
                             icon: Icon(Icons.add, color: Colors.blue),
@@ -313,7 +348,6 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
                           icon: Icon(Icons.edit, color: Colors.orange),
                           onPressed: () {
                               print("Edytuj dane użytkownika ${member['name']}, ID: ${member['id']}");
-                              
                             _showEditUserDialog(
                               context,
                               int.tryParse(member['id'] ?? '0') ?? 0,
