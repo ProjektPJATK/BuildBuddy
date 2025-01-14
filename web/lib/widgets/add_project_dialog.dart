@@ -1,4 +1,3 @@
-// Plik AddProjectDialog
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart' as html;
@@ -19,6 +18,36 @@ class AddProjectDialog extends StatelessWidget {
     final TextEditingController localNumberController = TextEditingController();
     final TextEditingController postalCodeController = TextEditingController();
     final TextEditingController teamNameController = TextEditingController();
+
+    void _showErrorDialog(String message) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Błąd'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    bool _validateFields() {
+      if (teamNameController.text.isEmpty ||
+          cityController.text.isEmpty ||
+          countryController.text.isEmpty ||
+          streetController.text.isEmpty ||
+          houseNumberController.text.isEmpty ||
+          localNumberController.text.isEmpty ||
+          postalCodeController.text.isEmpty) {
+        _showErrorDialog('Wszystkie pola muszą być wypełnione.');
+        return false;
+      }
+      return true;
+    }
 
     return AlertDialog(
       title: Text('Dodaj Projekt'),
@@ -64,76 +93,48 @@ class AddProjectDialog extends StatelessWidget {
         ),
         TextButton(
           onPressed: () async {
-            final teamsService = TeamsService();
-            try {
-              // Krok 1: Tworzenie adresu
-              final addressData = {
-                'city': cityController.text,
-                'country': countryController.text,
-                'street': streetController.text,
-                'houseNumber': houseNumberController.text,
-                'localNumber': localNumberController.text,
-                'postalCode': postalCodeController.text,
-              };
-              final addressId = await teamsService.createAddress(addressData);
-              print('Address created with ID: $addressId');
+            if (_validateFields()) {
+              final teamsService = TeamsService();
+              try {
+                // Kontynuacja procesu tworzenia projektu
+                final addressData = {
+                  'city': cityController.text,
+                  'country': countryController.text,
+                  'street': streetController.text,
+                  'houseNumber': houseNumberController.text,
+                  'localNumber': localNumberController.text,
+                  'postalCode': postalCodeController.text,
+                };
+                final addressId = await teamsService.createAddress(addressData);
 
-              // Krok 2: Tworzenie zespołu
-              final teamName = teamNameController.text;
-              final teamId = await teamsService.createTeam(teamName, addressId);
-              print('Team created with ID: $teamId');
+                final teamName = teamNameController.text;
+                final teamId = await teamsService.createTeam(teamName, addressId);
 
-              // Krok 3: Dodanie użytkownika do zespołu
-              final userId = int.tryParse(html.window.localStorage['userId'] ?? '0') ?? 0;
-              if (userId > 0) {
-                await teamsService.addUserToTeam(teamId, userId);
-                print('User $userId added to team $teamId');
+                final userId = int.tryParse(html.window.localStorage['userId'] ?? '0') ?? 0;
+                if (userId > 0) {
+                  await teamsService.addUserToTeam(teamId, userId);
+                  await teamsService.addRoleToUserInTeam(
+                    userId: userId,
+                    teamId: teamId,
+                    roleId: 2, // Domyślna rola
+                  );
+                }
 
-                // Krok 4: Przypisanie roli użytkownikowi w zespole
-                await teamsService.addRoleToUserInTeam(
-                  userId: userId,
-                  teamId: teamId,
-                  roleId: 2, // Domyślna rola
-                );
-                print('Role assigned to user $userId in team $teamId');
-              } else {
-                print('Error: User ID not found in localStorage');
+                onSuccess({
+                  'teamId': teamId.toString(),
+                  'teamName': teamName,
+                  'addressId': addressId.toString(),
+                });
+
+                Navigator.pop(context);
+              } catch (e) {
+                _showErrorDialog('Nie udało się dodać projektu: $e');
               }
-
-              // Wywołanie onSuccess
-              onSuccess({
-                'teamId': teamId.toString(),
-                'teamName': teamName,
-                'addressId': addressId.toString(),
-              });
-
-              Navigator.pop(context);
-            } catch (e) {
-              print('Error adding project: $e');
-              _showErrorDialog(context, 'Błąd', 'Nie udało się dodać projektu.');
             }
           },
           child: Text('Dodaj'),
         ),
       ],
-    );
-  }
-
-  void _showErrorDialog(BuildContext context, String title, String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('OK'),
-          ),
-        ],
-      ),
     );
   }
 }

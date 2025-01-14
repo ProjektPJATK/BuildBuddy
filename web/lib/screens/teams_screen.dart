@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:universal_html/html.dart' as html;
 import 'package:flutter/material.dart';
+import 'package:web/config/config.dart';
 import 'package:web/widgets/add_project_dialog.dart';
 import 'package:web/services/teams_service.dart';
 import 'package:web/widgets/add_user_dialog.dart';
 import 'package:web/widgets/edit_team_dialog.dart';
+import 'package:web/widgets/edit_user_dialog.dart';
 
 class TeamsScreen extends StatefulWidget {
   final int loggedInUserId;
@@ -172,10 +175,38 @@ void _showEditTeamDialog(BuildContext context, Map<String, dynamic> team) {
       onCancel: () {
         Navigator.pop(context);
       },
+      onTeamDeleted: _fetchTeams,
     ),
   );
 }
 
+void _showEditUserDialog(BuildContext context, int userId, int teamId) {
+  showDialog(
+    context: context,
+    builder: (context) => EditUserDialog(
+      userId: userId,
+      teamId: teamId,
+      onCancel: () {
+        Navigator.pop(context);
+      },
+      onSubmit: (newPowerLevel, newRoleName) async {
+        try {
+          // Aktualizacja roli użytkownika
+          await _teamsService.updateUserRole(userId, teamId, newPowerLevel, newRoleName);
+          print('Rola użytkownika zaktualizowana pomyślnie');
+
+          // Odświeżenie widoku zespołów
+          _fetchTeams();
+        } catch (e) {
+          print('Błąd podczas aktualizacji rangi użytkownika: $e');
+        }
+      },
+      onDelete: () {
+    _fetchTeams(); // Odświeżenie widoku po usunięciu użytkownika
+      },
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -205,85 +236,101 @@ void _showEditTeamDialog(BuildContext context, Map<String, dynamic> team) {
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _isError
-              ? const Center(
-                  child: Text(
-                    'Failed to load teams.',
-                    style: TextStyle(color: Colors.red),
+    ? const Center(child: CircularProgressIndicator())
+    : _isError
+        ? const Center(
+            child: Text(
+              'Failed to load teams.',
+              style: TextStyle(color: Colors.red),
+            ),
+          )
+        : Center(
+            child: ListView.builder(
+              itemCount: teams.length,
+              itemBuilder: (context, index) {
+                final team = teams[index];
+                final address = team['address'] as Map<String, String>;
+                final members = team['members'] as List<Map<String, String>>;
+
+                return ExpansionTile(
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        team['name'],
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.edit, color: Colors.orange),
+                            onPressed: hasPermissionForTeam(team['id'], 3)
+                                ? () {
+                                    print("Edytuj zespół: ${team['name']}");
+                                    print('Team data: ${team.toString()}');
+                                    _showEditTeamDialog(context, team);
+                                  }
+                                : () => _handleUnauthorizedAction(context),
+                          ),
+                          TextButton.icon(
+                            onPressed: hasPermissionForTeam(team['id'], 3)
+                                ? () {
+                                    print("Dodaj pracownika do teamu ${team['name']}");
+                                    _showAddUserDialog(context, team['id']);
+                                  }
+                                : () => _handleUnauthorizedAction(context),
+                            icon: Icon(Icons.add, color: Colors.blue),
+                            label: Text(
+                              "Dodaj Pracownika",
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${address['street']} ${address['houseNumber']}, ${address['city']}, ${address['country']}, ${address['postalCode']}',
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Opis: ${address['description']}', // Wyświetlanie opisu
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                  children: members
+                .map(
+                  (member) => ListTile(
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(member['name']!),
+                        IconButton(
+                          icon: Icon(Icons.edit, color: Colors.orange),
+                          onPressed: () {
+                              print("Edytuj dane użytkownika ${member['name']}, ID: ${member['id']}");
+                              
+                            _showEditUserDialog(
+                              context,
+                              int.tryParse(member['id'] ?? '0') ?? 0,
+                              int.tryParse(team['id']?.toString() ?? '0') ?? 0,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    subtitle: Text(member['role']!),
                   ),
                 )
-              : Center(
-                  child: ListView.builder(
-                    itemCount: teams.length,
-                    itemBuilder: (context, index) {
-                      final team = teams[index];
-                      final address = team['address'] as Map<String, String>;
-                      final members = team['members'] as List<Map<String, String>>;
-
-                      return ExpansionTile(
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              team['name'],
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.edit, color: Colors.orange),
-                                  onPressed: hasPermissionForTeam(team['id'], 3)
-                                      ? () {
-                                          print("Edytuj zespół: ${team['name']}");
-                                          print('Team data: ${team.toString()}');
-                                          _showEditTeamDialog(context, team);
-                                        }
-                                      : () => _handleUnauthorizedAction(context),
-                                ),
-                                TextButton.icon(
-                                  onPressed: hasPermissionForTeam(team['id'], 3)
-                                      ? () {
-                                          print("Dodaj pracownika do teamu ${team['name']}");
-                                          _showAddUserDialog(context, team['id']);
-                                        }
-                                      : () => _handleUnauthorizedAction(context),
-                                       icon: Icon(Icons.add, color: Colors.blue),
-                                        label: Text(
-                                          "Dodaj Pracownika",
-                                          style: TextStyle(color: Colors.blue),
-                                ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        subtitle: Text(
-                          '${address['street']} ${address['houseNumber']}, ${address['city']}, ${address['country']}, ${address['postalCode']}',
-                        ),
-                        children: members
-                            .map(
-                              (member) => ListTile(
-                                title: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(member['name']!),
-                                    IconButton(
-                                      icon: Icon(Icons.edit, color: Colors.orange),
-                                      onPressed: () {
-                                        print("Edytuj dane użytkownika ${member['name']}");
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                subtitle: Text(member['role']!),
-                              ),
-                            )
-                            .toList(),
-                      );
-                    },
-                  ),
-                ),
+                .toList(),
+                );
+              },
+            ),
+          ),
     );
   }
 }

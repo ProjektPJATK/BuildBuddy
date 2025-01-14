@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:web/config/config.dart';
 import 'package:web/services/teams_service.dart';
@@ -10,6 +9,7 @@ class EditTeamDialog extends StatelessWidget {
   final Map<String, String> addressData;
   final Function(String, Map<String, String>) onSubmit;
   final VoidCallback onCancel;
+  final VoidCallback onTeamDeleted;
 
   EditTeamDialog({
     required this.teamId, // Oczekiwany parametr
@@ -17,8 +17,8 @@ class EditTeamDialog extends StatelessWidget {
     required this.addressData,
     required this.onSubmit,
     required this.onCancel,
+    required this.onTeamDeleted,
   });
-
 
   void _showDeleteConfirmation(BuildContext context) async {
     final TeamsService teamsService = TeamsService();
@@ -41,6 +41,10 @@ class EditTeamDialog extends StatelessWidget {
                 await teamsService.deleteTeam(teamId);
                 Navigator.pop(context); // Zamknięcie dialogu potwierdzenia
                 Navigator.pop(context); // Zamknięcie dialogu edycji
+
+                // Wywołanie callbacka po udanym usunięciu zespołu
+                onTeamDeleted();
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Team został pomyślnie usunięty.'),
@@ -64,6 +68,20 @@ class EditTeamDialog extends StatelessWidget {
     );
   }
 
+  bool _validateFields(BuildContext context, List<TextEditingController> controllers) {
+    for (var controller in controllers) {
+      if (controller.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Wszystkie pola muszą być wypełnione!'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return false;
+      }
+    }
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +92,18 @@ class EditTeamDialog extends StatelessWidget {
     final TextEditingController houseNumberController = TextEditingController(text: addressData['houseNumber']);
     final TextEditingController localNumberController = TextEditingController(text: addressData['localNumber']);
     final TextEditingController postalCodeController = TextEditingController(text: addressData['postalCode']);
+    final TextEditingController descriptionController = TextEditingController(text: addressData['description']); // Dodano kontroler
+
+    final controllers = [
+      nameController,
+      cityController,
+      countryController,
+      streetController,
+      houseNumberController,
+      localNumberController,
+      postalCodeController,
+      descriptionController,
+    ];
 
     return AlertDialog(
       title: Row(
@@ -118,6 +148,11 @@ class EditTeamDialog extends StatelessWidget {
               controller: postalCodeController,
               decoration: InputDecoration(labelText: 'Kod Pocztowy'),
             ),
+            TextField(
+              controller: descriptionController,
+              decoration: InputDecoration(labelText: 'Opis'),
+              maxLines: 3, // Większe pole tekstowe dla opisu
+            ),
           ],
         ),
       ),
@@ -128,18 +163,21 @@ class EditTeamDialog extends StatelessWidget {
         ),
         TextButton(
           onPressed: () {
-            onSubmit(
-              nameController.text,
-              {
-                'city': cityController.text,
-                'country': countryController.text,
-                'street': streetController.text,
-                'houseNumber': houseNumberController.text,
-                'localNumber': localNumberController.text,
-                'postalCode': postalCodeController.text,
-              },
-            );
-            Navigator.pop(context);
+            if (_validateFields(context, controllers)) {
+              onSubmit(
+                nameController.text,
+                {
+                  'city': cityController.text,
+                  'country': countryController.text,
+                  'street': streetController.text,
+                  'houseNumber': houseNumberController.text,
+                  'localNumber': localNumberController.text,
+                  'postalCode': postalCodeController.text,
+                  'description': descriptionController.text, // Dodano opis
+                },
+              );
+              Navigator.pop(context);
+            }
           },
           child: Text('Zapisz'),
         ),

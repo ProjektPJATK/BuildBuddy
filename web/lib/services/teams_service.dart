@@ -33,6 +33,108 @@ Future<void> updateTeam(int teamId, String name, int addressId) async {
   }
 }
 
+Future<void> deleteUserFromTeam(int teamId, int userId) async {
+  final client = HttpClient();
+  final deleteUrl = '${AppConfig.getBaseUrl()}/api/Team/$teamId/users/$userId';
+  print('Deleting user $userId from team $teamId with URL: $deleteUrl');
+
+  try {
+    final request = await client.deleteUrl(Uri.parse(deleteUrl));
+    request.headers.set('Content-Type', 'application/json');
+
+    final response = await request.close();
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      print('User $userId successfully deleted from team $teamId.');
+    } else {
+      final responseBody = await response.transform(utf8.decoder).join();
+      print('Failed to delete user: ${response.statusCode}, Response: $responseBody');
+      throw Exception('Failed to delete user: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error deleting user $userId from team $teamId: $e');
+    rethrow;
+  } finally {
+    client.close();
+  }
+}
+
+Future<void> updateUserRole(int userId, int teamId, int newPowerLevel, String newRoleName) async {
+  final client = HttpClient();
+
+  try {
+    // Pobieranie bieżących ról użytkownika w danym zespole
+    print('Fetching current roles for userId: $userId in teamId: $teamId');
+    final userData = await getUserData(userId);
+    final rolesInTeams = userData['rolesInTeams'] as List<dynamic>;
+    final previousRole = rolesInTeams.firstWhere(
+      (role) => role['teamId'] == teamId,
+      orElse: () => null,
+    );
+
+    // Usuwanie poprzedniej rangi, jeśli istnieje
+    if (previousRole != null) {
+      final previousRoleId = previousRole['roleId'];
+      print('Removing previous roleId: $previousRoleId from userId: $userId in teamId: $teamId');
+
+      final deleteRoleRequest = await client.deleteUrl(
+        Uri.parse('${AppConfig.getBaseUrl()}/api/Roles/$previousRoleId/users/$userId/teams/$teamId'),
+      );
+      final deleteRoleResponse = await deleteRoleRequest.close();
+
+      if (deleteRoleResponse.statusCode != 200 && deleteRoleResponse.statusCode != 204) {
+        final responseBody = await deleteRoleResponse.transform(utf8.decoder).join();
+        throw Exception('Failed to remove previous role: ${deleteRoleResponse.statusCode}, Response: $responseBody');
+      }
+
+      print('Removed previous roleId: $previousRoleId from userId: $userId in teamId: $teamId');
+    } else {
+      print('No previous role found for userId: $userId in teamId: $teamId');
+    }
+
+    // Tworzenie nowej rangi
+    print('Creating a new role with name: $newRoleName and powerLevel: $newPowerLevel');
+    final createRoleRequest = await client.postUrl(Uri.parse('${AppConfig.getBaseUrl()}/api/Roles'));
+    createRoleRequest.headers.set('Content-Type', 'application/json');
+    createRoleRequest.add(utf8.encode(jsonEncode({
+      'name': newRoleName,
+      'powerLevel': newPowerLevel,
+    })));
+
+    final createRoleResponse = await createRoleRequest.close();
+
+    if (createRoleResponse.statusCode != 201) {
+      final responseBody = await createRoleResponse.transform(utf8.decoder).join();
+      throw Exception('Failed to create role: ${createRoleResponse.statusCode}, Response: $responseBody');
+    }
+
+    final createRoleResponseBody = await createRoleResponse.transform(utf8.decoder).join();
+    final createdRoleId = jsonDecode(createRoleResponseBody)['id'];
+    print('Created role with id: $createdRoleId');
+
+    // Przypisywanie nowej rangi do użytkownika
+    print('Assigning roleId: $createdRoleId to userId: $userId in teamId: $teamId');
+    final assignRoleRequest = await client.postUrl(
+      Uri.parse('${AppConfig.getBaseUrl()}/api/Roles/$createdRoleId/users/$userId/teams/$teamId'),
+    );
+    assignRoleRequest.headers.set('Content-Type', 'application/json');
+    final assignRoleResponse = await assignRoleRequest.close();
+
+    if (assignRoleResponse.statusCode != 201 && assignRoleResponse.statusCode != 204 && assignRoleResponse.statusCode != 200) {
+      final responseBody = await assignRoleResponse.transform(utf8.decoder).join();
+      throw Exception('Failed to assign role: ${assignRoleResponse.statusCode}, Response: $responseBody');
+    }
+
+    print('Assigned roleId: $createdRoleId to userId: $userId in teamId: $teamId');
+  } catch (e) {
+    print('Błąd podczas aktualizacji rangi użytkownika: $e');
+    rethrow;
+  } finally {
+    client.close();
+  }
+}
+
+
 
 Future<void> updateAddress(int addressId, Map<String, String> addressData) async {
   final client = HttpClient();
@@ -352,6 +454,7 @@ Future<Map<String, String>> fetchAddress(int addressId) async {
         'houseNumber': data['houseNumber'],
         'localNumber': data['localNumber'],
         'postalCode': data['postalCode'],
+        'description': data['description'], // Dodano opis
       };
     } else {
       throw Exception('Failed to fetch address: ${response.statusCode}');
@@ -401,6 +504,7 @@ Future<Map<String, String>> fetchAddress(int addressId) async {
         final roleName = await fetchRoleName(roleId);
 
         return {
+          'id': member['id']?.toString() ?? '0',
           'name': '${member['name']} ${member['surname']}',
           'role': roleName.isNotEmpty ? roleName : 'Brak rangi',
         };
@@ -417,6 +521,64 @@ Future<Map<String, String>> fetchAddress(int addressId) async {
     client.close();
   }
 }
+
+Future<Map<String, dynamic>> getUserData(int userId) async {
+  final client = HttpClient();
+  final url = '${AppConfig.getBaseUrl()}/api/User/$userId';
+  print('Fetching user data from: $url');
+
+  try {
+    final request = await client.getUrl(Uri.parse(url));
+    request.headers.set('Accept', 'application/json');
+    final response = await request.close();
+
+    if (response.statusCode == 200) {
+      final responseBody = await response.transform(utf8.decoder).join();
+      print('User data response: $responseBody');
+      return jsonDecode(responseBody);
+    } else {
+      final responseBody = await response.transform(utf8.decoder).join();
+      print('Failed to fetch user data: ${response.statusCode}');
+      print('Response body: $responseBody');
+      throw Exception('Failed to fetch user data: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error fetching user data: $e');
+    rethrow;
+  } finally {
+    client.close();
+  }
+}
+
+
+Future<Map<String, dynamic>> getRoleDetails(int roleId) async {
+  final client = HttpClient();
+  final url = '${AppConfig.getBaseUrl()}/api/Roles/$roleId';
+  print('Fetching role details from: $url');
+
+  try {
+    final request = await client.getUrl(Uri.parse(url));
+    request.headers.set('Accept', 'application/json');
+    final response = await request.close();
+
+    if (response.statusCode == 200) {
+      final responseBody = await response.transform(utf8.decoder).join();
+      print('Role details response: $responseBody');
+      return jsonDecode(responseBody);
+    } else {
+      final responseBody = await response.transform(utf8.decoder).join();
+      print('Failed to fetch role details: ${response.statusCode}');
+      print('Response body: $responseBody');
+      throw Exception('Failed to fetch role details: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error fetching role details: $e');
+    rethrow;
+  } finally {
+    client.close();
+  }
+}
+
 
   Future<String> fetchRoleName(int roleId) async {
   if (roleId == 0) {
