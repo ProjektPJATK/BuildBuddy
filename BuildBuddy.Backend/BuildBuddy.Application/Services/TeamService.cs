@@ -148,16 +148,24 @@ namespace BuildBuddy.Application.Services
         {
             var team = (await _dbContext.Teams.GetAsync(
                 filter: t => t.Id == teamId,
-                includeProperties: "TeamUser"
-                )).FirstOrDefault();
+                includeProperties: "TeamUsers"
+            )).FirstOrDefault();
 
-            var teamUser = team?.TeamUsers.FirstOrDefault(tu => tu.UserId == userId);
-            if (teamUser != null)
+            if (team == null)
             {
-                team.TeamUsers.Remove(teamUser);
-                await _dbContext.SaveChangesAsync();
+                throw new InvalidOperationException($"Team with ID {teamId} not found.");
             }
+
+            var teamUser = team.TeamUsers.FirstOrDefault(tu => tu.UserId == userId);
+            if (teamUser == null)
+            {
+                throw new InvalidOperationException($"User with ID {userId} is not part of the team.");
+            }
+
+            team.TeamUsers.Remove(teamUser);
+            await _dbContext.SaveChangesAsync();
         }
+
 
         public async Task<List<UserDto>> GetUsersByTeamId(int teamId)
         {
