@@ -311,11 +311,11 @@ static Future<void> deleteJob(int jobId) async {
   }
 }
 
-  // Fetch Assigned Users for a Job
-  static Future<List<Map<String, dynamic>>> fetchAssignedUsers(int jobId) async {
-    final url = AppConfig.getAssignedUsersEndpoint(jobId);
-    print('[TaskService] Fetching assigned users for Job ID: $jobId at $url');
+  static Future<List<Map<String, dynamic>>> fetchAssignedUsers(int jobId, {int retryCount = 3}) async {
+  final url = AppConfig.getAssignedUsersEndpoint(jobId);
+  print('[TaskService] Fetching assigned users for Job ID: $jobId at $url');
 
+  for (int attempt = 1; attempt <= retryCount; attempt++) {
     try {
       final response = await HttpRequest.request(
         url,
@@ -324,29 +324,54 @@ static Future<void> deleteJob(int jobId) async {
       );
 
       if (response.status == 200) {
-        final List<dynamic> data = json.decode(response.responseText!);
-        print('[TaskService] Assigned users fetched successfully: ${data.length}');
+        final dynamic data = json.decode(response.responseText!);
 
-        return data.map<Map<String, dynamic>>((user) {
-          return {
-            'id': user['id'], // User ID
-            'name': user['name'], // First name
-            'surname': user['surname'], // Surname
-            'email': user['email'], // Email
-          };
-        }).toList();
+        if (data is String && data.contains('No users found')) {
+          // Handle specific backend message
+          print('[TaskService] No assigned users found for Job ID: $jobId');
+          return [];
+        }
+
+        if (data is List) {
+          print('[TaskService] Assigned users fetched successfully: ${data.length}');
+          return data.map<Map<String, dynamic>>((user) {
+            return {
+              'id': user['id'],
+              'name': user['name'],
+              'surname': user['surname'],
+              'email': user['email'],
+            };
+          }).toList();
+        }
+
+        throw Exception('Unexpected response format for assigned users.');
       } else if (response.status == 204) {
+        // Handle no content response
         print('[TaskService] No assigned users found for Job ID: $jobId');
-        return []; // Return an empty list for 204 responses
+        return [];
       } else {
+        // Handle other status codes
         print('[TaskService] Failed to fetch assigned users. Status: ${response.status}');
-        throw Exception('Failed to fetch assigned users for Job ID: $jobId');
+        throw Exception('Failed to fetch assigned users. Status code: ${response.status}');
+        // ignore: dead_code
+        return [];
       }
     } catch (e) {
-      print('[TaskService] Error fetching assigned users: $e');
-      rethrow;
+      if (attempt == retryCount || e is! ProgressEvent) {
+        print('[TaskService] Error fetching assigned users: $e');
+        throw Exception('Network error occurred while fetching assigned users. Please check your connection.');
+        // ignore: dead_code
+        return [];
+      }
+      print('[TaskService] Retry $attempt/$retryCount due to network error.');
+      return [];
     }
   }
+
+  // Fallback in case of unexpected issues
+  return [];
+}
+
 
   // Delete User from a Job
   static Future<void> deleteUserFromJob(int jobId, int userId) async {

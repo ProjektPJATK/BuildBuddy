@@ -313,6 +313,12 @@ Future<void> _manageUsers(int jobId, int addressId) async {
   try {
     final assignedUsers = await TaskService.fetchAssignedUsers(jobId);
     final allTeammates = await TaskService.fetchTeamMembers(addressId);
+
+    // Check for empty lists
+    if (assignedUsers.isEmpty) {
+      print('No assigned users for job ID: $jobId.');
+    }
+
     final availableUsers = allTeammates
         .where((user) => !assignedUsers.any((assigned) => assigned['id'] == user['id']))
         .toList();
@@ -330,6 +336,12 @@ Future<void> _manageUsers(int jobId, int addressId) async {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Show message if no assigned users
+                  if (assignedUsers.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('No users currently assigned to this job.'),
+                    ),
                   // Show Assigned Users with Delete Option
                   if (assignedUsers.isNotEmpty)
                     ...assignedUsers.map((user) {
@@ -369,6 +381,12 @@ Future<void> _manageUsers(int jobId, int addressId) async {
                         },
                       );
                     }).toList(),
+                  // Show message if no available users
+                  if (availableUsers.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('No unassigned users available to add.'),
+                    ),
                 ],
               ),
             ),
