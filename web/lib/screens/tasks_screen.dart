@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -25,55 +26,96 @@ class _TasksScreenState extends State<TasksScreen> {
   void initState() {
     super.initState();
     _fetchData();
+    _startPowerLevelRefetch(); // Start periodic refetching
   }
+@override
+ 
 
+ 
+
+
+  late Timer _powerLevelTimer; // Declare the timer
   Map<int, int> teamPowerLevels = {}; // Store power levels for teams
 
-Future<void> _fetchData() async {
+  @override
+  void dispose() {
+    _powerLevelTimer.cancel(); // Cancel timer to avoid memory leaks
+    super.dispose();
+  }
+
+  void _startPowerLevelRefetch() {
+    _powerLevelTimer = Timer.periodic(
+      const Duration( minutes: 5), // Refetch every 5 minutes
+      (timer) async {
+        await _refetchPowerLevels(); // Method to refetch power levels
+      },
+    );
+  }
+
+  Future<void> _refetchPowerLevels() async {
   try {
+    final updatedPowerLevels = await getTeamPowerLevels(); // Fetch updated power levels
     setState(() {
-      _isLoading = true;
-      _isError = false;
+      teamPowerLevels = updatedPowerLevels; // Update state with new power levels
     });
 
-    // Fetch and parse power levels
-    teamPowerLevels = getTeamPowerLevels();
-    print('Team Power Levels: $teamPowerLevels');
+    // Update localStorage with the latest power levels
+    html.window.localStorage['teamsWithPowerLevels'] = json.encode([
+      for (var entry in updatedPowerLevels.entries)
+        {'teamId': entry.key, 'powerLevel': entry.value}
+    ]);
 
-    final userId = window.localStorage['userId'];
-    if (userId == null) throw Exception('User ID is missing from localStorage.');
-
-    addresses = await TaskService.getAddressesForUser(int.parse(userId));
-    print('[UI] Addresses fetched: $addresses');
-
-    for (final address in addresses) {
-      final addressId = address['addressId'];
-      final tasks = await TaskService.fetchTasksByAddress(addressId);
-      jobs[addressId] = tasks;
-
-      for (final job in tasks) {
-        final jobId = job['id'];
-        try {
-          final jobActualizations = await TaskService.fetchJobActualizations(jobId);
-          actualizations[jobId] = jobActualizations;
-          print('[UI] Job Actualizations for Job ID: $jobId: $jobActualizations');
-        } catch (e) {
-          actualizations[jobId] = [];
-          print('[UI] No actualizations found for Job ID: $jobId');
-        }
-      }
-    }
+    print('[UI] Updated Power Levels: $teamPowerLevels');
   } catch (e) {
-    setState(() {
-      _isError = true;
-    });
-    print('Error fetching data: $e');
-  } finally {
-    setState(() {
-      _isLoading = false;
-    });
+    print('[UI] Error refetching power levels: $e');
   }
 }
+
+   Future<void> _fetchData() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _isError = false;
+      });
+
+      // Initial power level fetch
+      teamPowerLevels = getTeamPowerLevels();
+      print('[UI] Team Power Levels: $teamPowerLevels');
+
+      final userId = window.localStorage['userId'];
+      if (userId == null) throw Exception('User ID is missing from localStorage.');
+
+      addresses = await TaskService.getAddressesForUser(int.parse(userId));
+      print('[UI] Addresses fetched: $addresses');
+
+      for (final address in addresses) {
+        final addressId = address['addressId'];
+        final tasks = await TaskService.fetchTasksByAddress(addressId);
+        jobs[addressId] = tasks;
+
+        for (final job in tasks) {
+          final jobId = job['id'];
+          try {
+            final jobActualizations = await TaskService.fetchJobActualizations(jobId);
+            actualizations[jobId] = jobActualizations;
+            print('[UI] Job Actualizations for Job ID: $jobId: $jobActualizations');
+          } catch (e) {
+            actualizations[jobId] = [];
+            print('[UI] No actualizations found for Job ID: $jobId');
+          }
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isError = true;
+      });
+      print('Error fetching data: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   Future<void> _reloadDataForJob(int jobId) async {
     try {
@@ -398,139 +440,154 @@ Future<void> _manageUsers(int jobId, int addressId) async {
         : const Text('No images available.');
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+ @override
+Widget build(BuildContext context) {
+  if (_isLoading) {
+    return const Center(child: CircularProgressIndicator());
+  }
 
-    if (_isError) {
-      return const Center(
-        child: Text(
-          'Failed to load data',
-          style: TextStyle(color: Colors.red),
-        ),
-      );
-    }
-
-return Scaffold(
-  appBar: AppBar(
-    title: const Text('Manage Tasks'),
-    backgroundColor: Color.fromARGB(144, 81, 85, 87), // Apply primary blue to AppBar
-  ),
-  body: Container(
-    decoration: AppStyles.backgroundDecoration, // Apply background image
-    child: ListView(
-      padding: const EdgeInsets.all(16.0), // Add some padding for better spacing
-      children: addresses.map((address) {
-        final addressId = address['addressId'];
-        final addressJobs = jobs[addressId] ?? [];
-        final teamId = address['teamId'];
-
-        return Card(
-          color: AppStyles.transparentWhite, // Apply semi-transparent background for cards
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0), // Rounded corners
-          ),
-          child: ExpansionTile(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(address['name'], style: AppStyles.headerStyle), // Use header style
-                IconButton(
-                  icon: const Icon(Icons.add, color: AppStyles.primaryBlue), // Change icon color
-                  onPressed: () => _addTask(addressId),
-                ),
-              ],
-            ),
-            children: addressJobs.map((job) {
-              final jobId = job['id'];
-              final jobActualizations = actualizations[jobId] ?? [];
-
-              return ExpansionTile(
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(job['name'], style: AppStyles.textStyle), // Use general text style
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.person_add, color: AppStyles.primaryBlue), // Icon color
-                             onPressed: () {
-  final addressId = address['addressId']; // Correctly fetch addressId instead of teamId
-  if (addressId != null) {
-    _manageUsers(jobId, addressId); // Pass the correct addressId to _assignUser
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Address ID not found for this job.')), // Updated message
+  if (_isError) {
+    return const Center(
+      child: Text(
+        'Failed to load data',
+        style: TextStyle(color: Colors.red),
+      ),
     );
   }
-},
 
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Color.fromARGB(255, 7, 7, 7)), // Delete icon in red
-                              onPressed: () => _deleteJob(jobId, addressId),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    if (jobActualizations.isNotEmpty) const Divider(color: Color.fromARGB(106, 0, 0, 0), thickness: 1, endIndent: 8, indent: 8, height: 16, ), // Divider after job title
-                  ],
-                ),
-                children: jobActualizations.isEmpty
-                    ? [
-                        const ListTile(
-                          title: Text('No actualizations were posted', style: AppStyles.textStyle), // Text style
-                        )
-                      ]
-                    : jobActualizations
-                        .map((actualization) {
-                          final images = actualization['jobImageUrl'] as List<String>;
-                          return Column(
-                            children: [
-                              ListTile(
-                                title: Text(actualization['message'], style: AppStyles.textStyle), // Text style
-                                trailing: IconButton(
-                                  icon: Icon(
-                                    actualization['isDone']
-                                        ? Icons.check_circle
-                                        : Icons.radio_button_unchecked,
-                                    color: actualization['isDone']
-                                        ? Color.fromARGB(255, 4, 169, 235)
-                                        : Colors.grey,
-                                  ),
-                                  onPressed: () async {
-                                    await _toggleJobActualizationStatus(
-                                      actualization['id'],
-                                      jobId,
-                                    );
-                                  },
-                                ),
-                              ),
-                              _buildImageList(images),
-                            ],
-                          );
-                        })
-                        .toList()
-                        .expand((widget) => [widget, const Divider(color: Color.fromARGB(85, 0, 0, 0), thickness: 1, height: 16, indent: 8, endIndent: 8, )]) // Divider between actualizations
-                        .toList()
-                        .sublist(0, jobActualizations.length * 2 - 1), // Exclude last divider
-              );
-            }).toList(),
-          ),
-        );
-      }).toList(),
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text(
+        'Manage Tasks',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      backgroundColor: const Color.fromARGB(144, 81, 85, 87),
     ),
-  ),
-);
+    body: Container(
+      decoration: AppStyles.backgroundDecoration,
+      child: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: addresses.map((address) {
+          final addressId = address['addressId'];
+          final addressJobs = jobs[addressId] ?? [];
+          final teamId = address['id'];
+          final powerLevel = teamPowerLevels[teamId] ?? 0;
 
+          // Skip address if power level is insufficient
+          if (powerLevel < 2) {
+            print('[UI] Skipping address ID $addressId due to insufficient power level: $powerLevel');
+            return const SizedBox.shrink();
+          }
 
+          print('[UI] Displaying address ID $addressId with sufficient power level: $powerLevel');
+
+          return Card(
+            color: AppStyles.transparentWhite,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: ExpansionTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    address['name'],
+                    style: AppStyles.headerStyle,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add, color: AppStyles.primaryBlue),
+                    onPressed: () => _addTask(addressId),
+                  ),
+                ],
+              ),
+              children: addressJobs.map((job) {
+                final jobId = job['id'];
+                final jobActualizations = actualizations[jobId] ?? [];
+
+                return ExpansionTile(
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            job['name'],
+                            style: AppStyles.textStyle,
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.person_add, color: AppStyles.primaryBlue),
+                                onPressed: () {
+                                  _manageUsers(jobId, addressId);
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Color.fromARGB(255, 10, 10, 10)),
+                                onPressed: () => _deleteJob(jobId, addressId),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      if (jobActualizations.isNotEmpty)
+                        const Divider(
+                          color: Colors.black26,
+                          thickness: 1,
+                          indent: 8,
+                          endIndent: 8,
+                        ),
+                    ],
+                  ),
+                  children: jobActualizations.isEmpty
+                      ? [
+                          const ListTile(
+                            title: Text(
+                              'No actualizations were posted',
+                              style: AppStyles.textStyle,
+                            ),
+                          ),
+                        ]
+                      : jobActualizations
+                          .map((actualization) {
+                            final images = actualization['jobImageUrl'] as List<String>;
+                            return Column(
+                              children: [
+                                ListTile(
+                                  title: Text(
+                                    actualization['message'],
+                                    style: AppStyles.textStyle,
+                                  ),
+                                  trailing: IconButton(
+                                    icon: Icon(
+                                      actualization['isDone']
+                                          ? Icons.check_circle
+                                          : Icons.radio_button_unchecked,
+                                      color: actualization['isDone'] ? const Color.fromARGB(255, 2, 107, 245) : Colors.grey,
+                                    ),
+                                    onPressed: () async {
+                                      await _toggleJobActualizationStatus(actualization['id'], jobId);
+                                    },
+                                  ),
+                                ),
+                                _buildImageList(images),
+                              ],
+                            );
+                          })
+                          .toList(),
+                );
+              }).toList(),
+            ),
+          );
+        }).toList(),
+      ),
+    ),
+  );
 }
+
+
+
 int getUserPowerLevel(int teamId) {
   final String? powerLevelsJson = html.window.localStorage['teamsWithPowerLevels'];
   if (powerLevelsJson == null || powerLevelsJson.isEmpty) {
@@ -553,20 +610,21 @@ int getUserPowerLevel(int teamId) {
   return 0; // Default to no privileges
 }
 
-Map<int, int> getTeamPowerLevels() {
-  final String? powerLevelsJson = html.window.localStorage['teamsWithPowerLevels'];
-  if (powerLevelsJson == null || powerLevelsJson.isEmpty) {
-    return {}; // Return an empty map if nothing is stored
-  }
+// Parse team power levels
+  Map<int, int> getTeamPowerLevels() {
+    final String? powerLevelsJson = html.window.localStorage['teamsWithPowerLevels'];
+    if (powerLevelsJson == null || powerLevelsJson.isEmpty) {
+      return {};
+    }
 
-  try {
-    final List<dynamic> teamsWithPowerLevels = json.decode(powerLevelsJson);
-    return {for (var entry in teamsWithPowerLevels) entry['teamId']: entry['powerLevel']};
-  } catch (e) {
-    print('Error parsing team power levels: $e');
-    return {};
+    try {
+      final List<dynamic> teamsWithPowerLevels = json.decode(powerLevelsJson);
+      return {for (var entry in teamsWithPowerLevels) entry['teamId']: entry['powerLevel']};
+    } catch (e) {
+      print('[UI] Error Parsing Power Levels: $e');
+      return {};
+    }
   }
-}
 
 
 }

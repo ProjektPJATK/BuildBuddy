@@ -372,6 +372,43 @@ static Future<void> deleteJob(int jobId) async {
     }
   }
 
+static Future<List<Map<String, dynamic>>> fetchTeamMembersWithPowerLevel(int addressId) async {
+  final url = AppConfig.getTeamatesPowerLevelByAddressID(addressId);
+  print('[TaskService] Fetching teammates with power levels for Address ID: $addressId at $url');
+
+  try {
+    final response = await HttpRequest.request(
+      url,
+      method: 'GET',
+      requestHeaders: {'Content-Type': 'application/json'},
+    );
+
+    if (response.status == 200) {
+      final List<dynamic> data = json.decode(response.responseText!);
+      print('[TaskService] Raw API Response: ${response.responseText}');
+      print('[TaskService] Team members with power levels fetched successfully: ${data.length}');
+
+      return data.map<Map<String, dynamic>>((user) {
+        if (user['powerLevel'] == null) {
+          print('[TaskService] Missing powerLevel for user: ${user['id']}');
+        }
+        return {
+          'id': user['id'], // User ID
+          'name': user['name'], // First name
+          'surname': user['surname'], // Surname
+          'email': user['email'], // Email
+          'powerLevel': user['powerLevel'] ?? 0, // Default to 0 if null
+        };
+      }).toList();
+    } else {
+      print('[TaskService] Failed to fetch teammates with power levels. Status: ${response.status}');
+      throw Exception('Failed to fetch teammates with power levels for Address ID: $addressId');
+    }
+  } catch (e) {
+    print('[TaskService] Error fetching teammates with power levels: $e');
+    rethrow;
+  }
+}
 
 
 }

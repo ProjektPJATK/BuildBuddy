@@ -79,6 +79,9 @@ static String toggleJobActualizationStatusEndpoint(int id) =>
 static String getAssignedUsersEndpoint(int jobId) =>
     '${getBaseUrl()}/api/User/job/$jobId';
 
+static String getTeamatesPowerLevelByAddressID(int addressId) =>
+    '${getBaseUrl()}/api/Address/$addressId/teammembers';
+
 
 
 }
