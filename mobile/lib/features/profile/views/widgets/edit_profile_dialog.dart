@@ -51,7 +51,12 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   Future<void> _saveProfile() async {
     if (nameController.text.isEmpty || surnameController.text.isEmpty || emailController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Wszystkie pola muszą być wypełnione.')),
+        const SnackBar(
+          behavior: SnackBarBehavior.fixed,
+          content: Text('Wszystkie pola muszą być wypełnione.')
+        
+        ),
+        
       );
       return;
     }
@@ -78,11 +83,15 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
       }
       widget.onSave(updatedUser);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profil został zapisany.')),
+        const SnackBar(
+        
+          content: Text('Profil został zapisany.')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Błąd podczas zapisywania profilu: $e')),
+        SnackBar(
+          
+          content: Text('Błąd podczas zapisywania profilu: $e')),
       );
     }
 

@@ -29,24 +29,15 @@ class _InventoryScreenState extends State<InventoryScreen> {
  void _loadInventory() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
-  final addressIdString = prefs.getString('addressId');
+  final int? addressId = prefs.getInt('addressId'); // Use getInt for integers
 
   print("Token: $token");
-  print("address ID (string): $addressIdString");
+  print("Address ID: $addressId");
 
-  if (token != null && addressIdString != null) {
-    final addressId = int.tryParse(addressIdString);
-    print("address ID (parsed): $addressId");
-
-    if (addressId != null) {
-      context.read<InventoryBloc>().add(
-            LoadInventoryEvent(token: token, addressId: addressId),
-          );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid address ID in cache')),
-      );
-    }
+  if (token != null && addressId != null) {
+    context.read<InventoryBloc>().add(
+          LoadInventoryEvent(token: token, addressId: addressId),
+        );
   } else {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Failed to load inventory: Missing data')),
