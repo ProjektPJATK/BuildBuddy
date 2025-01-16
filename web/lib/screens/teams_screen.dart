@@ -183,6 +183,8 @@ void _showAddUserDialog(BuildContext context, int teamId, List<int> existingUser
 
 
 void _showEditTeamDialog(BuildContext context, Map<String, dynamic> team) {
+  final scaffoldMessengerContext = ScaffoldMessenger.of(context);
+
   showDialog(
     context: context,
     builder: (context) => EditTeamDialog(
@@ -196,11 +198,25 @@ void _showEditTeamDialog(BuildContext context, Map<String, dynamic> team) {
           await _teamsService.updateAddress(addressId, updatedAddress);
           await _teamsService.updateTeam(team['id'], updatedName, addressId);
 
-          _showSuccessNotification(context, 'Team został pomyślnie zaktualizowany.');
-          _fetchTeams(); // Odświeżenie listy zespołów
+          // Wyświetl komunikat o sukcesie
+          scaffoldMessengerContext.showSnackBar(
+            SnackBar(
+              content: Text('Team został pomyślnie zaktualizowany.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          // Odśwież widok zespołów
+          await _fetchTeams();
+
         } catch (e) {
           print('Error updating team or address: $e');
-          _showAlert(context, 'Błąd', 'Nie udało się zaktualizować zespołu.');
+          scaffoldMessengerContext.showSnackBar(
+            SnackBar(
+              content: Text('Nie udało się zaktualizować zespołu.'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       },
       onCancel: () {
