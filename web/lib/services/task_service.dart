@@ -4,8 +4,7 @@ import 'package:web/config/config.dart';
 import 'package:universal_html/html.dart' as html;
 
 class TaskService {
-  // Fetch tasks by address ID
- static Future<List<Map<String, dynamic>>> fetchTasksByAddress(int addressId) async {
+static Future<List<Map<String, dynamic>>> fetchTasksByAddress(int addressId) async {
   final url = AppConfig.getJobsByAddressEndpoint(addressId);
   print('[TaskService] Fetching tasks for address ID: $url');
 
@@ -31,13 +30,17 @@ class TaskService {
           'addressId': task['addressId'],
         };
       }).toList();
+    } else if (response.status == 404) {
+      // Return an empty list for 404 responses instead of throwing an error
+      print('[TaskService] 404 Not Found for address ID: $addressId. Returning empty list.');
+      return [];
     } else {
       print('[TaskService] Failed to fetch tasks. Status: ${response.status}');
-      throw Exception('Failed to fetch tasks for address ID');
+      throw Exception('Failed to fetch tasks for address ID: $addressId. Status: ${response.status}');
     }
   } catch (e) {
     print('[TaskService] Error fetching tasks: $e');
-    rethrow;
+    return []; // Return empty list if any network or parsing error occurs
   }
 }
 
@@ -176,6 +179,7 @@ static Future<void> toggleJobActualizationStatus(int id) async {
 }
 
 
+/// Fetch job actualizations
 static Future<List<Map<String, dynamic>>> fetchJobActualizations(int jobId) async {
   final url = AppConfig.getJobActualizationEndpoint(jobId);
   print('[TaskService] Fetching job actualizations for Job ID: $jobId at $url');
@@ -198,7 +202,7 @@ static Future<List<Map<String, dynamic>>> fetchJobActualizations(int jobId) asyn
         try {
           images = await fetchJobActualizationImages(actualizationId);
         } catch (e) {
-          print('[TaskService] Error fetching images for Actualization ID: $actualizationId, Error: $e');
+          print('[TaskService] Error fetching images for Actualization ID $actualizationId: $e');
         }
 
         print('[TaskService] Actualization ID: $actualizationId, Images: $images');
@@ -212,16 +216,19 @@ static Future<List<Map<String, dynamic>>> fetchJobActualizations(int jobId) asyn
       }).toList();
 
       return await Future.wait(actualizationFutures);
+    } else if (response.status == 404) {
+      // Return an empty list for 404
+      print('[TaskService] 404 Not Found for job ID: $jobId. Returning empty list of actualizations.');
+      return [];
     } else {
       print('[TaskService] Failed to fetch job actualizations. Status: ${response.status}');
-      throw Exception('Failed to fetch job actualizations for Job ID: $jobId');
+      throw Exception('Failed to fetch job actualizations for Job ID: $jobId. Status: ${response.status}');
     }
   } catch (e) {
-    print('[TaskService] Error fetching job actualizations for Job ID: $jobId, Error: $e');
-    rethrow;
+    print('[TaskService] Error fetching job actualizations for Job ID $jobId: $e');
+    return []; // Return empty list on error
   }
 }
-
 
 
 
