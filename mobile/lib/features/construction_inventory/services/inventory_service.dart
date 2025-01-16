@@ -20,6 +20,11 @@ class InventoryService {
       );
 
       print('[InventoryService] Response status: ${response.statusCode}');
+      if (response.statusCode == 404) {
+        print('[InventoryService] No items found for the specified address.');
+        return []; // Return an empty list for no items found
+      }
+
       if (response.statusCode != 200) {
         print('[InventoryService] Response body (Error): ${response.body}');
         throw Exception(
@@ -36,7 +41,6 @@ class InventoryService {
           '[InventoryService] Failed to fetch inventory items. Error: $e');
     }
   }
-
   // Direct PATCH request to update a single field
   Future<void> updateInventoryItem(
       String token, int itemId, double newRemaining) async {

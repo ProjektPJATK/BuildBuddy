@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:html'; // For HttpRequest and localStorage
 import 'package:web/config/config.dart';
-import 'package:universal_html/html.dart' as html;
+
 
 class TaskService {
 static Future<List<Map<String, dynamic>>> fetchTasksByAddress(int addressId) async {

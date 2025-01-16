@@ -82,6 +82,15 @@ static String getAssignedUsersEndpoint(int jobId) =>
 static String getTeamatesPowerLevelByAddressID(int addressId) =>
     '${getBaseUrl()}/api/Address/$addressId/teammembers';
 
+static String getUpdateInventoryEndpoint(int itemId) =>
+    "${getBaseUrl()}/api/BuildingArticles/$itemId";
+// Endpoint to create a building article
+static String postBuildingArticleEndpoint() => '${getBaseUrl()}/api/BuildingArticles';
+
+// Endpoint to delete a building article by ID
+static String deleteBuildingArticleEndpoint(int id) => '${getBaseUrl()}/api/BuildingArticles/$id';
+
+
 
 
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:web/screens/inventory_screen.dart';
 import 'package:web/screens/teams_screen.dart';
 import 'projects_screens.dart';
 import 'reports_screens.dart';
@@ -145,12 +146,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: GestureDetector(
                               onTap: () => Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => ProjectsScreen()),
+                                MaterialPageRoute(builder: (context) => InventoryScreen()),
                               ),
                               child: _buildButton(
                                 context,
-                                'Projects',
-                                Icons.apartment,
+                                'Inventory',
+                                Icons.inventory,
                                 null,
                                 const Color.fromARGB(106, 33, 149, 243),
                               ),

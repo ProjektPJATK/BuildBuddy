@@ -26,59 +26,53 @@ class _InventoryScreenState extends State<InventoryScreen> {
     _loadInventory();
   }
 
- void _loadInventory() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
-  final int? addressId = prefs.getInt('addressId'); // Use getInt for integers
+  void _loadInventory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final int? addressId = prefs.getInt('addressId');
 
-  print("Token: $token");
-  print("Address ID: $addressId");
-
-  if (token != null && addressId != null) {
-    context.read<InventoryBloc>().add(
-          LoadInventoryEvent(token: token, addressId: addressId),
-        );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Failed to load inventory: Missing data')),
-    );
+    if (token != null && addressId != null) {
+      context.read<InventoryBloc>().add(
+            LoadInventoryEvent(token: token, addressId: addressId),
+          );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load inventory: Missing data')),
+      );
+    }
   }
-}
 
   void _showEditItemDialog(BuildContext context, InventoryItemModel item) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return EditItemDialog(
-        remaining: item.remaining, // Already a double
-        purchased: item.purchased, // Already a double
-        onSave: (newRemaining) {
-          context.read<InventoryBloc>().add(
-                UpdateInventoryItemEvent(
-                  itemId: item.id,
-                  newRemaining: newRemaining, // Passed as a double
-                ),
-              );
-        },
-      );
-    },
-  );
-}
-
+    showDialog(
+      context: context,
+      builder: (context) {
+        return EditItemDialog(
+          remaining: item.remaining,
+          purchased: item.purchased,
+          onSave: (newRemaining) {
+            context.read<InventoryBloc>().add(
+                  UpdateInventoryItemEvent(
+                    itemId: item.id,
+                    newRemaining: newRemaining,
+                  ),
+                );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Layers
           Container(
             decoration: AppStyles.backgroundDecoration,
           ),
           Container(
             color: AppStyles.filterColor.withOpacity(0.75),
           ),
-          // Main Content
           Positioned(
             top: 0,
             left: 0,
@@ -86,7 +80,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
             bottom: 0,
             child: Column(
               children: [
-                // Header
                 Container(
                   color: AppStyles.transparentWhite,
                   width: double.infinity,
@@ -98,7 +91,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                         .copyWith(color: Colors.black, fontSize: 22),
                   ),
                 ),
-                // Search Bar
                 Container(
                   color: AppStyles.transparentWhite,
                   padding:
@@ -122,7 +114,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     ),
                   ),
                 ),
-                // Inventory List
                 Expanded(
                   child: Container(
                     color: AppStyles.transparentWhite,
@@ -134,6 +125,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
                         } else if (state is InventoryError) {
                           return const Center(
                               child: Text('Error fetching inventory items'));
+                        } else if (state is NoInventoryFound) {
+                          return const Center(
+                              child: Text('No items found for the specified address.'));
                         } else if (state is InventoryLoaded) {
                           return ListView.builder(
                             padding: const EdgeInsets.all(8),
@@ -145,7 +139,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                                 child: ListTile(
                                   title: Text(item.name),
                                   subtitle: Text(
-                                    'Zakupione: ${item.purchased} | Pozostałe: ${item.remaining}',
+                                    'Zakupione: ${item.purchased}${item.metrics}  Pozostałe: ${item.remaining}${item.metrics}',
                                   ),
                                   trailing: IconButton(
                                     icon: Icon(Icons.edit,
@@ -164,7 +158,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     ),
                   ),
                 ),
-                // Bottom Navigation
                 BottomNavigation(
                   onTap: (index) {
                     if (index == 0) {
@@ -173,7 +166,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       Navigator.pushNamed(context, '/home');
                     }
                   },
-                  
                 ),
               ],
             ),

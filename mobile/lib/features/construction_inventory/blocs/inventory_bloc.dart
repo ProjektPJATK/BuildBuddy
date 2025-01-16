@@ -32,10 +32,14 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
         event.addressId,
       );
 
-      // Save to cache
-      await _saveToCache(items);
+      if (items.isEmpty) {
+        emit(NoInventoryFound());
+      } else {
+        // Save to cache
+        await _saveToCache(items);
 
-      emit(InventoryLoaded(items: items, filteredItems: items));
+        emit(InventoryLoaded(items: items, filteredItems: items));
+      }
     } catch (e) {
       if (cachedItems.isEmpty) {
         emit(InventoryError('Failed to load inventory items: $e'));
@@ -60,7 +64,6 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
     if (state is InventoryLoaded) {
       final currentState = state as InventoryLoaded;
 
-      // Get the token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
       if (token == null) {
@@ -68,7 +71,6 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
         return;
       }
 
-      // Optimistic UI update
       final updatedItems = currentState.items.map((item) {
         if (item.id == event.itemId) {
           return item.copyWith(remaining: event.newRemaining);
@@ -77,25 +79,21 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
       }).toList();
       emit(currentState.copyWith(items: updatedItems, filteredItems: updatedItems));
 
-      // Sync with the backend
       try {
         await inventoryService.updateInventoryItem(token, event.itemId, event.newRemaining);
       } catch (e) {
         print('[InventoryBloc] Failed to update inventory item: $e');
-        // Optionally, revert UI changes or notify the user
         emit(currentState); // Revert to the previous state
       }
     }
   }
 
-  // Save data to cache
   Future<void> _saveToCache(List<InventoryItemModel> items) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonData = jsonEncode(items.map((item) => item.toJson()).toList());
     await prefs.setString('inventory_cache', jsonData);
   }
 
-  // Load data from cache
   Future<List<InventoryItemModel>> _loadFromCache() async {
     final prefs = await SharedPreferences.getInstance();
     final cachedData = prefs.getString('inventory_cache');
