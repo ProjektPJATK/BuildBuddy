@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart';
-import 'package:web/config/config.dart';
 import 'package:web/services/task_service.dart';
 import 'package:web/themes/styles.dart';
 import 'package:universal_html/html.dart' as html;

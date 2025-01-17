@@ -149,8 +149,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               child: _buildButton(
                                 context,
-                                'Projects',
-                                Icons.apartment,
+                                'Inventory',
+                                Icons.inventory,
                                 null,
                                 const Color.fromARGB(106, 33, 149, 243),
                               ),
