@@ -26,20 +26,24 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     }
   }
 
-  Future<void> _onLoadConversations(
-      LoadConversationsEvent event, Emitter<ConversationState> emit) async {
-  //  print("[conversation_bloc] _onLoadConversations -> start");
-    emit(ConversationLoading());
-    try {
-      final rawConversations = await conversationService.fetchConversations();
-    //  print("[conversation_bloc] _onLoadConversations -> fetched ${rawConversations.length} conv from endpoint");
+ Future<void> _onLoadConversations(
+    LoadConversationsEvent event, Emitter<ConversationState> emit) async {
+  emit(ConversationLoading());
+  try {
+    final rawConversations = await conversationService.fetchConversations();
+    if (rawConversations.isEmpty) {
+      emit(ConversationLoaded(conversations: [])); // No conversations found
+    } else {
       await conversationService.saveConversationsToCache(rawConversations);
-
       emit(ConversationLoaded(conversations: rawConversations));
-    //  print("[conversation_bloc] _onLoadConversations -> Emit ConversationLoaded (endpoint)");
-    } catch (e) {
-     // print("[conversation_bloc] _onLoadConversations -> error=$e");
+    }
+  } catch (e) {
+    if (e.toString().contains('404')) {
+      emit(ConversationLoaded(conversations: [])); // Treat 404 as "no conversations"
+    } else {
       emit(ConversationError('Failed to load data: $e'));
     }
   }
+}
+
 }

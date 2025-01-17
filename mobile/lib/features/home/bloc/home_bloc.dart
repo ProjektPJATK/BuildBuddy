@@ -13,44 +13,36 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<FetchTeamsFromCacheEvent>(_onFetchTeamsFromCache);
   }
 
-  /// Obsługa eventu do pobierania zespołów z backendu
+  /// Fetch teams from the API
+  Future<void> _onFetchTeams(FetchTeamsEvent event, Emitter<HomeState> emit) async {
+    try {
+      emit(HomeLoading()); // Show loading indicator
+      final teams = await homeService.fetchTeams(event.userId);
 
+      if (teams.isEmpty) {
+        // Emit "no teams found" state explicitly
+        emit(HomeLoaded([], noTeamsFound: true));
+      } else {
+        // Cache the fetched teams
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('cachedTeams', jsonEncode(teams));
 
-Future<void> _onFetchTeams(FetchTeamsEvent event, Emitter<HomeState> emit) async {
-  try {
-    await Future.delayed(const Duration(milliseconds: 500));
-    final teams = await homeService.fetchTeams(event.userId);
-
-    // Cache the fetched teams
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('cachedTeams', jsonEncode(teams));
-
-    emit(HomeLoaded(teams)); // Aktualizacja danych
-    print("Emit HomeLoaded from FetchTeamsEvent");
-  } catch (e) {
-    emit(HomeError('Błąd pobierania danych: ${e.toString()}'));
-    print("Emit HomeError from FetchTeamsEvent: $e");
-  }
-}
-
-Future<void> _onFetchTeamsFromCache(FetchTeamsFromCacheEvent event, Emitter<HomeState> emit) async {
-  print("Handling FetchTeamsFromCacheEvent");
-  final cachedTeams = await _loadCachedTeams();
-  if (cachedTeams.isNotEmpty) {
-    emit(HomeLoaded(cachedTeams)); // Emituj dane z cache
-    print("Emit HomeLoaded from FetchTeamsFromCacheEvent");
-  } else {
-    print("No cached data available");
-  }
-}
-
-  /// Pobieranie zespołów z pamięci cache
-  Future<List<dynamic>> _loadCachedTeams() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cachedData = prefs.getString('cachedTeams');
-    if (cachedData != null) {
-      return jsonDecode(cachedData) as List<dynamic>;
+        // Emit loaded teams state
+        emit(HomeLoaded(teams));
+      }
+    } catch (e) {
+      if (e.toString().contains('404')) {
+        // Handle 404 explicitly as "no teams found"
+        emit(HomeLoaded([], noTeamsFound: true));
+      } else {
+        // Emit error state for other errors
+        emit(HomeError('Błąd podczas pobierania zespołów: ${e.toString()}'));
+      }
     }
-    return [];
+  }
+
+  /// Default cache handling: No teams found is shown
+  Future<void> _onFetchTeamsFromCache(FetchTeamsFromCacheEvent event, Emitter<HomeState> emit) async {
+    emit(HomeLoaded([], noTeamsFound: true)); // Default behavior shows "no teams found"
   }
 }

@@ -10,49 +10,25 @@ class ConversationService {
  Future<List<Map<String, dynamic>>> fetchConversations() async {
   final prefs = await SharedPreferences.getInstance();
   final currentUserId = prefs.getInt('userId') ?? 0;
-
   final endpoint = AppConfig.getChatListEndpoint(currentUserId);
- // print("[conversation_service] fetchConversations -> userId=$currentUserId, endpoint=$endpoint");
 
   try {
     final response = await http.get(Uri.parse(endpoint));
-  //  print("[conversation_service] fetchConversations -> response.statusCode=${response.statusCode}");
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
-     // print("[conversation_service] fetchConversations -> raw API data: $data");
-
-      final conversations = data.map((c) => c as Map<String, dynamic>).toList();
-
-      for (var conv in conversations) {
-        final List<dynamic> users = conv['users'] ?? [];
-       // print("[conversation_service] fetchConversations -> users: $users");
-
-        final participants = users.where((u) => u['id'] != currentUserId).toList();
-       // print("[conversation_service] fetchConversations -> participants: $participants");
-
-        final String joinedNames = participants.map((u) {
-          final String name = u['name'] ?? 'Nieznany';
-          final String surname = u['surname'] ?? '';
-          print("[conversation_service] fetchConversations -> name: $name, surname: $surname");
-          return '$name $surname'.trim();
-        }).join(', ');
-
-        conv['usersName'] = joinedNames.isNotEmpty ? joinedNames : 'Brak uczestników';
-      //  print("[conversation_service] fetchConversations -> usersName: ${conv['usersName']}");
-      }
-
-     // print("[conversation_service] fetchConversations -> finalConversations=$conversations");
-      return conversations;
+      return data.map((c) => c as Map<String, dynamic>).toList();
+    } else if (response.statusCode == 404) {
+      // Return an empty list for 404 responses
+      return [];
     } else {
-      //print("[conversation_service] fetchConversations -> statusCode=${response.statusCode}, body=${response.body}");
       throw Exception('Failed to load conversations');
     }
   } catch (e) {
-    //print("[conversation_service] fetchConversations -> error=$e");
     throw Exception('Error fetching conversations: $e');
   }
 }
+
 
   /// Zapisuje surowe konwersacje do cache
   Future<void> saveConversationsToCache(List<Map<String, dynamic>> conversations) async {
