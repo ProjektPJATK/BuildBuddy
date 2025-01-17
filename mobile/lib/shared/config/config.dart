@@ -26,7 +26,7 @@ class AppConfig {
 static String getUpdateInventoryEndpoint(int itemId) =>
     "${getBaseUrl()}/api/BuildingArticles/$itemId";
 
-  
+  static String getRoleInfoEndpoint(int roleId) =>"${getBaseUrl()}/api/Roles/$roleId";
   // Nowe endpointy
   static String exitChatEndpoint(int conversationId, int userId) => 
       '${getBaseUrl()}/api/Chat/exit-chat?conversationId=$conversationId&userId=$userId';
