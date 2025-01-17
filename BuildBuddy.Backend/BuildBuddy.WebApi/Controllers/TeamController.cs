@@ -1,5 +1,6 @@
 ﻿using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuildBuddy.WebApi.Controllers;
@@ -21,7 +22,8 @@ namespace BuildBuddy.WebApi.Controllers;
             var teams = await _teamService.GetAllTeamsAsync();
             return Ok(teams);
         }
-
+        
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("{id}")]
         public async Task<ActionResult<TeamDto>> GetTeamById(int id)
         {
@@ -33,6 +35,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(team);
         }
 
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPost]
         public async Task<ActionResult<TeamDto>> CreateTeam(TeamDto teamDto)
         {
@@ -40,6 +43,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return CreatedAtAction(nameof(GetTeamById), new { id = createdTeam.Id }, createdTeam);
         }
 
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTeam(int id, TeamDto teamDto)
         {
@@ -54,6 +58,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
 
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPost("{teamId}/users/{userId}")]
         public async Task<IActionResult> AddUserToTeam(int teamId, int userId)
         {
@@ -61,6 +66,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
 
+        [Authorize(Policy = "PowerLevel3")]
         [HttpDelete("{teamId}/users/{userId}")]
         public async Task<IActionResult> RemoveUserFromTeam(int teamId, int userId)
         {
@@ -68,6 +74,8 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("{teamId}/users")]
         public async Task<IActionResult> GetUsersByTeamId(int teamId)
         {

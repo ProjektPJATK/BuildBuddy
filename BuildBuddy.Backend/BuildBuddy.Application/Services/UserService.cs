@@ -52,7 +52,8 @@ namespace BuildBuddy.Application.Services
                     .Select(tur => new RoleInTeamDto
                     {
                         RoleId = tur.Role.Id,
-                        TeamId = tur.Team.Id
+                        TeamId = tur.Team.Id,
+                        PowerLevel = tur.Role.PowerLevel
                     }).ToList()
             };
         }
@@ -85,7 +86,8 @@ namespace BuildBuddy.Application.Services
                     .Select(tur => new RoleInTeamDto
                     {
                         RoleId = tur.Role.Id,
-                        TeamId = tur.Team.Id
+                        TeamId = tur.Team.Id,
+                        PowerLevel = tur.Role.PowerLevel
                     }).ToList()
             };
         }
@@ -110,7 +112,8 @@ namespace BuildBuddy.Application.Services
                     .Select(tur => new RoleInTeamDto
                     {
                         RoleId = tur.Role.Id,
-                        TeamId = tur.Team.Id
+                        TeamId = tur.Team.Id,
+                        PowerLevel = tur.Role.PowerLevel
                     }).ToList()
             });
         }
@@ -125,7 +128,7 @@ namespace BuildBuddy.Application.Services
                 Mail = userDto.Mail,
                 Password = userDto.Password,
                 UserImageUrl = userDto.UserImageUrl,
-                PreferredLanguage = userDto.PreferredLanguage,
+                PreferredLanguage = userDto.PreferredLanguage
             };
 
             _dbContext.Users.Insert(user);
@@ -245,20 +248,33 @@ namespace BuildBuddy.Application.Services
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"] ?? string.Empty);
+            var claims = new List<Claim>
+            {
+                new("id", user.Id.ToString()),
+                new("mail", user.Mail)
+            };
+
+            if (user.RolesInTeams.Any())
+            {
+                foreach (var role in user.RolesInTeams)
+                {
+                    claims.Add(new Claim($"PowerLevel:Team:{role.TeamId}", role.PowerLevel.ToString()));
+                }
+            }
+            claims.Add(new Claim("TeamId", user.RolesInTeams.First().TeamId.ToString()));
+            
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim("id", user.Id.ToString()),
-                    new Claim("mail", user.Mail)
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(2),
                 Issuer = _configuration["Jwt:Issuer"],
-                Audience = _configuration["Jwt:Issuer"], 
+                Audience = _configuration["Jwt:Issuer"],
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+
     }
 }

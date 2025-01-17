@@ -1,6 +1,7 @@
 ﻿
 using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +24,10 @@ namespace BuildBuddy.WebApi.Controllers;
             var users = await _userService.GetAllUsersAsync();
             return Ok(users);
         }
-
+        
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDto>> GetUserById(int id)
         {
@@ -35,13 +39,17 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(user);
         }
 
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPost]
         public async Task<ActionResult<UserDto>> CreateUser(UserDto userDto)
         {
             var createdUser = await _userService.CreateUserAsync(userDto);
             return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
         }
-
+        
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchUser(int id, [FromBody] JsonPatchDocument<UserDto> patchDoc)
         {
@@ -64,15 +72,17 @@ namespace BuildBuddy.WebApi.Controllers;
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
-
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             await _userService.DeleteUserAsync(id);
             return NoContent();
         }
-
+        
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("{id}/teams")]
         public async Task<ActionResult<IEnumerable<TeamDto>>> GetUserTeams(int id)
         {
@@ -84,6 +94,7 @@ namespace BuildBuddy.WebApi.Controllers;
 
             return Ok(teams);
         }
+        
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserDto userDto)
         {
@@ -106,6 +117,9 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(new { token, user.Id, user.RolesInTeams });
         }
         
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPost("{userId}/upload-image")]
         public async Task<IActionResult> UploadUserImage(int userId, IFormFile image)
         {
@@ -114,6 +128,9 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("{userId}/image")]
         public async Task<IActionResult> GetUserImage(int userId)
         {
@@ -132,6 +149,8 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(image);
         }
         
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("job/{jobId}")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsersByJobId(int jobId)
         {

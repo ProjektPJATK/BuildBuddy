@@ -24,6 +24,8 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(roles);
         }
 
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("{id}")]
         public async Task<ActionResult<RoleDto>> GetRoleById(int id)
         {
@@ -34,7 +36,8 @@ namespace BuildBuddy.WebApi.Controllers;
             }
             return Ok(role);
         }
-
+        
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPost]
         public async Task<ActionResult<RoleDto>> CreateRole([FromBody] RoleDto roleDto)
         {
@@ -65,6 +68,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
 
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRole(int id)
         {
@@ -77,7 +81,8 @@ namespace BuildBuddy.WebApi.Controllers;
             await _roleService.DeleteRoleAsync(id);
             return NoContent();
         }
-
+        
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPost("{roleId}/users/{userId}/teams/{teamId}")]
         public async Task<IActionResult> AssignRoleToUserInTeam(int roleId, int userId, int teamId)
         {
@@ -91,6 +96,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok();
         }
 
+        [Authorize(Policy = "PowerLevel3")]
         [HttpDelete("{roleId}/users/{userId}/teams/{teamId}")]
         public async Task<IActionResult> RemoveRoleFromUserInTeam(int roleId, int userId, int teamId)
         {
