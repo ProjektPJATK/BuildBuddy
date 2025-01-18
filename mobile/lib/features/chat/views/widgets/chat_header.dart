@@ -15,26 +15,29 @@ class ChatHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Sprawdzamy liczbę uczestników, jeśli 1 to wyświetlamy jego imię i nazwisko
-    final displayName = participants.length == 1
+      final displayName = participants.length == 1
         ? participants.first
-        : 'Konwersacja grupowa';
-
-    return GestureDetector(
-      onLongPress: () {
-        _showParticipantsDialog(context);
-      },
-      child: Column(
-        children: [
-          Container(
-            color: Colors.white.withOpacity(0.7),
-            padding: const EdgeInsets.only(left: 8, right: 8, top: 40, bottom: 10),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
-                  onPressed: onBackPressed,
-                ),
-                Expanded(
+        : (conversationName == null || conversationName.isEmpty
+            ? 'Konwersacja grupowa'
+            : conversationName!);
+            
+    return Column(
+      children: [
+        Container(
+          color: Colors.white.withOpacity(0.7),
+          padding: const EdgeInsets.only(left: 8, right: 8, top: 40, bottom: 10),
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                onPressed: onBackPressed,
+              ),
+              Expanded(
+                // Obszar na prawo od strzałki
+                child: GestureDetector(
+                  onLongPress: () {
+                    _showParticipantsDialog(context);
+                  },
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -50,7 +53,7 @@ class ChatHeader extends StatelessWidget {
                       const SizedBox(height: 4),
                       if (participants.length > 1)
                         Text(
-                          participants.join(', '),  // Wyświetlamy listę uczestników
+                          participants.join(', '), // Wyświetlamy listę uczestników
                           style: const TextStyle(
                             color: Colors.black54,
                             fontSize: 14,
@@ -60,15 +63,15 @@ class ChatHeader extends StatelessWidget {
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const Divider(
-            color: Colors.white,
-            height: 1,
-          ),
-        ],
-      ),
+        ),
+        const Divider(
+          color: Colors.white,
+          height: 1,
+        ),
+      ],
     );
   }
 

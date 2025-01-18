@@ -9,7 +9,6 @@ import 'widgets/build_option.dart';
 import 'widgets/notification_item.dart';
 import 'package:mobile/shared/widgets/bottom_navigation.dart';
 import 'package:mobile/shared/state/app_state.dart' as appState;
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -206,14 +205,14 @@ Future<void> _loadUnreadConversations() async {
                         title: team['name'],
                         addressId: team['addressId'],
                         onTap: () async {
-await _saveAddressAndPlaceId(team['addressId']);
-  Navigator.pushNamed(
-    context,
-    '/construction_home',
-    arguments: {
-      'teamId': team['id'],
-      'addressId': team['addressId'],
-    },
+                          await _saveAddressAndPlaceId(team['addressId']);
+                            Navigator.pushNamed(
+                              context,
+                              '/construction_home',
+                              arguments: {
+                                'teamId': team['id'],
+                                'addressId': team['addressId'],
+                              },
                           );
                         },
                       );

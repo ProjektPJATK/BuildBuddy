@@ -47,7 +47,7 @@ class TeamService {
   final prefs = await SharedPreferences.getInstance();
   final teamId = prefs.getInt('placeId') ?? 0;
 
-  final url = AppConfig.getTeammatesEndpoint(teamId);
+  final url = AppConfig.getTeammByAddressIdEndpoint(teamId);
   final response = await http.get(Uri.parse(url));
 
   if (response.statusCode == 200) {

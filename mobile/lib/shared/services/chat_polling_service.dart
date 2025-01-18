@@ -6,7 +6,7 @@ import 'dart:convert';
 
 class ChatPollingService {
   late Timer _timer;
-  final int pollingInterval = 1; // Interwał w sekundach
+  final int pollingInterval = 10; // Interwał w sekundach
   bool _isPolling = false;
 
   // Start pollingu dla nowych wiadomości
