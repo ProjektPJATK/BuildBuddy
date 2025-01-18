@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:web/screens/inventory_screen.dart';
 import 'package:web/screens/teams_screen.dart';
-import 'projects_screens.dart';
-import 'reports_screens.dart';
+
 import 'tasks_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -145,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: GestureDetector(
                               onTap: () => Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => ProjectsScreen()),
+                                MaterialPageRoute(builder: (context) => InventoryScreen()),
                               ),
                               child: _buildButton(
                                 context,
@@ -160,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: GestureDetector(
                               onTap: () => Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => ReportsScreen()),
+                                MaterialPageRoute(builder: (context) => InventoryScreen()),
                               ),
                               child: _buildButton(
                                 context,

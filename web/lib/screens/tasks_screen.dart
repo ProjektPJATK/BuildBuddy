@@ -35,11 +35,15 @@ class _TasksScreenState extends State<TasksScreen> {
   late Timer _powerLevelTimer; // Declare the timer
   Map<int, int> teamPowerLevels = {}; // Store power levels for teams
 
-  @override
-  void dispose() {
-    _powerLevelTimer.cancel(); // Cancel timer to avoid memory leaks
-    super.dispose();
-  }
+ @override
+void dispose() {
+  // Unfocus any text fields or HTML inputs before disposing
+  FocusScope.of(context).unfocus();
+
+  // Cancel your timer to avoid memory leaks
+  _powerLevelTimer.cancel();
+  super.dispose();
+}
 
   void _startPowerLevelRefetch() {
     _powerLevelTimer = Timer.periodic(
@@ -473,10 +477,7 @@ Widget build(BuildContext context) {
 
   return Scaffold(
     appBar: AppBar(
-      title: const Text(
-        'Manage Tasks',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
+      title: const Text('Manage Tasks', style: TextStyle(fontWeight: FontWeight.bold)),
       backgroundColor: const Color.fromARGB(144, 81, 85, 87),
     ),
     body: Container(
@@ -485,6 +486,7 @@ Widget build(BuildContext context) {
         padding: const EdgeInsets.all(16.0),
         children: addresses.map((address) {
           final addressId = address['addressId'];
+          final addressName = address['name'];
           final addressJobs = jobs[addressId] ?? [];
           final teamId = address['id'];
           final powerLevel = teamPowerLevels[teamId] ?? 0;
@@ -497,6 +499,7 @@ Widget build(BuildContext context) {
 
           print('[UI] Displaying address ID $addressId with sufficient power level: $powerLevel');
 
+          // Always return an ExpansionTile for this address
           return Card(
             color: AppStyles.transparentWhite,
             shape: RoundedRectangleBorder(
@@ -507,7 +510,7 @@ Widget build(BuildContext context) {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    address['name'],
+                    addressName,
                     style: AppStyles.headerStyle,
                   ),
                   IconButton(
@@ -516,84 +519,107 @@ Widget build(BuildContext context) {
                   ),
                 ],
               ),
-              children: addressJobs.map((job) {
-                final jobId = job['id'];
-                final jobActualizations = actualizations[jobId] ?? [];
-
-                return ExpansionTile(
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            job['name'],
-                            style: AppStyles.textStyle,
-                          ),
-                          Row(
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.person_add, color: AppStyles.primaryBlue),
-                                onPressed: () {
-                                  _manageUsers(jobId, addressId);
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete, color: Color.fromARGB(255, 10, 10, 10)),
-                                onPressed: () => _deleteJob(jobId, addressId),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      if (jobActualizations.isNotEmpty)
-                        const Divider(
-                          color: Colors.black26,
-                          thickness: 1,
-                          indent: 8,
-                          endIndent: 8,
+              // If addressJobs is empty, show a single "No jobs" tile
+              children: addressJobs.isEmpty
+                  ? [
+                      const ListTile(
+                        title: Text(
+                          'There are no jobs for this team',
+                          style: AppStyles.textStyle,
                         ),
-                    ],
-                  ),
-                  children: jobActualizations.isEmpty
-                      ? [
-                          const ListTile(
-                            title: Text(
-                              'No actualizations were posted',
-                              style: AppStyles.textStyle,
-                            ),
-                          ),
-                        ]
-                      : jobActualizations
-                          .map((actualization) {
-                            final images = actualization['jobImageUrl'] as List<String>;
-                            return Column(
+                      ),
+                    ]
+                  : addressJobs.map((job) {
+                      final jobId = job['id'];
+                      final jobName = job['name'];
+                      final jobActualizations = actualizations[jobId] ?? [];
+
+                      return ExpansionTile(
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                ListTile(
+                                Text(jobName, style: AppStyles.textStyle),
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.person_add, color: AppStyles.primaryBlue),
+                                      onPressed: () => _manageUsers(jobId, addressId),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete, color: Color.fromARGB(255, 10, 10, 10)),
+                                      onPressed: () => _deleteJob(jobId, addressId),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            if (jobActualizations.isNotEmpty)
+                              const Divider(
+                                color: Colors.black26,
+                                thickness: 1,
+                                indent: 8,
+                                endIndent: 8,
+                              ),
+                          ],
+                        ),
+                        // If jobActualizations is empty, show the "Workers did not post updates" tile
+                        children: jobActualizations.isEmpty
+                            ? [
+                                const ListTile(
                                   title: Text(
-                                    actualization['message'],
+                                    'Workers did not post any updates on their jobs',
                                     style: AppStyles.textStyle,
                                   ),
-                                  trailing: IconButton(
-                                    icon: Icon(
-                                      actualization['isDone']
-                                          ? Icons.check_circle
-                                          : Icons.radio_button_unchecked,
-                                      color: actualization['isDone'] ? const Color.fromARGB(255, 2, 107, 245) : Colors.grey,
-                                    ),
-                                    onPressed: () async {
-                                      await _toggleJobActualizationStatus(actualization['id'], jobId);
-                                    },
-                                  ),
                                 ),
-                                _buildImageList(images),
-                              ],
-                            );
-                          })
-                          .toList(),
-                );
-              }).toList(),
+                              ]
+                            : jobActualizations.map((actualization) {
+                                final images = actualization['jobImageUrl'] as List<String>;
+                                final isDone = actualization['isDone'] == true;
+
+                                return Column(
+                                  children: [
+                                    ListTile(
+                                      title: Text(
+                                        actualization['message'],
+                                        style: AppStyles.textStyle,
+                                      ),
+                                      trailing: isDone
+                                          // Accepted State: Blue background, white text
+                                          ? ElevatedButton.icon(
+                                              icon: const Icon(Icons.check_circle,  color: Colors.white,),
+                                            
+                                              label: const Text('Accepted'),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color.fromARGB(255, 2, 107, 245),
+                                                foregroundColor: Colors.white,
+                                              ),
+                                              onPressed: () async {
+                                                // Optionally toggle back if desired
+                                                await _toggleJobActualizationStatus(actualization['id'], jobId);
+                                              },
+                                            )
+                                          // Accept State: White background, light-blue text
+                                          : ElevatedButton.icon(
+                                              icon: const Icon(Icons.radio_button_unchecked, color: Color.fromARGB(255, 1, 112, 240),),
+                                              label: const Text('Accept'),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.white,
+                                                foregroundColor: const Color(0xFF026BF5),
+                                              ),
+                                              onPressed: () async {
+                                                await _toggleJobActualizationStatus(actualization['id'], jobId);
+                                              },
+                                            ),
+                                    ),
+                                    _buildImageList(images),
+                                  ],
+                                );
+                              }).toList(),
+                      );
+                    }).toList(),
             ),
           );
         }).toList(),
@@ -601,6 +627,8 @@ Widget build(BuildContext context) {
     ),
   );
 }
+
+
 
 
 

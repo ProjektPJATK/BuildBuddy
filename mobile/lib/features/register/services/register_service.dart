@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:mobile/features/profile/models/user_model.dart';
+
+import '../models/user_model_register.dart';
 import 'package:mobile/shared/config/config.dart';
 
-class RegisterService {
+import '../models/user_model_register.dart';
 
+class RegisterService {
   static Future<bool> registerUser(User user) async {
     final url = AppConfig.registerEndpoint();
     try {
@@ -14,7 +16,7 @@ class RegisterService {
           'Content-Type': 'application/json',
           'accept': '*/*',
         },
-        body: jsonEncode(user.toJson()),  // Używamy metody toJson() z modelu
+        body: jsonEncode(user.toJson()),
       );
 
       return response.statusCode == 200 || response.statusCode == 201;
@@ -24,3 +26,4 @@ class RegisterService {
     }
   }
 }
+
