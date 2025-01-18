@@ -234,53 +234,33 @@ Widget _buildHomeContent(BuildContext context, List<dynamic> teams, bool noTeams
           ),
         ),
       ),
-      // Notifications Section
-     
-        Expanded(
-          flex: 4,
-          child: Container(
-            color: AppStyles.transparentWhite,
-            child: Column(
-              children: [
-                const Text(
-                  'Powiadomienia',
-                  style: AppStyles.headerStyle,
+       Expanded(
+        flex: 4,
+        child: Container(
+          color: AppStyles.transparentWhite,
+          child: Column(
+            children: [
+              const Text(
+                'Powiadomienia',
+                style: AppStyles.headerStyle,
+              ),
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount: hasNewMessages ? unreadConversations.length : 0,
+                  itemBuilder: (context, index) {
+                    final conversation = unreadConversations[index];
+                    return NotificationItem(
+                      title: 'Masz nowe wiadomości z rozmowy ${conversation['conversationId']}',
+                      onClose: _clearNotifications,
+                    );
+                  },
                 ),
-                Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    itemCount: teams.length,
-                    itemBuilder: (context, index) {
-                      final team = teams[index];
-                      return BuildOption(
-                        title: team['name'],
-                        addressId: team['addressId'],
-                        onTap: () async {
-                          await _saveAddressAndPlaceId(team['addressId']);
-                            Navigator.pushNamed(
-                              context,
-                              '/construction_home',
-                              arguments: {
-                                'teamId': team['id'],
-                                'addressId': team['addressId'],
-                              },
-                          );
-                        },
-                      );
-                    },
-                    children: [
-                       if (hasNewMessages) // Show notifications section if there are new messages
-                      NotificationItem(
-                        title: 'Masz nowe wiadomości',
-                        onClose: _clearNotifications,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+      ),
     ],
   );
 }
