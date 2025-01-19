@@ -249,9 +249,8 @@ Widget _buildHomeContent(BuildContext context, List<dynamic> teams, bool noTeams
                   padding: EdgeInsets.zero,
                   itemCount: hasNewMessages ? unreadConversations.length : 0,
                   itemBuilder: (context, index) {
-                    final conversation = unreadConversations[index];
                     return NotificationItem(
-                      title: 'Masz nowe wiadomości z rozmowy ${conversation['conversationId']}',
+                      title: 'Masz nowe wiadomości',
                       onClose: _clearNotifications,
                     );
                   },
