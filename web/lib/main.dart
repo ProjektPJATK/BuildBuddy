@@ -15,14 +15,13 @@ void main() async {
   html.window.addEventListener('error', (event) {
     if (event is html.ErrorEvent) {
       final errorMessage = event.message ?? '';
-      if (errorMessage.contains('The targeted input element must be the active input element')) {
+      if (errorMessage.contains('Uncaught Error')||errorMessage.contains('The targeted input element must be the active input element') ) {
         print('Zignorowano błąd PointerBinding: $errorMessage');
       } else {
         print('Inny błąd: $errorMessage');
       }
     }
   });
-  
 }
 
 class BuildBuddyApp extends StatelessWidget {

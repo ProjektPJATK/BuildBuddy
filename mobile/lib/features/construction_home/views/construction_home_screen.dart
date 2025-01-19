@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/features/construction_home/views/widgets/construction_chat_button.dart';
 import 'package:mobile/features/construction_home/views/widgets/construction_details.dart';
-
 import '../../../shared/widgets/bottom_navigation.dart';
 import '../../../shared/themes/styles.dart';
 import '../../../shared/state/app_state.dart' as appState;
@@ -26,6 +24,7 @@ class _ConstructionHomeScreenState extends State<ConstructionHomeScreen> {
     return Scaffold(
       body: Stack(
         children: [
+          // Tło strony
           Container(decoration: AppStyles.backgroundDecoration),
           Container(color: AppStyles.filterColor.withOpacity(0.75)),
           Column(
@@ -45,21 +44,10 @@ class _ConstructionHomeScreenState extends State<ConstructionHomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Szczegóły budowy
-                    ConstructionDetails(constructionName: appState.selectedConstructionName),
-                    const Spacer(),
-                    // Przycisk "Przejdź do czatu"
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
-                        child: ConstructionChatButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/chat');
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
+                    Expanded(
+                      child: ConstructionDetails(),
+                    ),   
+                    ],
                 ),
               ),
               BottomNavigation(onTap: (_) {}),

@@ -7,7 +7,6 @@ import 'package:mobile/features/construction_team/views/team_screen.dart';
 import 'package:mobile/features/conversation_list/views/conversation_list_screen.dart';
 import 'package:mobile/features/profile/views/user_profile_screen.dart';
 import '../../features/home/views/home_screen.dart';
-
 import '../state/app_state.dart' as appState;
 
 class NavigationConfig {

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/shared/state/app_state.dart' as appState;
 
 class TeamMemberCard extends StatelessWidget {
   final String name;
   final String role;
   final String phone;
   final Function()? onInfoPressed;
+  final Function()? onChatPressed;
 
   const TeamMemberCard({
     Key? key,
@@ -12,6 +14,7 @@ class TeamMemberCard extends StatelessWidget {
     required this.role,
     required this.phone,
     this.onInfoPressed,
+    this.onChatPressed,
   }) : super(key: key);
 
   @override
@@ -24,13 +27,29 @@ class TeamMemberCard extends StatelessWidget {
           name,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text(role ?? 'Brak roli'),
-        trailing: onInfoPressed != null
-            ? IconButton(
+        subtitle: Text(role.isNotEmpty ? role : 'Brak roli'),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onInfoPressed != null)
+              IconButton(
                 icon: const Icon(Icons.info),
                 onPressed: onInfoPressed,
-              )
-            : null, // Ukryj ikonę, jeśli brak akcji
+              ),
+            if (onChatPressed != null)
+              IconButton(
+                icon: const Icon(Icons.chat),
+                onPressed: () {
+                  // Aktualizacja stanu globalnego
+                  appState.currentPage = 'chats';
+                  appState.isConstructionContext = false;
+
+                  // Wywołanie przekazanej funkcji
+                  onChatPressed?.call();
+                },
+              ),
+          ],
+        ),
       ),
     );
   }

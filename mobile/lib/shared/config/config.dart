@@ -17,14 +17,20 @@ class AppConfig {
   static String getInventoryEndpoint(int addressId) =>
       "${getBaseUrl()}/api/BuildingArticles/address/$addressId";
   static String getTeammatesEndpoint(int teamId) => "${getBaseUrl()}/api/Team/$teamId/users";
+    static String getTeammByAddressIdEndpoint(int addressId) => "${getBaseUrl()}/api/Address/$addressId/teammembers";
   static String getChatListEndpoint(int userId) =>
       '${getBaseUrl()}/api/Conversation/user/$userId/conversations';
   static String createConversationEndpoint() => '${getBaseUrl()}/api/Conversation/create';
+  
   static String registerEndpoint() => '${getBaseUrl()}/api/User/register';
     static String updateInventoryItemEndpoint(int itemId) =>
       '${getBaseUrl()}/api/BuildingArticles/$itemId';
 static String getUpdateInventoryEndpoint(int itemId) =>
     "${getBaseUrl()}/api/BuildingArticles/$itemId";
+  static String getAllTeamsEndpoint() => '${getBaseUrl()}/api/Team';
+  static String getConversationsEndpoint() => '${getBaseUrl()}/api/Conversation/all';
+    static String getAddressInfoEndpoint(int addressId) =>
+    "${getBaseUrl()}/api/Address/$addressId";
 
   static String getRoleInfoEndpoint(int roleId) =>"${getBaseUrl()}/api/Roles/$roleId";
   // Nowe endpointy

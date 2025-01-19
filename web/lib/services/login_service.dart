@@ -22,7 +22,7 @@ class LoginService {
 
         final token = data['token'] ?? '';
         final userId = int.tryParse(data['id']?.toString() ?? '0') ?? 0;
-        html.window.localStorage['userId'] = userId.toString();
+        setLoginCookie(token, userId);
 
         final rolesInTeams = data['rolesInTeams'] as List<dynamic>;
         final List<Map<String, dynamic>> teamsWithPowerLevels = [];
@@ -50,7 +50,6 @@ class LoginService {
 
         // Zapisanie listy ról w localStorage
         html.window.localStorage['teamsWithPowerLevels'] = jsonEncode(teamsWithPowerLevels);
-        setLoginCookie(token);
 
         return LoginResponse(
           token: token,
@@ -68,11 +67,15 @@ class LoginService {
     }
   }
 
-  void setLoginCookie(String token) {
-    final cookie = 'userToken=$token; path=/; max-age=3600'; // Ważność 1 godzina
-    html.document.cookie = cookie;
+  void setLoginCookie(String token, int userId) {
+    final tokenCookie = 'userToken=$token; path=/; max-age=3600'; // Ważność 1 godzina
+    final userIdCookie = 'userId=$userId; path=/; max-age=3600';
 
-    print('Cookie set: $cookie');
+    html.document.cookie = tokenCookie;
+    html.document.cookie = userIdCookie;
+
+    print('Cookie set: $tokenCookie');
+    print('Cookie set: $userIdCookie');
     print('Current cookies: ${html.document.cookie}');
   }
 

@@ -31,6 +31,7 @@ dependencies:
   universal_io: ^2.2.2
   universal_html: ^2.0.4
   url_strategy: ^0.3.0
+  web_socket_channel: ^2.2.0
   flutter:
     sdk: flutter
 

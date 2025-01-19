@@ -9,7 +9,6 @@ import 'widgets/build_option.dart';
 import 'widgets/notification_item.dart';
 import 'package:mobile/shared/widgets/bottom_navigation.dart';
 import 'package:mobile/shared/state/app_state.dart' as appState;
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -235,34 +234,32 @@ Widget _buildHomeContent(BuildContext context, List<dynamic> teams, bool noTeams
           ),
         ),
       ),
-      // Notifications Section
-     
-        Expanded(
-          flex: 4,
-          child: Container(
-            color: AppStyles.transparentWhite,
-            child: Column(
-              children: [
-                const Text(
-                  'Powiadomienia',
-                  style: AppStyles.headerStyle,
+       Expanded(
+        flex: 4,
+        child: Container(
+          color: AppStyles.transparentWhite,
+          child: Column(
+            children: [
+              const Text(
+                'Powiadomienia',
+                style: AppStyles.headerStyle,
+              ),
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount: hasNewMessages ? unreadConversations.length : 0,
+                  itemBuilder: (context, index) {
+                    return NotificationItem(
+                      title: 'Masz nowe wiadomości',
+                      onClose: _clearNotifications,
+                    );
+                  },
                 ),
-                Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    children: [
-                       if (hasNewMessages) // Show notifications section if there are new messages
-                      NotificationItem(
-                        title: 'Masz nowe wiadomości',
-                        onClose: _clearNotifications,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+      ),
     ],
   );
 }

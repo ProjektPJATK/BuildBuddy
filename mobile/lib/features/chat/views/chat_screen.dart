@@ -35,6 +35,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    _updateLastChecked(widget.conversationId);
     _chatBloc?.chatHubService.dispose();
     super.dispose();
   }
@@ -131,6 +132,11 @@ class _ChatScreenState extends State<ChatScreen> {
     return 'Nieznany użytkownik';
   }
 
+ Future<void> _updateLastChecked(int conversationId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('lastChecked_$conversationId', DateTime.now().toIso8601String());
+    print("[NewMessageScreen] Last checked time for conversation $conversationId updated.");
+  }
 
 
   @override

@@ -68,7 +68,6 @@ Future<void> _saveLastMessageTime(int conversationId) async {
     print("[ConversationListScreen] Error: User not logged in.");
     return;
   }
-
   final url = AppConfig.exitChatEndpoint(conversationId, userId); // Twój poprawny endpoint
   print("[ConversationListScreen] conv id ${conversationId}");
   print("[ConversationListScreen] user id ${userId}");
@@ -142,13 +141,10 @@ void _updateConversations(List<Map<String, dynamic>> conversations) async {
 
 Future<void> _updateLastChecked(int conversationId) async {
   final prefs = await SharedPreferences.getInstance();
-  
   // Zapisz czas wejścia do czatu
   await prefs.setString('lastChecked_$conversationId', DateTime.now().toIso8601String());
-
   // Dodatkowy log dla sprawdzenia
   print("[HomeScreen] Last checked time for conversation $conversationId updated: ${DateTime.now().toIso8601String()}");
-
   // Odczytujemy wartość z SharedPreferences, aby upewnić się, że jest zapisana
   final lastChecked = prefs.getString('lastChecked_$conversationId');
   print("[HomeScreen] Last checked value for conversation $conversationId: $lastChecked");
@@ -226,18 +222,14 @@ Future<void> _updateLastChecked(int conversationId) async {
                                 return ListView.builder(
                                   itemCount: filteredConversations.length,
                                   itemBuilder: (context, index) {
-                                    final conversation =
-                                        filteredConversations[index];
-                                    final conversationId =
-                                        conversation['id'] as int? ?? 0;
+                                    final conversation = filteredConversations[index];
+                                    final conversationId = conversation['id'] as int? ?? 0;
 
-                                    final List<dynamic> users =
-                                        conversation['users'] ?? [];
+                                    final List<dynamic> users = conversation['users'] ?? [];
                                     final List<Map<String, dynamic>> participants = users
                                         .map((user) => {
                                               'id': user['id'],
-                                              'name':
-                                                  '${user['name']} ${user['surname']}',
+                                              'name': '${user['name']} ${user['surname']}',
                                             })
                                         .toList();
 
@@ -245,15 +237,27 @@ Future<void> _updateLastChecked(int conversationId) async {
                                     String participantsList = '';
 
                                     if (participants.length == 2) {
+                                      // Jeśli konwersacja ma tylko dwóch uczestników
                                       final otherUser = participants
                                           .firstWhere((p) => p['id'] != userId, orElse: () => participants.first);
                                       conversationName = otherUser['name'];
                                     } else {
-                                      conversationName = 'Konwersacja grupowa';
-                                      participantsList = participants
-                                          .where((p) => p['id'] != userId)
-                                          .map((p) => p['name'])
-                                          .join(', ');
+                                      // Jeśli jest więcej uczestników
+                                      if (conversation['teamId'] != null) {
+                                        // Jeśli teamId jest niepusty, używamy conversation['name']
+                                        conversationName = conversation['name'] ?? 'Konwersacja grupowa';
+                                        participantsList = participants
+                                            .where((p) => p['id'] != userId)
+                                            .map((p) => p['name'])
+                                            .join(', ');
+                                      } else {
+                                        // W przeciwnym razie ustawiamy "Konwersacja grupowa"
+                                        conversationName = 'Konwersacja grupowa';
+                                        participantsList = participants
+                                            .where((p) => p['id'] != userId)
+                                            .map((p) => p['name'])
+                                            .join(', ');
+                                      }
                                     }
 
                                     return ConversationItem(
@@ -261,23 +265,23 @@ Future<void> _updateLastChecked(int conversationId) async {
                                       onTap: () async {
                                         await _saveLastMessageTime(conversationId);
                                         await _updateLastChecked(conversationId);
-                                         final result = await Navigator.pushNamed(
-                                            context,
-                                            '/chat',
-                                            arguments: {
-                                              'conversationName': conversationName,
-                                              'participants': participants,
-                                              'conversationId': conversationId,
-                                            },
-                                          );
+                                        final result = await Navigator.pushNamed(
+                                          context,
+                                          '/chat',
+                                          arguments: {
+                                            'conversationName': conversationName,
+                                            'participants': participants,
+                                            'conversationId': conversationId,
+                                          },
+                                        );
 
-                                          // Jeśli wynik jest 'refresh', to odśwież konwersacje
-                                          if (result == 'refresh') {
-                                            // Jeśli dostaliśmy sygnał o odświeżeniu, załaduj konwersacje ponownie
-                                            _loadConversations();
-                                          }
-                                        },
-                                        participantsList: participantsList,
+                                        // Jeśli wynik jest 'refresh', to odśwież konwersacje
+                                        if (result == 'refresh') {
+                                          // Jeśli dostaliśmy sygnał o odświeżeniu, załaduj konwersacje ponownie
+                                          _loadConversations();
+                                        }
+                                      },
+                                      participantsList: participantsList,
                                     );
                                   },
                                 );
