@@ -173,4 +173,6 @@ class InventoryService {
       return []; // Return an empty list on error to avoid crashing
     }
   }
+
+  
 }
