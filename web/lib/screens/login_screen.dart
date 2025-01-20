@@ -130,7 +130,7 @@ Widget _buildLoginCard(BuildContext context) {
         else
           _buildLoginButton(),
         const SizedBox(height: 10),
-        _buildRegistrationButton(),
+      
       ],
     ),
   );
@@ -169,7 +169,7 @@ Widget _buildPasswordField() {
     controller: _passwordController,
     style: TextStyle(color: Colors.white),
     decoration: InputDecoration(
-      hintText: 'Hasło',
+      hintText: 'Password',
       hintStyle: const TextStyle(color: Colors.white54),
       filled: true,
       fillColor: Colors.black.withOpacity(0.3),
@@ -194,7 +194,7 @@ Widget _buildPasswordField() {
 Widget _buildLoginButton() {
   return ElevatedButton(
     onPressed: _handleLogin,
-    child: const Text('Zaloguj się'),
+    child: const Text('Log in'),
     style: ElevatedButton.styleFrom(
       backgroundColor: Colors.blueAccent,
       foregroundColor: Colors.white,
@@ -206,19 +206,5 @@ Widget _buildLoginButton() {
   );
 }
 
-Widget _buildRegistrationButton() {
-  return TextButton(
-    onPressed: () {
-      // Dodaj logikę dla rejestracji
-    },
-    child: const Text('Rejestracja'),
-    style: TextButton.styleFrom(
-      foregroundColor: Colors.blueAccent,
-      textStyle: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-      ),
-    ),
-  );
-}
+
 }

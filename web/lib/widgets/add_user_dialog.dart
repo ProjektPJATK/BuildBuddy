@@ -5,13 +5,13 @@ import 'package:web_app/themes/styles.dart';
 
 class AddUserDialog extends StatefulWidget {
   final int teamId;
-  final List<int> existingUserIds; // Lista użytkowników w drużynie
+  final List<int> existingUserIds; // List of users in the team
   final VoidCallback onCancel;
   final Function(List<int>) onSuccess;
 
   AddUserDialog({
     required this.teamId,
-    required this.existingUserIds, // Przekazanie listy użytkowników w drużynie
+    required this.existingUserIds, // Pass the list of users in the team
     required this.onCancel,
     required this.onSuccess,
   });
@@ -48,29 +48,28 @@ int? _getLoggedInUserId() {
 
 
   Future<void> _fetchUsers() async {
-  try {
-    final fetchedUsers = await _teamsService.fetchAllUsers();
+    try {
+      final fetchedUsers = await _teamsService.fetchAllUsers();
 
-    // Filtruj użytkowników, którzy nie należą do zespołu i nie są zalogowanym użytkownikiem
-    final availableUsers = fetchedUsers
-        .where((user) =>
-            !widget.existingUserIds.contains(user['id']) && user['id'] != _getLoggedInUserId())
-        .toList();
+      // Filter out users who are already in the team or the logged-in user
+      final availableUsers = fetchedUsers
+          .where((user) =>
+              !widget.existingUserIds.contains(user['id']) && user['id'] != _getLoggedInUserId())
+          .toList();
 
-    setState(() {
-      users = availableUsers;
-      filteredUsers = availableUsers;
-      _isLoading = false;
-    });
-  } catch (e) {
-    setState(() {
-      _isError = true;
-      _isLoading = false;
-    });
-    print('Błąd podczas pobierania użytkowników: $e');
+      setState(() {
+        users = availableUsers;
+        filteredUsers = availableUsers;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isError = true;
+        _isLoading = false;
+      });
+      print('Error while fetching users: $e');
+    }
   }
-}
-
 
   void _filterUsers(String query) {
     setState(() {
@@ -96,116 +95,115 @@ int? _getLoggedInUserId() {
     });
   }
 
- @override
-Widget build(BuildContext context) {
-  return FocusTraversalGroup(
-    child: AlertDialog(
-      backgroundColor: AppStyles.transparentWhite,
+  @override
+  Widget build(BuildContext context) {
+    return FocusTraversalGroup(
+      child: AlertDialog(
+        backgroundColor: AppStyles.transparentWhite,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        title: Text(
+          'Add Users to Team',
+          style: AppStyles.headerStyle,
+        ),
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.7,
+          height: MediaQuery.of(context).size.height * 0.7,
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _isError
+                  ? const Center(
+                      child: Text(
+                        'Failed to load users.',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        TextField(
+                          controller: _searchController,
+                          decoration: AppStyles.inputFieldStyle(
+                            hintText: 'Search User',
+                          ).copyWith(
+                            prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                          ),
+                          cursorColor: AppStyles.cursorColor,
+                          onChanged: _filterUsers,
+                        ),
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: Scrollbar(
+                            controller: _scrollController,
+                            thumbVisibility: true,
+                            interactive: true,
+                            child: ListView(
+                              controller: _scrollController,
+                              children: [
+                                ...selectedUsers.map(
+                                  (user) => _buildUserTile(user, true),
+                                ),
+                                ...filteredUsers
+                                    .where((user) => !selectedUsers.contains(user))
+                                    .map((user) => _buildUserTile(user, false)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              widget.onCancel();
+            },
+            style: AppStyles.textButtonStyle(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: selectedUsers.isNotEmpty
+                ? () {
+                    final userIds = selectedUsers.map((user) => user['id'] as int).toList();
+                    widget.onSuccess(userIds);
+                    Navigator.pop(context);
+                  }
+                : null,
+            style: AppStyles.buttonStyle(),
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserTile(Map<String, dynamic> user, bool isSelected) {
+    return Card(
+      color: AppStyles.transparentWhite,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
-      title: Text(
-        'Dodaj użytkowników do zespołu',
-        style: AppStyles.headerStyle,
-      ),
-      content: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.7,
-        height: MediaQuery.of(context).size.height * 0.7,
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _isError
-                ? const Center(
-                    child: Text(
-                      'Nie udało się załadować użytkowników.',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  )
-                : Column(
-                    children: [
-                      TextField(
-                        controller: _searchController,
-                        decoration: AppStyles.inputFieldStyle(
-                          hintText: 'Szukaj użytkownika',
-                        ).copyWith(
-                          prefixIcon: const Icon(Icons.search, color: Colors.white54),
-                        ),
-                        cursorColor: AppStyles.cursorColor,
-                        onChanged: _filterUsers,
-                      ),
-                      const SizedBox(height: 16),
-                      Expanded(
-                        child: Scrollbar(
-                          controller: _scrollController,
-                          thumbVisibility: true,
-                          interactive: true,
-                          child: ListView(
-                            controller: _scrollController,
-                            children: [
-                              ...selectedUsers.map(
-                                (user) => _buildUserTile(user, true),
-                              ),
-                              ...filteredUsers
-                                  .where((user) => !selectedUsers.contains(user))
-                                  .map((user) => _buildUserTile(user, false)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            widget.onCancel();
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
+      child: ListTile(
+        leading: Checkbox(
+          value: isSelected,
+          activeColor: AppStyles.primaryBlue,
+          onChanged: (_) {
+            _toggleUserSelection(user);
           },
-          style: AppStyles.textButtonStyle(),
-          child: const Text('Anuluj'),
         ),
-        ElevatedButton(
-          onPressed: selectedUsers.isNotEmpty
-              ? () {
-                  final userIds = selectedUsers.map((user) => user['id'] as int).toList();
-                  widget.onSuccess(userIds);
-                  Navigator.pop(context);
-                }
-              : null,
-          style: AppStyles.buttonStyle(),
-          child: const Text('Dodaj'),
+        title: Text(
+          '${user['name']} ${user['surname']}',
+          style: AppStyles.textStyle,
         ),
-      ],
-    ),
-  );
-}
-
-Widget _buildUserTile(Map<String, dynamic> user, bool isSelected) {
-  return Card(
-    color: AppStyles.transparentWhite,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10.0),
-    ),
-    margin: const EdgeInsets.symmetric(vertical: 4.0),
-    child: ListTile(
-      leading: Checkbox(
-        value: isSelected,
-        activeColor: AppStyles.primaryBlue,
-        onChanged: (_) {
+        subtitle: Text(
+          user['email'],
+          style: AppStyles.textStyle.copyWith(color: Colors.grey),
+        ),
+        onTap: () {
           _toggleUserSelection(user);
         },
       ),
-      title: Text(
-        '${user['name']} ${user['surname']}',
-        style: AppStyles.textStyle,
-      ),
-      subtitle: Text(
-        user['email'],
-        style: AppStyles.textStyle.copyWith(color: Colors.grey),
-      ),
-      onTap: () {
-        _toggleUserSelection(user);
-      },
-    ),
-  );
-}
-
+    );
+  }
 }

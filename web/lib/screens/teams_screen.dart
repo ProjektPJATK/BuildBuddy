@@ -79,7 +79,7 @@ late BuildContext _messengerContext;
   void _showAddProjectDialog(BuildContext context) {
     final teamsJson = html.window.localStorage['teamsWithPowerLevels'];
     if (teamsJson == null) {
-      _showAlert(context, "Brak uprawnień", "Nie masz odpowiednich uprawnień do dodawania projektu.");
+      _showAlert(context, "you dont have access", "you dont have access, to do it.");
       return;
     }
 
@@ -88,7 +88,7 @@ late BuildContext _messengerContext;
     final hasPermission = teamsWithPowerLevels.any((team) => team['powerLevel'] == 3);
 
     if (!hasPermission) {
-      _showAlert(context, "Brak uprawnień", "Nie masz odpowiednich uprawnień do dodawania projektu.");
+      _showAlert(context, "you dont have access", "you dont have access, to do it.");
       return;
     }
 
@@ -99,8 +99,8 @@ late BuildContext _messengerContext;
           Navigator.pop(context);
         },
         onSuccess: (projectData) {
-          print('Projekt dodany: $projectData');
-          _showSuccessNotification(context, 'Projekt został pomyślnie dodany.');
+          print('Project added: $projectData');
+          _showSuccessNotification(context, 'Project added succesfully.');
           _fetchTeams(); // Odświeżenie danych zespołów
         },
       ),
@@ -108,7 +108,7 @@ late BuildContext _messengerContext;
   }
 
   void _handleUnauthorizedAction(BuildContext context) {
-    _showAlert(context, "Brak uprawnień", "Nie masz wystarczających uprawnień, aby wykonać tę akcję.");
+    _showAlert(context, "you dont have access", "you dont have access, to do it.");
   }
 
   Future<void> _fetchTeams() async {
@@ -157,7 +157,7 @@ void _showAddUserDialog(BuildContext context, int teamId, List<int> existingUser
           // Wyświetl komunikat o sukcesie
           scaffoldMessengerContext.showSnackBar(
             SnackBar(
-              content: Text('Użytkownicy zostali pomyślnie dodani do zespołu.'),
+              content: Text('Succesfully added worker.'),
               backgroundColor: Colors.green,
             ),
           );
@@ -169,7 +169,7 @@ void _showAddUserDialog(BuildContext context, int teamId, List<int> existingUser
           print('Błąd podczas dodawania użytkowników: $e');
           scaffoldMessengerContext.showSnackBar(
             SnackBar(
-              content: Text('Nie udało się dodać użytkowników do zespołu.'),
+              content: Text('Filed to add worker.'),
               backgroundColor: Colors.red,
             ),
           );
@@ -202,7 +202,7 @@ void _showEditTeamDialog(BuildContext context, Map<String, dynamic> team) {
           // Wyświetl komunikat o sukcesie
           scaffoldMessengerContext.showSnackBar(
             SnackBar(
-              content: Text('Team został pomyślnie zaktualizowany.'),
+              content: Text('Team was updated.'),
               backgroundColor: Colors.green,
             ),
           );
@@ -273,7 +273,7 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
               onPressed: () => _showAddProjectDialog(context),
               icon: const Icon(Icons.apartment, size: 24, color: Colors.white),
               label: Text(
-                "Dodaj Projekt",
+                "Add project",
                 style: AppStyles.textStyle.copyWith(color: Colors.white),
               ),
               style: AppStyles.buttonStyle().copyWith(
@@ -342,7 +342,7 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
                                         : () => _handleUnauthorizedAction(context),
                                     icon: const Icon(Icons.add, color: AppStyles.primaryBlue),
                                     label: Text(
-                                      "Dodaj Pracownika",
+                                      "Add worker",
                                       style: AppStyles.textStyle.copyWith(color: AppStyles.primaryBlue),
                                     ),
                                   ),
@@ -359,7 +359,7 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Opis: ${address['description']}',
+                                'Description: ${address['description']}',
                                 style: AppStyles.textStyle.copyWith(color: Colors.grey),
                               ),
                             ],
