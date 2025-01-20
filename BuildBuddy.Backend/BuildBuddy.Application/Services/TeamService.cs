@@ -167,7 +167,7 @@ namespace BuildBuddy.Application.Services
         }
 
 
-        public async Task<List<UserDto>> GetUsersByTeamId(int teamId)
+        public async Task<List<UserDto>> GetUsersByTeamIdAsync(int teamId)
         {
             var usersWithRoles = await _dbContext.TeamUsers.GetAsync(
                 filter: tu => tu.TeamId == teamId,
@@ -177,22 +177,18 @@ namespace BuildBuddy.Application.Services
                     Name = tu.User.Name,
                     Surname = tu.User.Surname,
                     Mail = tu.User.Mail,
-                    TelephoneNr = tu.User.TelephoneNr,
                     Password = tu.User.Password,
+                    TelephoneNr = tu.User.TelephoneNr,
                     UserImageUrl = tu.User.UserImageUrl,
                     PreferredLanguage = tu.User.PreferredLanguage,
-                    RolesInTeams = tu.User.TeamUserRoles
-                        .Select(tur => new RoleInTeamDto
-                        {
-                            RoleId = tur.Role.Id,
-                            TeamId = tur.Team.Id
-                        }).ToList()
+                    RoleId = tu.User.RoleId ?? 0,
+                    RoleName = tu.User.Role != null ? tu.User.Role.Name : "No Role", 
+                    PowerLevel = tu.User.Role != null ? tu.User.Role.PowerLevel : 0 
                 },
-                includeProperties: "User,User.TeamUserRoles"
+                includeProperties: "User.Role"
             );
 
-            return usersWithRoles;
+            return usersWithRoles.ToList();
         }
-
     }
 }

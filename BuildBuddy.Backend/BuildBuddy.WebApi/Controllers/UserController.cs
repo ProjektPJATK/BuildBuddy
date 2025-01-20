@@ -114,7 +114,7 @@ namespace BuildBuddy.WebApi.Controllers;
             }
 
             var token = _userService.GenerateJwtToken(user);
-            return Ok(new { token, user.Id, user.RolesInTeams });
+            return Ok(new { token, user.Id});
         }
         
         [Authorize(Policy = "PowerLevel1")]

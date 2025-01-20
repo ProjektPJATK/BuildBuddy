@@ -82,9 +82,9 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
-        [Authorize(Policy = "PowerLevel3")]
-        [HttpPost("{roleId}/users/{userId}/teams/{teamId}")]
-        public async Task<IActionResult> AssignRoleToUserInTeam(int roleId, int userId, int teamId)
+        //[Authorize(Policy = "PowerLevel3")]
+        [HttpPost("{roleId}/users/{userId}")]
+        public async Task<IActionResult> AssignRoleToUser(int roleId, int userId)
         {
             var role = await _roleService.GetRoleByIdAsync(roleId);
             if (role == null)
@@ -92,28 +92,16 @@ namespace BuildBuddy.WebApi.Controllers;
                 return NotFound($"Rola o ID {roleId} nie została znaleziona.");
             }
 
-            await _roleService.AssignRoleToUserInTeamAsync(userId, roleId, teamId);
+            await _roleService.AssignUserToRoleAsync(userId, roleId);
             return Ok();
         }
 
         [Authorize(Policy = "PowerLevel3")]
-        [HttpDelete("{roleId}/users/{userId}/teams/{teamId}")]
-        public async Task<IActionResult> RemoveRoleFromUserInTeam(int roleId, int userId, int teamId)
+        [HttpDelete("{roleId}/users/{userId}")]
+        public async Task<IActionResult> RemoveRoleFromUser(int userId)
         {
-            var role = await _roleService.GetRoleByIdAsync(roleId);
-            if (role == null)
-            {
-                return NotFound($"Rola o ID {roleId} nie została znaleziona.");
-            }
-
-            var userRoles = await _roleService.GetUsersByRoleIdAsync(roleId);
-            if (!userRoles.Any(u => u.Id == userId))
-            {
-                return NotFound($"Użytkownik o ID {userId} nie ma przypisanej roli o ID {roleId}.");
-            }
-
-            await _roleService.RemoveRoleFromUserInTeamAsync(userId, roleId, teamId);
-            return Ok($"Rola o ID {roleId} została usunięta z użytkownika o ID {userId} w zespole o ID {teamId}.");
+            await _roleService.RemoveRoleFromUserAsync(userId);
+            return Ok();
         }
 
         

@@ -10,6 +10,7 @@ public class UserDto
     public string Password { get; set; }
     public string UserImageUrl { get; set; }
     public string PreferredLanguage { get; set; }
-    public List<RoleInTeamDto> RolesInTeams { get; set; }
-    
+    public int RoleId { get; set; }
+    public string RoleName { get; set; }
+    public int PowerLevel { get; set; }
 }

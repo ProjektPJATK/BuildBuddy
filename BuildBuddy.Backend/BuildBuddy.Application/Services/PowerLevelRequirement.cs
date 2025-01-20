@@ -16,20 +16,17 @@ public class PowerLevelHandler : AuthorizationHandler<PowerLevelRequirement>
 {
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PowerLevelRequirement requirement)
     {
-        var teamClaims = context.User.Claims
-            .Where(c => c.Type.StartsWith("PowerLevel:Team:"))
-            .ToList();
+        var powerLevelClaim = context.User.Claims.FirstOrDefault(c => c.Type == "powerLevel");
 
-        foreach (var claim in teamClaims)
+        if (powerLevelClaim != null && int.TryParse(powerLevelClaim.Value, out int powerLevel))
         {
-            if (int.TryParse(claim.Value, out int powerLevel) && powerLevel >= requirement.PowerLevel)
+            if (powerLevel >= requirement.PowerLevel)
             {
-                context.Succeed(requirement); 
-                return Task.CompletedTask;
+                context.Succeed(requirement);
             }
         }
 
-        return Task.CompletedTask; 
+        return Task.CompletedTask;
     }
 
 }

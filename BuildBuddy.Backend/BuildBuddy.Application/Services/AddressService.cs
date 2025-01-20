@@ -105,13 +105,14 @@ namespace BuildBuddy.Application.Services
         {
             var teams = await _dbContext.Teams.GetAsync(
                 filter: t => t.AddressId == addressId,
-                includeProperties: "TeamUsers.User,TeamUserRoles.Role"
+                includeProperties: "TeamUsers.User.Role"
             );
-            
-            if (teams == null)
+
+            if (teams == null || !teams.Any())
             {
                 return new List<UserDto>();
             }
+
             var users = teams
                 .Where(t => t.TeamUsers != null)
                 .SelectMany(t => t.TeamUsers)
@@ -125,16 +126,15 @@ namespace BuildBuddy.Application.Services
                     TelephoneNr = tu.User.TelephoneNr,
                     UserImageUrl = tu.User.UserImageUrl,
                     PreferredLanguage = tu.User.PreferredLanguage,
-                    RolesInTeams = tu.User.TeamUserRoles?.Select(tur => new RoleInTeamDto
-                    {
-                        RoleId = tur.Role?.Id ?? 0,
-                        TeamId = tur.Team?.Id ?? 0 
-                    }).ToList() ?? new List<RoleInTeamDto>()
+                    RoleId = tu.User.RoleId ?? 0, 
+                    RoleName = tu.User.Role != null ? tu.User.Role.Name : "No Role", 
+                    PowerLevel = tu.User.Role != null ? tu.User.Role.PowerLevel : 0
                 })
                 .DistinctBy(u => u.Id)
                 .ToList();
 
             return users;
         }
+
     }
 }

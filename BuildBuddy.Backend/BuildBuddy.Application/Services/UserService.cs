@@ -29,15 +29,15 @@ namespace BuildBuddy.Application.Services
             var user = await _dbContext.Users
                 .GetAsync(
                     filter: u => u.Id == userId,
-                    includeProperties: "TeamUserRoles.Role,TeamUserRoles.Team"
+                    includeProperties: "Role"
                 );
 
-            if (user == null)
+            if (user == null || !user.Any())
             {
                 return null;
             }
 
-            var userEntity = user.FirstOrDefault();
+            var userEntity = user.First();
 
             return new UserDto
             {
@@ -48,21 +48,18 @@ namespace BuildBuddy.Application.Services
                 TelephoneNr = userEntity.TelephoneNr,
                 UserImageUrl = userEntity.UserImageUrl,
                 PreferredLanguage = userEntity.PreferredLanguage,
-                RolesInTeams = userEntity.TeamUserRoles
-                    .Select(tur => new RoleInTeamDto
-                    {
-                        RoleId = tur.Role.Id,
-                        TeamId = tur.Team.Id,
-                        PowerLevel = tur.Role.PowerLevel
-                    }).ToList()
+                RoleId = userEntity.RoleId ?? 0,
+                RoleName = userEntity.Role != null ? userEntity.Role.Name : "No Role",
+                PowerLevel = userEntity.Role != null ? userEntity.Role.PowerLevel : 0
             };
         }
+
         public async Task<UserDto?> GetUserByEmailAsync(string email)
         {
             var user = await _dbContext.Users
                 .GetAsync(
                     filter: u => u.Mail == email,
-                    includeProperties: "TeamUserRoles.Role,TeamUserRoles.Team"
+                    includeProperties: "Role"
                 );
 
             var userEntity = user.FirstOrDefault();
@@ -82,22 +79,16 @@ namespace BuildBuddy.Application.Services
                 Password = userEntity.Password,
                 UserImageUrl = userEntity.UserImageUrl,
                 PreferredLanguage = userEntity.PreferredLanguage,
-                RolesInTeams = userEntity.TeamUserRoles
-                    .Select(tur => new RoleInTeamDto
-                    {
-                        RoleId = tur.Role.Id,
-                        TeamId = tur.Team.Id,
-                        PowerLevel = tur.Role.PowerLevel
-                    }).ToList()
+                RoleId = userEntity.RoleId ?? 0,
+                RoleName = userEntity.Role != null ? userEntity.Role.Name : "No Role",
+                PowerLevel = userEntity.Role != null ? userEntity.Role.PowerLevel : 0
             };
         }
+
         
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
-            var users = await _dbContext.Users
-                .GetAsync(
-                    includeProperties: "TeamUserRoles.Role,TeamUserRoles.Team"
-                );
+            var users = await _dbContext.Users.GetAsync(includeProperties: "Role");
 
             return users.Select(user => new UserDto
             {
@@ -108,15 +99,12 @@ namespace BuildBuddy.Application.Services
                 TelephoneNr = user.TelephoneNr,
                 UserImageUrl = user.UserImageUrl,
                 PreferredLanguage = user.PreferredLanguage,
-                RolesInTeams = user.TeamUserRoles
-                    .Select(tur => new RoleInTeamDto
-                    {
-                        RoleId = tur.Role.Id,
-                        TeamId = tur.Team.Id,
-                        PowerLevel = tur.Role.PowerLevel
-                    }).ToList()
+                RoleId = user.RoleId ?? 0,
+                RoleName = user.Role != null ? user.Role.Name : "No Role",
+                PowerLevel = user.Role != null ? user.Role.PowerLevel : 0
             });
         }
+
 
         public async Task<UserDto> CreateUserAsync(UserDto userDto)
         {
@@ -137,6 +125,7 @@ namespace BuildBuddy.Application.Services
             userDto.Id = user.Id;
             return userDto;
         }
+
 
         public async Task UpdateUserAsync(int userId, JsonPatchDocument<UserDto> patchDoc)
         {
@@ -230,39 +219,31 @@ namespace BuildBuddy.Application.Services
                     TelephoneNr = uj.User.TelephoneNr,
                     UserImageUrl = uj.User.UserImageUrl,
                     PreferredLanguage = uj.User.PreferredLanguage,
-                    RolesInTeams = uj.User.TeamUserRoles
-                        .Select(tur => new RoleInTeamDto
-                        {
-                            RoleId = tur.Role.Id,
-                            TeamId = tur.Team.Id
-                        }).ToList()
+                    RoleId = uj.User.RoleId ?? 0,
+                    RoleName = uj.User.Role != null ? uj.User.Role.Name : "No Role",
+                    PowerLevel = uj.User.Role != null ? uj.User.Role.PowerLevel : 0
                 },
                 filter: uj => uj.JobId == jobId,
-                includeProperties: "User.TeamUserRoles.Role,User.TeamUserRoles.Team"
+                includeProperties: "User.Role"
             );
 
             return users;
         }
+
         
         public string GenerateJwtToken(UserDto user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"] ?? string.Empty);
+
             var claims = new List<Claim>
             {
                 new("id", user.Id.ToString()),
-                new("mail", user.Mail)
+                new("mail", user.Mail),
+                new("role", user.RoleName ?? string.Empty),
+                new("powerLevel", user.PowerLevel.ToString())
             };
 
-            if (user.RolesInTeams.Any())
-            {
-                foreach (var role in user.RolesInTeams)
-                {
-                    claims.Add(new Claim($"PowerLevel:Team:{role.TeamId}", role.PowerLevel.ToString()));
-                }
-            }
-            claims.Add(new Claim("TeamId", user.RolesInTeams.First().TeamId.ToString()));
-            
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
@@ -275,6 +256,7 @@ namespace BuildBuddy.Application.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+
 
     }
 }

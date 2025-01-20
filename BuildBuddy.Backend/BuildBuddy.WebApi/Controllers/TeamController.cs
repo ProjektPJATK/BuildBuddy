@@ -79,7 +79,7 @@ namespace BuildBuddy.WebApi.Controllers;
         [HttpGet("{teamId}/users")]
         public async Task<IActionResult> GetUsersByTeamId(int teamId)
         {
-            var users = await _teamService.GetUsersByTeamId(teamId);
+            var users = await _teamService.GetUsersByTeamIdAsync(teamId);
             if (users == null || !users.Any())
             {
                 return NotFound($"No users found for team with ID {teamId}.");

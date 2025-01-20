@@ -16,7 +16,6 @@ public interface IRepositoryCatalog
     IRepository<UserConversation, int> UserConversations { get; } 
     IRepository<UserJob, int> UserJobs { get; } 
     IRepository<Role, int> Roles { get; }
-    IRepository<TeamUserRole, int> TeamUserRoles { get; }
     
 
     void Dispose();
