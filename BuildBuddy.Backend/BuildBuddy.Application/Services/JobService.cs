@@ -89,10 +89,19 @@ namespace BuildBuddy.Application.Services
 
         public async Task DeleteJobAsync(int id)
         {
-            var task = await _dbContext.Jobs.GetByID(id);
-            if (task != null)
+            var job = await _dbContext.Jobs.GetByID(id);
+            if (job != null)
             {
-                _dbContext.Jobs.Delete(task);
+                var jobActualizations = await _dbContext.JobActualizations.GetAsync(
+                    filter: ja => ja.JobId == id
+                );
+
+                foreach (var jobActualization in jobActualizations)
+                {
+                    _dbContext.JobActualizations.Delete(jobActualization);
+                }
+
+                _dbContext.Jobs.Delete(job);
                 await _dbContext.SaveChangesAsync();
             }
         }
@@ -141,7 +150,54 @@ namespace BuildBuddy.Application.Services
             _dbContext.UserJobs.Insert(userTask);
             await _dbContext.SaveChangesAsync();
         }
+        public async Task<IEnumerable<JobDto>> GetJobByUserIdAndAddressIdAsync(int userId, int addressId)
+        {
+            var jobs = await _dbContext.UserJobs.GetAsync(
+                mapper: uj => new JobDto
+                {
+                    Id = uj.Job.Id,
+                    Name = uj.Job.Name,
+                    Message = uj.Job.Message,
+                    StartTime = uj.Job.StartTime,
+                    EndTime = uj.Job.EndTime,
+                    AllDay = uj.Job.AllDay,
+                    AddressId = uj.Job.AddressId ?? 0
+                },
+                filter: uj => uj.UserId == userId && uj.Job.AddressId == addressId,
+                includeProperties: "Job"
+            );
 
+            return jobs;
+        }
+        public async Task<IEnumerable<JobDto>> GetJobByAddressIdAsync(int addressId)
+        {
+            var jobs = await _dbContext.Jobs.GetAsync(
+                mapper: j => new JobDto
+                {
+                    Id = j.Id,
+                    Name = j.Name,
+                    Message = j.Message,
+                    StartTime = j.StartTime,
+                    EndTime = j.EndTime,
+                    AllDay = j.AllDay,
+                    AddressId = j.AddressId ?? 0
+                },
+                filter: j => j.AddressId == addressId
+            );
 
+            return jobs;
+        }
+        public async Task RemoveUserFromJobAsync(int jobId, int userId)
+        {
+            var userJob = await _dbContext.UserJobs.GetAsync(
+                filter: uj => uj.JobId == jobId && uj.UserId == userId
+            );
+
+            if (userJob != null)
+            {
+                _dbContext.UserJobs.Delete(userJob.FirstOrDefault());
+                await _dbContext.SaveChangesAsync();
+            }
+        }
     }
 }

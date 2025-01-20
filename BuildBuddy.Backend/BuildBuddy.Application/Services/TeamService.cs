@@ -108,6 +108,12 @@ namespace BuildBuddy.Application.Services
             var team = await _dbContext.Teams.GetByID(id);
             if (team != null)
             {
+                var conversations = await _dbContext.Conversations.GetAsync(filter: c => c.TeamId == id);
+                foreach (var conversation in conversations)
+                {
+                    _dbContext.Conversations.Delete(conversation);
+                }
+
                 _dbContext.Teams.Delete(team);
                 await _dbContext.SaveChangesAsync();
             }
@@ -142,20 +148,28 @@ namespace BuildBuddy.Application.Services
         {
             var team = (await _dbContext.Teams.GetAsync(
                 filter: t => t.Id == teamId,
-                includeProperties: "TeamUser"
-                )).FirstOrDefault();
+                includeProperties: "TeamUsers"
+            )).FirstOrDefault();
 
-            var teamUser = team?.TeamUsers.FirstOrDefault(tu => tu.UserId == userId);
-            if (teamUser != null)
+            if (team == null)
             {
-                team.TeamUsers.Remove(teamUser);
-                await _dbContext.SaveChangesAsync();
+                throw new InvalidOperationException($"Team with ID {teamId} not found.");
             }
+
+            var teamUser = team.TeamUsers.FirstOrDefault(tu => tu.UserId == userId);
+            if (teamUser == null)
+            {
+                throw new InvalidOperationException($"User with ID {userId} is not part of the team.");
+            }
+
+            team.TeamUsers.Remove(teamUser);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<List<UserDto>> GetUsersByTeamId(int teamId)
+
+        public async Task<List<UserDto>> GetUsersByTeamIdAsync(int teamId)
         {
-            var users = await _dbContext.TeamUsers.GetAsync(
+            var usersWithRoles = await _dbContext.TeamUsers.GetAsync(
                 filter: tu => tu.TeamId == teamId,
                 mapper: tu => new UserDto
                 {
@@ -163,12 +177,18 @@ namespace BuildBuddy.Application.Services
                     Name = tu.User.Name,
                     Surname = tu.User.Surname,
                     Mail = tu.User.Mail,
+                    Password = tu.User.Password,
                     TelephoneNr = tu.User.TelephoneNr,
                     UserImageUrl = tu.User.UserImageUrl,
-                    PreferredLanguage = tu.User.PreferredLanguage
+                    PreferredLanguage = tu.User.PreferredLanguage,
+                    RoleId = tu.User.RoleId ?? 0,
+                    RoleName = tu.User.Role != null ? tu.User.Role.Name : "No Role", 
+                    PowerLevel = tu.User.Role != null ? tu.User.Role.PowerLevel : 0 
                 },
-                includeProperties:"User");
-            return users;
+                includeProperties: "User.Role"
+            );
+
+            return usersWithRoles.ToList();
         }
     }
 }

@@ -12,44 +12,40 @@ public class ChatHub : Hub
         _chatService = chatService;
     }
 
-    public async Task SendMessage(int senderId, int conversationId, string text)
-{
-    Console.WriteLine($"SendMessage called with senderId={senderId}, conversationId={conversationId}, text={text}");
-
-    var message = await _chatService.HandleIncomingMessage(senderId, conversationId, text);
-
-    var translations = await _chatService.PrepareMessageForUsers(senderId, conversationId, text);
-
-    Console.WriteLine("Translations:");
-    foreach (var translation in translations)
+     public async Task SendMessage(int senderId, int conversationId, string text)
     {
-        Console.WriteLine($"UserId: {translation.Key}, Message: {translation.Value}");
-        if (translation.Key != senderId)  // Tylko dla innych użytkowników
-        {
-            await Clients.OthersInGroup(conversationId.ToString()).SendAsync(
-                "ReceiveMessage",
+            var message = await _chatService.HandleIncomingMessage(senderId, conversationId, text);
+            var translations = await _chatService.PrepareMessageForUsers(senderId, conversationId, text);
+            
+            foreach (var translation in translations)
+            {
+                var recipientId = translation.Key;
+
+                if (recipientId == senderId)
+                {
+                    continue;
+                }
+                
+                var recipient = recipientId.ToString();
+                await Clients.User(recipient).SendAsync(
+                    "ReceiveMessage",
+                    senderId,
+                    translation.Value,
+                    message.DateTimeDate
+                );
+            }
+            
+            await Clients.Caller.SendAsync(
+                "ReceiveMessage", 
                 senderId,
-                translation.Value,  // Tłumaczenie
+                text,
                 message.DateTimeDate
-            );
-        }
+                );
     }
 
-    // Nadawca otrzymuje tylko oryginalną wiadomość
-    await Clients.Caller.SendAsync(
-        "ReceiveMessage",
-        senderId,
-        text,  // Oryginał
-        message.DateTimeDate
-    );
-}
-
-    
     public async Task FetchHistory(int conversationId, int userId)
     {
-
         var messages = await _chatService.GetChatHistory(conversationId, userId);
-
         await Clients.Caller.SendAsync("ReceiveHistory", messages);
     }
     
@@ -57,11 +53,15 @@ public class ChatHub : Hub
     {
         Console.WriteLine($"Connection established: {Context.ConnectionId}");
         var conversationId = Context.GetHttpContext()?.Request.Query["conversationId"];
-        Console.WriteLine($"Conversation ID: {conversationId}");
+        var userId = Context.GetHttpContext()?.Request.Query["userId"];
+
+        Console.WriteLine($"Conversation ID: {conversationId}, User ID: {userId} , {Context.User.Identity.Name}");
+
         if (!string.IsNullOrEmpty(conversationId))
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, conversationId);
         }
+
         await base.OnConnectedAsync();
     }
 }

@@ -54,9 +54,9 @@ namespace BuildBuddy.Application.Services
             var item = new BuildingArticles
             {
                 Name = buildingArticlesDto.Name,
-                QuantityMax = buildingArticlesDto.QuantityMax,
+                QuantityMax = buildingArticlesDto.QuantityMax.Value,
                 Metrics = buildingArticlesDto.Metrics,
-                QuantityLeft = buildingArticlesDto.QuantityLeft,
+                QuantityLeft = buildingArticlesDto.QuantityLeft.Value,
                 AddressId = buildingArticlesDto.AddressId
             };
 
@@ -67,21 +67,37 @@ namespace BuildBuddy.Application.Services
             return buildingArticlesDto;
         }
 
-        public async Task UpdateItemAsync(int id, BuildingArticlesDto buildingArticlesDto)
+        public async Task PatchItemAsync(int id, BuildingArticlesDto updatedFields)
         {
             var item = await _dbContext.BuildingArticles.GetByID(id);
 
             if (item != null)
             {
-                item.Name = buildingArticlesDto.Name;
-                item.QuantityMax = buildingArticlesDto.QuantityMax;
-                item.Metrics = buildingArticlesDto.Metrics;
-                item.QuantityLeft = buildingArticlesDto.QuantityLeft;
-                item.AddressId = buildingArticlesDto.AddressId;
+                if (!string.IsNullOrEmpty(updatedFields.Name))
+                {
+                    item.Name = updatedFields.Name;
+                }
+                if (updatedFields.QuantityMax.HasValue)
+                {
+                    item.QuantityMax = updatedFields.QuantityMax.Value;
+                }
+                if (!string.IsNullOrEmpty(updatedFields.Metrics))
+                {
+                    item.Metrics = updatedFields.Metrics;
+                }
+                if (updatedFields.QuantityLeft.HasValue)
+                {
+                    item.QuantityLeft = updatedFields.QuantityLeft.Value;
+                }
+                if (updatedFields.AddressId.HasValue)
+                {
+                    item.AddressId = updatedFields.AddressId.Value;
+                }
 
                 await _dbContext.SaveChangesAsync();
             }
         }
+
 
         public async Task DeleteItemAsync(int id)
         {
@@ -94,15 +110,16 @@ namespace BuildBuddy.Application.Services
         }
         public async Task<IEnumerable<BuildingArticlesDto>> GetAllItemsByPlaceAsync(int placeId)
         {
-            return await _dbContext.BuildingArticles.GetAsync(item => new BuildingArticlesDto
-            {
-                Id = item.Id,
-                Name = item.Name,
-                QuantityMax = item.QuantityMax,
-                Metrics = item.Metrics,
-                QuantityLeft = item.QuantityLeft,
-                AddressId = item.AddressId
-            });
+            return await _dbContext.BuildingArticles
+                .GetAsync(item => new BuildingArticlesDto
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    QuantityMax = item.QuantityMax,
+                    Metrics = item.Metrics,
+                    QuantityLeft = item.QuantityLeft,
+                    AddressId = item.AddressId
+                }, item => item.AddressId == placeId);
         }
     }
 }

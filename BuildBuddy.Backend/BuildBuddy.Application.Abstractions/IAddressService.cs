@@ -10,4 +10,5 @@ public interface IAddressService
     Task<AddressDto> CreateAddressAsync(AddressDto conversationDto);
     Task UpdateAddressAsync(int id, AddressDto conversationDto);
     Task DeleteAddressAsync(int id);
+    Task<List<UserDto>> GetTeamMembersByAddressIdAsync(int addressId);
 }

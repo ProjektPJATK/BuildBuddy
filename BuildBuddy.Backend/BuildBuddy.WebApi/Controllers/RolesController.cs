@@ -24,6 +24,8 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(roles);
         }
 
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("{id}")]
         public async Task<ActionResult<RoleDto>> GetRoleById(int id)
         {
@@ -34,7 +36,8 @@ namespace BuildBuddy.WebApi.Controllers;
             }
             return Ok(role);
         }
-
+        
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPost]
         public async Task<ActionResult<RoleDto>> CreateRole([FromBody] RoleDto roleDto)
         {
@@ -65,6 +68,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
 
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRole(int id)
         {
@@ -77,7 +81,8 @@ namespace BuildBuddy.WebApi.Controllers;
             await _roleService.DeleteRoleAsync(id);
             return NoContent();
         }
-
+        
+        //[Authorize(Policy = "PowerLevel3")]
         [HttpPost("{roleId}/users/{userId}")]
         public async Task<IActionResult> AssignRoleToUser(int roleId, int userId)
         {
@@ -87,20 +92,35 @@ namespace BuildBuddy.WebApi.Controllers;
                 return NotFound($"Rola o ID {roleId} nie została znaleziona.");
             }
 
-            await _roleService.AssignRoleToUserAsync(userId, roleId);
+            await _roleService.AssignUserToRoleAsync(userId, roleId);
             return Ok();
         }
 
+        [Authorize(Policy = "PowerLevel3")]
         [HttpDelete("{roleId}/users/{userId}")]
-        public async Task<IActionResult> RemoveRoleFromUser(int roleId, int userId)
+        public async Task<IActionResult> RemoveRoleFromUser(int userId)
         {
-            var role = await _roleService.GetRoleByIdAsync(roleId);
-            if (role == null)
-            {
-                return NotFound($"Rola o ID {roleId} nie została znaleziona.");
-            }
-
             await _roleService.RemoveRoleFromUserAsync(userId);
             return Ok();
+        }
+
+        
+        [HttpGet("role/{roleId}")]
+        public async Task<IActionResult> GetUsersByRoleIdAsync(int roleId)
+        {
+            try
+            {
+                var users = await _roleService.GetUsersByRoleIdAsync(roleId);
+                if (users == null || !users.Any())
+                {
+                    return NotFound(new { message = "No users found for the specified role ID." });
+                }
+
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while processing your request.", error = ex.Message });
+            }
         }
     }

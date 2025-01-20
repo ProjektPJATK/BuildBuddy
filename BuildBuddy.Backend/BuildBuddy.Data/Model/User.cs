@@ -10,8 +10,8 @@ public class User : IHaveId<int>
     public string UserImageUrl { get; set; }
     public string PreferredLanguage { get; set; }
     public int? RoleId { get; set; }
-
-    public virtual Role Role { get; set; }
+    public virtual Role? Role { get; set; }
+    
     public virtual ICollection<UserJob> UserJob  { get; set; }
     public virtual ICollection<TeamUser> TeamUsers  { get; set; }
     public virtual ICollection<UserConversation> UserConversations { get; set; }

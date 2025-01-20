@@ -27,14 +27,70 @@ namespace BuildBuddy.Application.Services
         public async Task<UserDto> GetUserByIdAsync(int userId)
         {
             var user = await _dbContext.Users
-                .GetByID(userId);
+                .GetAsync(
+                    filter: u => u.Id == userId,
+                    includeProperties: "Role"
+                );
 
-            if (user == null)
+            if (user == null || !user.Any())
+            {
+                return null;
+            }
+
+            var userEntity = user.First();
+
+            return new UserDto
+            {
+                Id = userEntity.Id,
+                Name = userEntity.Name,
+                Surname = userEntity.Surname,
+                Mail = userEntity.Mail,
+                TelephoneNr = userEntity.TelephoneNr,
+                UserImageUrl = userEntity.UserImageUrl,
+                PreferredLanguage = userEntity.PreferredLanguage,
+                RoleId = userEntity.RoleId ?? 0,
+                RoleName = userEntity.Role != null ? userEntity.Role.Name : "No Role",
+                PowerLevel = userEntity.Role != null ? userEntity.Role.PowerLevel : 0
+            };
+        }
+
+        public async Task<UserDto?> GetUserByEmailAsync(string email)
+        {
+            var user = await _dbContext.Users
+                .GetAsync(
+                    filter: u => u.Mail == email,
+                    includeProperties: "Role"
+                );
+
+            var userEntity = user.FirstOrDefault();
+
+            if (userEntity == null)
             {
                 return null;
             }
 
             return new UserDto
+            {
+                Id = userEntity.Id,
+                Name = userEntity.Name,
+                Surname = userEntity.Surname,
+                Mail = userEntity.Mail,
+                TelephoneNr = userEntity.TelephoneNr,
+                Password = userEntity.Password,
+                UserImageUrl = userEntity.UserImageUrl,
+                PreferredLanguage = userEntity.PreferredLanguage,
+                RoleId = userEntity.RoleId ?? 0,
+                RoleName = userEntity.Role != null ? userEntity.Role.Name : "No Role",
+                PowerLevel = userEntity.Role != null ? userEntity.Role.PowerLevel : 0
+            };
+        }
+
+        
+        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        {
+            var users = await _dbContext.Users.GetAsync(includeProperties: "Role");
+
+            return users.Select(user => new UserDto
             {
                 Id = user.Id,
                 Name = user.Name,
@@ -43,41 +99,12 @@ namespace BuildBuddy.Application.Services
                 TelephoneNr = user.TelephoneNr,
                 UserImageUrl = user.UserImageUrl,
                 PreferredLanguage = user.PreferredLanguage,
-            };
+                RoleId = user.RoleId ?? 0,
+                RoleName = user.Role != null ? user.Role.Name : "No Role",
+                PowerLevel = user.Role != null ? user.Role.PowerLevel : 0
+            });
         }
-        public async Task<UserDto?> GetUserByEmailAsync(string email)
-        {
-            var result = (await _dbContext.Users.GetAsync(
-                filter: u => u.Mail == email,
-                mapper: user => new UserDto
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Surname = user.Surname,
-                    Mail = user.Mail,
-                    TelephoneNr = user.TelephoneNr,
-                    Password = user.Password,
-                    UserImageUrl = user.UserImageUrl,
-                    PreferredLanguage = user.PreferredLanguage,
-                })).FirstOrDefault();
-            return result;
-        }
-        
-        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
-        {
-            return await _dbContext.Users
-                .GetAsync(user => new UserDto
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Mail = user.Mail,
-                    Surname = user.Surname,
-                    Password = user.Password,
-                    TelephoneNr = user.TelephoneNr,
-                    UserImageUrl = user.UserImageUrl,
-                    PreferredLanguage = user.PreferredLanguage,
-                });
-        }
+
 
         public async Task<UserDto> CreateUserAsync(UserDto userDto)
         {
@@ -89,7 +116,7 @@ namespace BuildBuddy.Application.Services
                 Mail = userDto.Mail,
                 Password = userDto.Password,
                 UserImageUrl = userDto.UserImageUrl,
-                PreferredLanguage = userDto.PreferredLanguage,
+                PreferredLanguage = userDto.PreferredLanguage
             };
 
             _dbContext.Users.Insert(user);
@@ -98,6 +125,7 @@ namespace BuildBuddy.Application.Services
             userDto.Id = user.Id;
             return userDto;
         }
+
 
         public async Task UpdateUserAsync(int userId, JsonPatchDocument<UserDto> patchDoc)
         {
@@ -131,8 +159,7 @@ namespace BuildBuddy.Application.Services
 
             await _dbContext.SaveChangesAsync();
         }
-
-
+        
         public async Task DeleteUserAsync(int userId)
         {
             var user = await _dbContext.Users.GetByID(userId);
@@ -142,8 +169,7 @@ namespace BuildBuddy.Application.Services
                 await _dbContext.SaveChangesAsync();
             }
         }
-
-
+        
         public async Task<List<TeamDto>> GetTeamsByUserId(int userId)
         {
             var teams = await _dbContext.TeamUsers.GetAsync(
@@ -181,24 +207,56 @@ namespace BuildBuddy.Application.Services
             return await _fileStorage.GetFilesByPrefixAsync(imageUrl);
         }
         
+        public async Task<IEnumerable<UserDto>> GetUserByJobIdAsync(int jobId)
+        {
+            var users = await _dbContext.UserJobs.GetAsync(
+                mapper: uj => new UserDto
+                {
+                    Id = uj.User.Id,
+                    Name = uj.User.Name,
+                    Surname = uj.User.Surname,
+                    Mail = uj.User.Mail,
+                    TelephoneNr = uj.User.TelephoneNr,
+                    UserImageUrl = uj.User.UserImageUrl,
+                    PreferredLanguage = uj.User.PreferredLanguage,
+                    RoleId = uj.User.RoleId ?? 0,
+                    RoleName = uj.User.Role != null ? uj.User.Role.Name : "No Role",
+                    PowerLevel = uj.User.Role != null ? uj.User.Role.PowerLevel : 0
+                },
+                filter: uj => uj.JobId == jobId,
+                includeProperties: "User.Role"
+            );
+
+            return users;
+        }
+
+        
         public string GenerateJwtToken(UserDto user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"] ?? string.Empty);
+
+            var claims = new List<Claim>
+            {
+                new("id", user.Id.ToString()),
+                new("mail", user.Mail),
+                new("role", user.RoleName ?? string.Empty),
+                new("powerLevel", user.PowerLevel.ToString())
+            };
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim("id", user.Id.ToString()),
-                    new Claim("mail", user.Mail)
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(2),
                 Issuer = _configuration["Jwt:Issuer"],
-                Audience = _configuration["Jwt:Issuer"], 
+                Audience = _configuration["Jwt:Issuer"],
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+
+
     }
 }

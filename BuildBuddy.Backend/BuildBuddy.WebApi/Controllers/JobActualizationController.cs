@@ -1,5 +1,6 @@
 ﻿using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuildBuddy.WebApi.Controllers;
@@ -21,7 +22,10 @@ namespace BuildBuddy.WebApi.Controllers;
             var tasksActualization = await _jobActualizationService.GetAllJobsActualizationAsync();
             return Ok(tasksActualization);
         }
-
+        
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("{id}")]
         public async Task<ActionResult<JobActualizationDto>> GetTaskActualizationById(int id)
         {
@@ -32,7 +36,10 @@ namespace BuildBuddy.WebApi.Controllers;
             }
             return Ok(taskActualization);
         }
-
+        
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPost]
         public async Task<ActionResult<JobActualizationDto>> CreateTaskActualization(JobActualizationDto jobActualizationDto)
         {
@@ -47,6 +54,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
 
+        [Authorize(Policy = "PowerLevel3")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTaskActualization(int id)
         {
@@ -54,6 +62,9 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPost("{jobId}/add-image")]
         public async Task<IActionResult> AddTaskImage(int jobId, IFormFile image)
         {
@@ -62,6 +73,9 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpDelete("{jobId}/delete-image")]
         public async Task<IActionResult> DeleteTaskImage(int jobId, [FromQuery] string imageUrl)
         {
@@ -69,6 +83,9 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("{jobId}/images")]
         public async Task<IActionResult> GetTaskImages(int jobId)
         {
@@ -78,6 +95,15 @@ namespace BuildBuddy.WebApi.Controllers;
                 return NotFound("No images found for the given task.");
             }
             return Ok(images);
+        }
+        
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
+        [HttpPost("{id}/toggle-status")]
+        public async Task<IActionResult> ToggleJobActualizationStatus(int id)
+        {
+            await _jobActualizationService.ToggleJobActualizationStatusAsync(id);
+            return NoContent();
         }
     }
 

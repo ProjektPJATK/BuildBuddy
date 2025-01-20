@@ -25,7 +25,8 @@ namespace BuildBuddy.Application.Services
                     Street = place.Street,
                     HouseNumber = place.HouseNumber,
                     LocalNumber = place.LocalNumber,
-                    PostalCode = place.PostalCode
+                    PostalCode = place.PostalCode,
+                    Description = place.Description
                 });
         }
 
@@ -47,7 +48,8 @@ namespace BuildBuddy.Application.Services
                 Street = place.Street,
                 HouseNumber = place.HouseNumber,
                 LocalNumber = place.LocalNumber,
-                PostalCode = place.PostalCode
+                PostalCode = place.PostalCode,
+                Description = place.Description
             };
         }
 
@@ -61,7 +63,8 @@ namespace BuildBuddy.Application.Services
                 Street = addressDto.Street,
                 HouseNumber = addressDto.HouseNumber,
                 LocalNumber = addressDto.LocalNumber,
-                PostalCode = addressDto.PostalCode
+                PostalCode = addressDto.PostalCode,
+                Description = addressDto.Description
             };
 
             _dbContext.Addresses.Insert(place);
@@ -83,6 +86,7 @@ namespace BuildBuddy.Application.Services
                 place.HouseNumber = addressDto.HouseNumber;
                 place.LocalNumber = addressDto.LocalNumber;
                 place.PostalCode = addressDto.PostalCode;
+                place.Description = addressDto.Description;
                 
                 await _dbContext.SaveChangesAsync();
             }
@@ -97,5 +101,40 @@ namespace BuildBuddy.Application.Services
                 await _dbContext.SaveChangesAsync();
             }
         }
+        public async Task<List<UserDto>> GetTeamMembersByAddressIdAsync(int addressId)
+        {
+            var teams = await _dbContext.Teams.GetAsync(
+                filter: t => t.AddressId == addressId,
+                includeProperties: "TeamUsers.User.Role"
+            );
+
+            if (teams == null || !teams.Any())
+            {
+                return new List<UserDto>();
+            }
+
+            var users = teams
+                .Where(t => t.TeamUsers != null)
+                .SelectMany(t => t.TeamUsers)
+                .Where(tu => tu.User != null)
+                .Select(tu => new UserDto
+                {
+                    Id = tu.User.Id,
+                    Name = tu.User.Name,
+                    Surname = tu.User.Surname,
+                    Mail = tu.User.Mail,
+                    TelephoneNr = tu.User.TelephoneNr,
+                    UserImageUrl = tu.User.UserImageUrl,
+                    PreferredLanguage = tu.User.PreferredLanguage,
+                    RoleId = tu.User.RoleId ?? 0, 
+                    RoleName = tu.User.Role != null ? tu.User.Role.Name : "No Role", 
+                    PowerLevel = tu.User.Role != null ? tu.User.Role.PowerLevel : 0
+                })
+                .DistinctBy(u => u.Id)
+                .ToList();
+
+            return users;
+        }
+
     }
 }

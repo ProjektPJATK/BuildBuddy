@@ -32,6 +32,8 @@ public class UnitOfWork(BuildBuddyDbContext buildBuddyDb,
     public IRepository<UserJob, int> UserJobs { get; } = userJob;
     public IRepository<Role, int> Roles { get; } = role;
 
+    
+
 
     public Task SaveChangesAsync()
     {
