@@ -100,7 +100,7 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
       return '${otherUser['name']} ${otherUser['surname']}';
     }
 
-    return 'Konwersacja grupowa';
+    return 'Group Conversation';
   }
 
   void _selectRecipients() async {
@@ -124,7 +124,7 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(144, 81, 85, 87),
         title: const Text(
-          'Nowa wiadomość',
+          'New message',
           style: TextStyle(color: Colors.black),
         ),
         iconTheme: const IconThemeData(color: Colors.black),
@@ -156,7 +156,7 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
         onTap: _selectRecipients,
         decoration: InputDecoration(
           hintText: selectedRecipients.isEmpty
-              ? 'Dodaj odbiorców'
+              ? 'Add recipients'
               : selectedRecipients.join(', '),
           hintStyle: const TextStyle(color: Colors.black54),
           filled: true,
@@ -177,7 +177,7 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
           maxLines: null,
           expands: true,
           decoration: InputDecoration(
-            hintText: 'Napisz wiadomość...',
+            hintText: 'Write message... ',
             hintStyle: const TextStyle(color: Colors.black54),
             filled: true,
             fillColor: Colors.grey[200],
@@ -202,7 +202,7 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
       child: isLoading
           ? const CircularProgressIndicator(color: Colors.white)
           : const Text(
-              'Wyślij wiadomość',
+              'Send message',
               style: TextStyle(color: Colors.white),
             ),
     );
@@ -294,7 +294,7 @@ class _RecipientSelectionScreenState extends State<RecipientSelectionScreen> {
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: 'Szukaj po imieniu i nazwisku...',
+                      hintText: 'Search by name and surname... ',
                       filled: true,
                       fillColor: Colors.white,
                       border: const OutlineInputBorder(),
@@ -335,7 +335,7 @@ class _RecipientSelectionScreenState extends State<RecipientSelectionScreen> {
           Navigator.pop(context, _selectedRecipients.map((r) => '${r['name']} ${r['surname']}').toList());
         },
         child: const Text(
-          'Zatwierdź',
+          'Confirm',
           style: TextStyle(color: Colors.blue),
         ),
         style: ElevatedButton.styleFrom(

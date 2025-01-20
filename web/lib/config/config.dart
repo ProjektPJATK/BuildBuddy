@@ -26,8 +26,6 @@ static const String s3BaseUrl = "https://buildbuddybucket.s3.amazonaws.com";
     '${getBaseUrl()}/api/BuildingArticles/$itemId';
 
 
-
-  
   // Nowe endpointy
   static String exitChatEndpoint(int conversationId, int userId) => 
       '${getBaseUrl()}/api/Chat/exit-chat?conversationId=$conversationId&userId=$userId';
@@ -89,9 +87,6 @@ static String postBuildingArticleEndpoint() => '${getBaseUrl()}/api/BuildingArti
 
 // Endpoint to delete a building article by ID
 static String deleteBuildingArticleEndpoint(int id) => '${getBaseUrl()}/api/BuildingArticles/$id';
-
-
-
 
 }
   

@@ -59,38 +59,8 @@ late BuildContext _messengerContext;
     );
   }
 
-  bool hasPermissionForTeam(int teamId, int requiredPowerLevel) {
-    final teamsJson = html.window.localStorage['teamsWithPowerLevels'];
-    if (teamsJson == null) return false;
-
-    final List<dynamic> teamsWithPowerLevels = jsonDecode(teamsJson);
-
-    // Znajdź team i sprawdź powerLevel
-    final team = teamsWithPowerLevels.firstWhere(
-      (team) => team['teamId'] == teamId,
-      orElse: () => null,
-    );
-
-    if (team == null) return false;
-
-    return team['powerLevel'] >= requiredPowerLevel;
-  }
 
   void _showAddProjectDialog(BuildContext context) {
-    final teamsJson = html.window.localStorage['teamsWithPowerLevels'];
-    if (teamsJson == null) {
-      _showAlert(context, "you dont have access", "you dont have access, to do it.");
-      return;
-    }
-
-    final List<dynamic> teamsWithPowerLevels = jsonDecode(teamsJson);
-
-    final hasPermission = teamsWithPowerLevels.any((team) => team['powerLevel'] == 3);
-
-    if (!hasPermission) {
-      _showAlert(context, "you dont have access", "you dont have access, to do it.");
-      return;
-    }
 
     showDialog(
       context: context,

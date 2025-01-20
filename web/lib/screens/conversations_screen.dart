@@ -88,8 +88,16 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Conversations', style: AppStyles.headerStyle),
+        automaticallyImplyLeading: true, 
+        title: const Text('Conversations', style: AppStyles.headerStyle), 
         backgroundColor: const Color.fromARGB(144, 81, 85, 87),
+         actions: [
+      IconButton(
+      icon: const Icon(Icons.refresh, color: Colors.white),
+      onPressed: _loadConversations, // Wywołanie funkcji odświeżania
+      tooltip: 'Odśwież', // Podpowiedź przy najechaniu kursorem
+    ),
+  ],
       ),
       body: Container(
         decoration: AppStyles.backgroundDecoration,

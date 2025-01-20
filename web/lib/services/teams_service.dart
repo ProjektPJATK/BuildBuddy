@@ -134,8 +134,6 @@ Future<void> updateUserRole(int userId, int teamId, int newPowerLevel, String ne
   }
 }
 
-
-
 Future<void> updateAddress(int addressId, Map<String, String> addressData) async {
   final client = HttpClient();
   try {
@@ -334,37 +332,11 @@ Future<void> addRoleToUserInTeam({
     if (response.statusCode == 201 || response.statusCode == 204 || response.statusCode == 200) {
       print('Role added successfully for user $userId in team $teamId.');
 
-      // Odświeżenie teamsWithPowerLevels po dodaniu roli
-      await refreshTeamsWithPowerLevels(userId);
     } else {
       throw Exception('Failed to add role: ${response.statusCode}');
     }
   } catch (e) {
     print('Error adding role to user in team: $e');
-    rethrow;
-  } finally {
-    client.close();
-  }
-}
-
-Future<int> _fetchPowerLevel(int roleId) async {
-  final client = HttpClient();
-  try {
-    final roleUrl = AppConfig.getRoleEndpoint(roleId);
-    final request = await client.getUrl(Uri.parse(roleUrl));
-    request.headers.set('Content-Type', 'application/json');
-
-    final response = await request.close();
-
-    if (response.statusCode == 200) {
-      final responseBody = await response.transform(utf8.decoder).join();
-      final data = jsonDecode(responseBody);
-      return int.tryParse(data['powerLevel']?.toString() ?? '0') ?? 0;
-    } else {
-      throw Exception('Failed to fetch power level for roleId $roleId: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Error fetching power level for roleId $roleId: $e');
     rethrow;
   } finally {
     client.close();
@@ -396,46 +368,6 @@ Future<void> deleteTeam(int teamId) async {
   }
 }
 
-Future<void> refreshTeamsWithPowerLevels(int userId) async {
-  final client = HttpClient();
-  final url = AppConfig.getProfileEndpoint(userId);
-
-  try {
-    final request = await client.getUrl(Uri.parse(url));
-    request.headers.set('Content-Type', 'application/json');
-
-    final response = await request.close();
-
-    if (response.statusCode == 200) {
-      final responseBody = await response.transform(utf8.decoder).join();
-      final data = jsonDecode(responseBody);
-      final rolesInTeams = data['rolesInTeams'] as List<dynamic>;
-      final List<Map<String, dynamic>> teamsWithPowerLevels = [];
-
-      for (var roleData in rolesInTeams) {
-        final teamId = roleData['teamId'];
-        final roleId = roleData['roleId'];
-        final powerLevel = await _fetchPowerLevel(roleId);
-
-        teamsWithPowerLevels.add({
-          'teamId': teamId,
-          'powerLevel': powerLevel,
-        });
-      }
-
-      // Zapisanie w localStorage
-      html.window.localStorage['teamsWithPowerLevels'] = jsonEncode(teamsWithPowerLevels);
-      print('Updated teamsWithPowerLevels: $teamsWithPowerLevels');
-    } else {
-      throw Exception('Failed to refresh teamsWithPowerLevels: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Error refreshing teamsWithPowerLevels: $e');
-    rethrow;
-  } finally {
-    client.close();
-  }
-}
 
 Future<Map<String, String>> fetchAddress(int addressId) async {
   final client = HttpClient();

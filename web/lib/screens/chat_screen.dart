@@ -146,7 +146,7 @@ Future<void> _sendMessage(String text) async {
             borderRadius: BorderRadius.circular(10),
           ),
           title: const Text(
-            "Uczestnicy konwersacji",
+            "Conversation participants",
             style: AppStyles.headerStyle,
           ),
           content: SingleChildScrollView(
@@ -180,7 +180,7 @@ Future<void> _sendMessage(String text) async {
     if (date.year == now.year &&
         date.month == now.month &&
         date.day == now.subtract(const Duration(days: 1)).day) {
-      formattedDate = "Wczoraj";
+      formattedDate = "Yesterday";
     } else if (date.year != now.year || date.month != now.month || date.day != now.day) {
       formattedDate = "${date.day}/${date.month}/${date.year}";
     }
@@ -333,7 +333,7 @@ Future<void> _sendMessage(String text) async {
                   Expanded(
                     child: TextField(
                       controller: _messageController,
-                      decoration: AppStyles.inputFieldStyle(hintText: "Napisz wiadomość...").copyWith(
+                      decoration: AppStyles.inputFieldStyle(hintText: "Write message... ").copyWith(
                         filled: false,
                         hintStyle: const TextStyle(color: Colors.black54),
                         fillColor: Colors.transparent,
