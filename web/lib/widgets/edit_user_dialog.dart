@@ -95,19 +95,19 @@ class _EditUserDialogState extends State<EditUserDialog> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Potwierdzenie usunięcia'),
-        content: Text('Czy na pewno chcesz usunąć tego użytkownika z zespołu?'),
+        title: Text('Accept deletion'),
+        content: Text('Do you want to delete from this team this worker?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Anuluj'),
+            child: Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context); // Zamknij dialog potwierdzenia
               await _deleteUser(); // Usuń użytkownika
             },
-            child: Text('Usuń'),
+            child: Text('Delet'),
           ),
         ],
       ),
@@ -116,7 +116,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
 
   Future<void> _deleteUser() async {
   try {
-    print('Usuwanie użytkownika ${widget.userId} z zespołu ${widget.teamId}');
+    print('Deleting user ${widget.userId} from team ${widget.teamId}');
     await _teamsService.deleteUserFromTeam(widget.teamId, widget.userId);
     print('User ${widget.userId} successfully deleted from team ${widget.teamId}');
     widget.onDelete(); // Wywołanie funkcji odświeżenia widoku
@@ -125,7 +125,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
     print('Błąd podczas usuwania użytkownika: $e');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Nie udało się usunąć użytkownika.'),
+        content: Text('Could not delet user.'),
         backgroundColor: Colors.red,
       ),
     );
@@ -147,18 +147,18 @@ Widget build(BuildContext context) {
         borderRadius: BorderRadius.circular(10.0),
       ),
       title: Text(
-        'Błąd',
+        'Error',
         style: AppStyles.headerStyle,
       ),
       content: Text(
-        'Nie udało się załadować danych użytkownika.',
+        'Could not load data.',
         style: AppStyles.textStyle,
       ),
       actions: [
         TextButton(
           onPressed: widget.onCancel,
           style: AppStyles.textButtonStyle(),
-          child: const Text('Zamknij'),
+          child: const Text('Close'),
         ),
       ],
     );
@@ -170,7 +170,7 @@ Widget build(BuildContext context) {
       borderRadius: BorderRadius.circular(10.0),
     ),
     title: Text(
-      'Edytuj Rangę Użytkownika',
+      'Edit user rank',
       style: AppStyles.headerStyle,
     ),
     content: SingleChildScrollView(
@@ -179,22 +179,22 @@ Widget build(BuildContext context) {
           TextField(
             controller: _roleNameController,
             decoration: AppStyles.inputFieldStyle(
-              hintText: 'Nazwa Rangi',
+              hintText: 'Rank',
             ).copyWith(
               errorText: _roleNameController.text.trim().isEmpty
-                  ? 'Nazwa rangi nie może być pusta'
+                  ? 'Rank name can not be empty'
                   : null,
             ),
             cursorColor: AppStyles.cursorColor,
           ),
           const SizedBox(height: 16),
           Text(
-            'Poziom Dostępu:',
+            'Access level:',
             style: AppStyles.textStyle.copyWith(fontWeight: FontWeight.bold),
           ),
           RadioListTile<int>(
             title: Text(
-              'Dostęp do aplikacji mobilnej',
+              'only mobile app',
               style: AppStyles.textStyle,
             ),
             value: 1,
@@ -208,7 +208,7 @@ Widget build(BuildContext context) {
           ),
           RadioListTile<int>(
             title: Text(
-              'Dostęp do aplikacji mobilnej i webowej bez zarządzania projektami',
+              'Access to mobile app and web app without teams access',
               style: AppStyles.textStyle,
             ),
             value: 2,
@@ -222,7 +222,7 @@ Widget build(BuildContext context) {
           ),
           RadioListTile<int>(
             title: Text(
-              'Dostęp do wszystkiego',
+              'Access to all',
               style: AppStyles.textStyle,
             ),
             value: 3,
@@ -236,7 +236,7 @@ Widget build(BuildContext context) {
           ),
           if (powerLevel == 0)
             Text(
-              'Musisz wybrać poziom dostępu',
+              'Must choose access level',
               style: AppStyles.textStyle.copyWith(color: Colors.red),
             ),
         ],
@@ -250,7 +250,7 @@ Widget build(BuildContext context) {
       TextButton(
         onPressed: widget.onCancel,
         style: AppStyles.textButtonStyle(),
-        child: const Text('Anuluj'),
+        child: const Text('Cancel'),
       ),
       ElevatedButton(
         onPressed: _isFormValid
@@ -261,7 +261,7 @@ Widget build(BuildContext context) {
               }
             : null,
         style: AppStyles.buttonStyle(),
-        child: const Text('Zapisz'),
+        child: const Text('Save'),
       ),
     ],
   );

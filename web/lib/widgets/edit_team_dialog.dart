@@ -5,7 +5,7 @@ import 'package:web/services/teams_service.dart';
 import 'package:web/themes/styles.dart';
 
 class EditTeamDialog extends StatelessWidget {
-  final int teamId; // Dodano teamId
+  final int teamId; // Added teamId
   final String teamName;
   final Map<String, String> addressData;
   final Function(String, Map<String, String>) onSubmit;
@@ -13,7 +13,7 @@ class EditTeamDialog extends StatelessWidget {
   final VoidCallback onTeamDeleted;
 
   EditTeamDialog({
-    required this.teamId, // Oczekiwany parametr
+    required this.teamId, // Required parameter
     required this.teamName,
     required this.addressData,
     required this.onSubmit,
@@ -27,28 +27,28 @@ class EditTeamDialog extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Usuń Team'),
-        content: Text('Czy na pewno chcesz usunąć ten team?'),
+        title: Text('Delete Team'),
+        content: Text('Are you sure you want to delete this team?'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text('Anuluj'),
+            child: Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
               try {
                 await teamsService.deleteTeam(teamId);
-                Navigator.pop(context); // Zamknięcie dialogu potwierdzenia
-                Navigator.pop(context); // Zamknięcie dialogu edycji
+                Navigator.pop(context); // Close confirmation dialog
+                Navigator.pop(context); // Close edit dialog
 
-                // Wywołanie callbacka po udanym usunięciu zespołu
+                // Trigger callback after successful team deletion
                 onTeamDeleted();
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Team został pomyślnie usunięty.'),
+                    content: Text('Team was successfully deleted.'),
                     backgroundColor: Colors.green,
                   ),
                 );
@@ -56,13 +56,13 @@ class EditTeamDialog extends StatelessWidget {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Nie udało się usunąć teamu: $e'),
+                    content: Text('Failed to delete team: $e'),
                     backgroundColor: Colors.red,
                   ),
                 );
               }
             },
-            child: Text('Usuń'),
+            child: Text('Delete'),
           ),
         ],
       ),
@@ -74,7 +74,7 @@ class EditTeamDialog extends StatelessWidget {
       if (controller.text.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Wszystkie pola muszą być wypełnione!'),
+            content: Text('All fields must be filled!'),
             backgroundColor: Colors.red,
           ),
         );
@@ -115,7 +115,7 @@ Widget build(BuildContext context) {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Edytuj Team',
+          'Edit Team',
           style: AppStyles.headerStyle,
         ),
         IconButton(
@@ -130,49 +130,49 @@ Widget build(BuildContext context) {
         children: [
           TextField(
             controller: nameController,
-            decoration: AppStyles.inputFieldStyle(hintText: 'Nazwa Teamu'),
+            decoration: AppStyles.inputFieldStyle(hintText: 'Team Name'),
             cursorColor: AppStyles.cursorColor,
           ),
           const SizedBox(height: 10),
           TextField(
             controller: cityController,
-            decoration: AppStyles.inputFieldStyle(hintText: 'Miasto'),
+            decoration: AppStyles.inputFieldStyle(hintText: 'City'),
             cursorColor: AppStyles.cursorColor,
           ),
           const SizedBox(height: 10),
           TextField(
             controller: countryController,
-            decoration: AppStyles.inputFieldStyle(hintText: 'Kraj'),
+            decoration: AppStyles.inputFieldStyle(hintText: 'Country'),
             cursorColor: AppStyles.cursorColor,
           ),
           const SizedBox(height: 10),
           TextField(
             controller: streetController,
-            decoration: AppStyles.inputFieldStyle(hintText: 'Ulica'),
+            decoration: AppStyles.inputFieldStyle(hintText: 'Street'),
             cursorColor: AppStyles.cursorColor,
           ),
           const SizedBox(height: 10),
           TextField(
             controller: houseNumberController,
-            decoration: AppStyles.inputFieldStyle(hintText: 'Numer Domu'),
+            decoration: AppStyles.inputFieldStyle(hintText: 'House Number'),
             cursorColor: AppStyles.cursorColor,
           ),
           const SizedBox(height: 10),
           TextField(
             controller: localNumberController,
-            decoration: AppStyles.inputFieldStyle(hintText: 'Numer Lokalu'),
+            decoration: AppStyles.inputFieldStyle(hintText: 'Apartment Number'),
             cursorColor: AppStyles.cursorColor,
           ),
           const SizedBox(height: 10),
           TextField(
             controller: postalCodeController,
-            decoration: AppStyles.inputFieldStyle(hintText: 'Kod Pocztowy'),
+            decoration: AppStyles.inputFieldStyle(hintText: 'Postal Code'),
             cursorColor: AppStyles.cursorColor,
           ),
           const SizedBox(height: 10),
           TextField(
             controller: descriptionController,
-            decoration: AppStyles.inputFieldStyle(hintText: 'Opis'),
+            decoration: AppStyles.inputFieldStyle(hintText: 'Description'),
             maxLines: 3,
             cursorColor: AppStyles.cursorColor,
           ),
@@ -183,7 +183,7 @@ Widget build(BuildContext context) {
       TextButton(
         onPressed: onCancel,
         style: AppStyles.textButtonStyle(),
-        child: const Text('Anuluj'),
+        child: const Text('Cancel'),
       ),
       ElevatedButton(
         onPressed: () {
@@ -204,7 +204,7 @@ Widget build(BuildContext context) {
           }
         },
         style: AppStyles.buttonStyle(),
-        child: const Text('Zapisz'),
+        child: const Text('Save'),
       ),
     ],
   );
