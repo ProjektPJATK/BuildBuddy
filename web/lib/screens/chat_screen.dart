@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:web_app/services/chat_hub_service.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:web_app/themes/styles.dart';
 
 class ChatScreen extends StatefulWidget {
   final String conversationName;
   final List<Map<String, dynamic>> participants;
   final int conversationId;
   final int? teamId; // Opcjonalne teamId dla sprawdzania typu konwersacji
+  final String? initialMessage;
 
   const ChatScreen({
     Key? key,
@@ -15,6 +17,8 @@ class ChatScreen extends StatefulWidget {
     required this.participants,
     required this.conversationId,
     this.teamId,
+    this.initialMessage,
+
   }) : super(key: key);
 
   @override
@@ -29,12 +33,18 @@ class _ChatScreenState extends State<ChatScreen> {
   int? userId;
 
   @override
-  void initState() {
-    super.initState();
-    _connectToChat().then((_) {
-      _fetchHistory();
-    });
-  }
+void initState() {
+  super.initState();
+  _connectToChat().then((_) {
+    
+    // Dodanie wiadomości z NewMessageScreen
+     if (widget.initialMessage != null && widget.initialMessage!.isNotEmpty) {
+      _sendMessage(widget.initialMessage!);
+    }
+_fetchHistory();
+  });
+}
+
 
   @override
   void dispose() {
@@ -88,20 +98,37 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
   }
 
-  Future<void> _sendMessage() async {
-    final text = _messageController.text.trim();
-    if (text.isNotEmpty && userId != null) {
+Future<void> _sendMessage(String text) async {
+  if (text.isNotEmpty && userId != null) {
+    final localMessage = {
+      'senderId': userId,
+      'text': text,
+      'dateTimeDate': DateTime.now().toIso8601String(),
+    };
+
+    setState(() {
+      messages.add(localMessage);
+    });
+
+    print("[ChatScreen] Attempting to send message: $text");
+
+    try {
       await _chatHubService.sendMessage(userId!, widget.conversationId, text);
-      _messageController.clear();
-      _scrollToBottom();
+      print("[ChatScreen] Message sent successfully: $text");
+    } catch (e) {
+      print("[ChatScreen] Error sending message: $e");
     }
+
+    _scrollToBottom();
   }
+}
+
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent + 400,
+          _scrollController.position.maxScrollExtent+2000 ,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
@@ -114,13 +141,20 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Uczestnicy konwersacji"),
+          backgroundColor: AppStyles.transparentWhite,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          title: const Text(
+            "Uczestnicy konwersacji",
+            style: AppStyles.headerStyle,
+          ),
           content: SingleChildScrollView(
             child: ListBody(
               children: widget.participants
                   .map((participant) => Text(
                         "${participant['name']} ${participant['surname']}",
-                        style: const TextStyle(fontSize: 16),
+                        style: AppStyles.textStyle,
                       ))
                   .toList(),
             ),
@@ -128,6 +162,9 @@ class _ChatScreenState extends State<ChatScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
+              style: AppStyles.textButtonStyle().copyWith(
+                foregroundColor: MaterialStateProperty.all(Colors.black),
+              ),
               child: const Text("Zamknij"),
             ),
           ],
@@ -172,163 +209,153 @@ class _ChatScreenState extends State<ChatScreen> {
     DateTime? lastMessageDate;
 
     return Scaffold(
-      body: Column(
-        children: [
-          GestureDetector(
-             onTap: () {
-    final isTeamChat = widget.teamId != null; // Sprawdzanie, czy teamId nie jest null
-    final isGroupChat = widget.participants.length > 1; // Sprawdzanie, czy to czat grupowy
+      body: Container(
+        decoration: AppStyles.backgroundDecoration,
+        child: Column(
+          children: [
+            GestureDetector(
+              onTap: () {
+                final isTeamChat = widget.teamId != null;
+                final isGroupChat = widget.participants.length > 1;
 
-    print("[ChatScreen] Checking chat type...");
-    print("[ChatScreen] teamId: ${widget.teamId}");
-    print("[ChatScreen] participants count: ${widget.participants.length}");
-
-    if (isTeamChat || isGroupChat) {
-      print("[ChatScreen] Showing participants dialog.");
-      _showParticipantsDialog();
-    } else {
-      print("[ChatScreen] This is not a group chat or a team chat.");
-    }
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.black),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  Expanded(
-                    child: Text(
-                      widget.conversationName,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                if (isTeamChat || isGroupChat) {
+                  _showParticipantsDialog();
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                color: Colors.transparent,
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 0, 0, 0)),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Expanded(
+                      child: Text(
+                        widget.conversationName,
+                        style: AppStyles.headerStyle.copyWith(color: const Color.fromARGB(255, 0, 0, 0)),
                       ),
                     ),
+                  ],
+                ),
+              ),
+            ),
+            const Divider(height: 1, color: Colors.grey),
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  final message = messages[index];
+                  final isSentByMe = message['senderId'] == userId;
+                  final timestampString = message['dateTimeDate'];
+
+                  final messageDate = timestampString != null
+                      ? DateTime.tryParse(timestampString)?.toLocal() ?? DateTime.now()
+                      : DateTime.now();
+
+                  final bool isLastMessageOfDay = index == messages.length - 1 ||
+                      (index < messages.length - 1 &&
+                          DateTime.tryParse(messages[index + 1]['dateTimeDate'])
+                                  ?.toLocal()
+                                  .day !=
+                              messageDate.day);
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Align(
+                        alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+                        child: IntrinsicWidth(
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                            decoration: BoxDecoration(
+                              color: isSentByMe ?Colors.lightBlue[100] :  Colors.grey[300],
+                              borderRadius: BorderRadius.only(
+                                topLeft: const Radius.circular(12),
+                                topRight: const Radius.circular(12),
+                                bottomLeft: isSentByMe ? const Radius.circular(12) : Radius.zero,
+                                bottomRight: isSentByMe ? Radius.zero : const Radius.circular(12),
+                              ),
+                            ),
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width * 0.5,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: isSentByMe
+                                  ? CrossAxisAlignment.end
+                                  : CrossAxisAlignment.start,
+                              children: [
+                                if (!isSentByMe)
+                                  Text(
+                                    "${widget.participants.firstWhere(
+                                      (p) => p['id'] == message['senderId'],
+                                      orElse: () => {'name': 'Unknown', 'surname': ''},
+                                    )['name'] ?? 'Unknown'} ${widget.participants.firstWhere(
+                                      (p) => p['id'] == message['senderId'],
+                                      orElse: () => {'name': '', 'surname': ''},
+                                    )['surname'] ?? ''}",
+                                    style: AppStyles.textStyle,
+                                  ),
+                                Text(
+                                  message['text'] ?? '',
+                                  textAlign: isSentByMe ? TextAlign.right : TextAlign.left,
+                                  style: AppStyles.textStyle.copyWith(fontSize: 16),
+                                ),
+                                Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      messageDate.toString().substring(11, 16),
+                                      style: AppStyles.textStyle.copyWith(fontSize: 12),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (isLastMessageOfDay) _buildDateSeparator(messageDate),
+                    ],
+                  );
+                },
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              color: Colors.white.withOpacity(0.3),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: AppStyles.inputFieldStyle(hintText: "Napisz wiadomość...").copyWith(
+                        filled: false,
+                        hintStyle: const TextStyle(color: Colors.black54),
+                        fillColor: Colors.transparent,
+                      ),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.send, color: AppStyles.primaryBlue),
+                     onPressed: () {
+                  final text = _messageController.text.trim();
+                  if (text.isNotEmpty) {
+                    _sendMessage(text);
+                    _messageController.clear();
+                     }
+                     }
                   ),
                 ],
               ),
             ),
-          ),
-          const Divider(height: 1, color: Colors.grey),
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                final message = messages[index];
-                final isSentByMe = message['senderId'] == userId;
-                final timestampString = message['dateTimeDate'];
-
-                final messageDate = timestampString != null
-                    ? DateTime.tryParse(timestampString)?.toLocal() ?? DateTime.now()
-                    : DateTime.now();
-
-                final bool isLastMessageOfDay = index == messages.length - 1 ||
-                    (index < messages.length - 1 &&
-                        DateTime.tryParse(messages[index + 1]['dateTimeDate'])
-                                ?.toLocal()
-                                .day !=
-                            messageDate.day);
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Align(
-                      alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
-                      child: IntrinsicWidth(
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-                          decoration: BoxDecoration(
-                            color: isSentByMe ? Colors.grey[300] : Colors.lightBlue[100],
-                            borderRadius: BorderRadius.only(
-                              topLeft: const Radius.circular(12),
-                              topRight: const Radius.circular(12),
-                              bottomLeft:
-                                  isSentByMe ? const Radius.circular(12) : Radius.zero,
-                              bottomRight:
-                                  isSentByMe ? Radius.zero : const Radius.circular(12),
-                            ),
-                          ),
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.75,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: isSentByMe
-                                ? CrossAxisAlignment.end
-                                : CrossAxisAlignment.start,
-                            children: [
-                              if (!isSentByMe)
-                                Text(
-                                  "${widget.participants.firstWhere(
-                                    (p) => p['id'] == message['senderId'],
-                                    orElse: () => {'name': 'Unknown', 'surname': ''},
-                                  )['name'] ?? 'Unknown'} ${widget.participants.firstWhere(
-                                    (p) => p['id'] == message['senderId'],
-                                    orElse: () => {'name': '', 'surname': ''},
-                                  )['surname'] ?? ''}",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              Text(
-                                message['text'] ?? '',
-                                textAlign:
-                                    isSentByMe ? TextAlign.right : TextAlign.left,
-                                style: const TextStyle(
-                                    fontSize: 16, color: Colors.black87),
-                              ),
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 4),
-                                  child: Text(
-                                    messageDate.toString().substring(11, 16),
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (isLastMessageOfDay) _buildDateSeparator(messageDate),
-                  ],
-                );
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            color: Colors.white,
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: const InputDecoration(
-                      hintText: "Napisz wiadomość...",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Colors.blue),
-                  onPressed: _sendMessage,
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -261,12 +261,12 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(148, 49, 50, 51),
+        backgroundColor: const Color.fromARGB(144, 81, 85, 87),
         title: Row(
           children: [
             Text(
               'Teams and Projects',
-              style: AppStyles.headerStyle.copyWith(color: Colors.white),
+              style: AppStyles.headerStyle.copyWith(color: const Color.fromARGB(255, 0, 0, 0)),
             ),
             SizedBox(width: 16),
             ElevatedButton.icon(

@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:web_app/screens/chat_screen.dart';
+import 'package:web_app/screens/new_message_screen.dart';
 import 'package:web_app/services/conversations_service.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:web_app/themes/styles.dart'; // Import AppStyles
+
+import 'package:web_app/themes/styles.dart';
 
 class ConversationsScreen extends StatefulWidget {
   const ConversationsScreen({Key? key}) : super(key: key);
@@ -87,81 +89,83 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Conversations', style: AppStyles.headerStyle),
-        backgroundColor: AppStyles.primaryBlue,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _loadConversations,
-          ),
-        ],
+        backgroundColor: const Color.fromARGB(144, 81, 85, 87),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppStyles.primaryBlue))
-          : errorMessage != null
-              ? Center(
-                  child: Text(
-                    'Error: $errorMessage',
-                    style: const TextStyle(color: Colors.red, fontSize: 16),
-                  ),
-                )
-              : Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: _ConversationSearchBar(
-                        searchController: _searchController,
-                        onSearch: _filterConversations,
-                        onAddPressed: () {
-                          print('Navigate to new conversation screen');
-                        },
-                      ),
+      body: Container(
+        decoration: AppStyles.backgroundDecoration,
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator(color: AppStyles.primaryBlue))
+            : errorMessage != null
+                ? Center(
+                    child: Text(
+                      'Error: $errorMessage',
+                      style: const TextStyle(color: Colors.red, fontSize: 16),
                     ),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: filteredConversations.length,
-                        itemBuilder: (context, index) {
-                          final conversation = filteredConversations[index];
-                          final conversationName = _getConversationName(conversation, userId);
-                          final participants = (conversation['participants'] as List<dynamic>? ?? conversation['users'])
-                              .where((participant) => participant['id'] != userId)
-                              .toList();
-                          final participantNames =
-                              (conversation['teamId'] == null && participants.length > 1) ||
-                                      (conversation['teamId'] != null && participants.length > 0)
-                                  ? participants
-                                      .map((participant) => '${participant['name']} ${participant['surname']}')
-                                      .join(', ')
-                                  : '';
+                  )
+                : Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _ConversationSearchBar(
+                          searchController: _searchController,
+                          onSearch: _filterConversations,
+                          onAddPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => NewMessageScreen(), // Upewnij się, że przekazujesz poprawny userId
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: filteredConversations.length,
+                          itemBuilder: (context, index) {
+                            final conversation = filteredConversations[index];
+                            final conversationName = _getConversationName(conversation, userId);
+                            final participants = (conversation['participants'] as List<dynamic>? ?? conversation['users'])
+                                .where((participant) => participant['id'] != userId)
+                                .toList();
+                            final participantNames =
+                                (conversation['teamId'] == null && participants.length > 1) ||
+                                        (conversation['teamId'] != null && participants.length > 0)
+                                    ? participants
+                                        .map((participant) => '${participant['name']} ${participant['surname']}')
+                                        .join(', ')
+                                    : '';
 
-                          return _ConversationItem(
-                            name: conversationName,
-                            participantsList: participantNames,
-                            onTap: () {
-                              final conversationId = conversation['id'];
-                              final teamId = conversation['teamId'];
-                              final participants = (conversation['participants'] as List<dynamic>? ?? conversation['users'] as List<dynamic>? ?? [])
-                                  .where((participant) => participant['id'] != userId)
-                                  .map((participant) => Map<String, dynamic>.from(participant))
-                                  .toList();
+                            return _ConversationItem(
+                              name: conversationName,
+                              participantsList: participantNames,
+                              onTap: () {
+                                final conversationId = conversation['id'];
+                                final teamId = conversation['teamId'];
+                                final participants = (conversation['participants'] as List<dynamic>? ?? conversation['users'] as List<dynamic>? ?? [])
+                                    .where((participant) => participant['id'] != userId)
+                                    .map((participant) => Map<String, dynamic>.from(participant))
+                                    .toList();
 
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ChatScreen(
-                                    conversationName: conversationName,
-                                    participants: participants,
-                                    conversationId: conversationId,
-                                    teamId: teamId,
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ChatScreen(
+                                      conversationName: conversationName,
+                                      participants: participants,
+                                      conversationId: conversationId,
+                                      teamId: teamId,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          );
-                        },
+                                );
+                              },
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+      ),
     );
   }
 }
@@ -179,13 +183,10 @@ class _ConversationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 12.0),
-      padding: const EdgeInsets.all(10.0),
-      decoration: BoxDecoration(
-        color: AppStyles.transparentWhite,
-        borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(color: AppStyles.primaryBlue, width: 1),
+    return Card(
+      color: AppStyles.transparentWhite,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
       ),
       child: ListTile(
         title: Text(
@@ -225,13 +226,13 @@ class _ConversationSearchBar extends StatelessWidget {
             child: TextField(
               controller: searchController,
               onChanged: onSearch,
-              decoration: AppStyles.inputFieldStyle(hintText: 'Szukaj po nazwie...'),
+              decoration: AppStyles.inputFieldStyle(hintText: 'Search by name...'),
             ),
           ),
           OutlinedButton.icon(
             onPressed: onAddPressed,
             icon: const Icon(Icons.add, color: AppStyles.primaryBlue),
-            label: const Text('Nowa wiadomość', style: TextStyle(color: AppStyles.primaryBlue)),
+            label: const Text('New Message', style: TextStyle(color: AppStyles.primaryBlue)),
             style: OutlinedButton.styleFrom(
               backgroundColor: Colors.white,
               side: const BorderSide(color: AppStyles.primaryBlue),
