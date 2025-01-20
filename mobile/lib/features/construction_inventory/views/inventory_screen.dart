@@ -86,7 +86,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 20, horizontal: 16.0),
                   child: Text(
-                    'Inwentarz budowy',
+                    'Construction inventory',
                     style: AppStyles.headerStyle
                         .copyWith(color: Colors.black, fontSize: 22),
                   ),
@@ -103,7 +103,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           .add(FilterInventoryEvent(query: query));
                     },
                     decoration: InputDecoration(
-                      hintText: 'Wyszukaj przedmioty...',
+                      hintText: 'Search building articles...',
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.9),
                       border: OutlineInputBorder(
@@ -139,7 +139,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                                 child: ListTile(
                                   title: Text(item.name),
                                   subtitle: Text(
-                                    'Zakupione: ${item.purchased}${item.metrics}  Pozostałe: ${item.remaining}${item.metrics}',
+                                    'Bought: ${item.purchased}${item.metrics}  Remaining: ${item.remaining}${item.metrics}',
                                   ),
                                   trailing: IconButton(
                                     icon: Icon(Icons.edit,

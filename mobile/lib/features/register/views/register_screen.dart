@@ -75,7 +75,7 @@ class _RegisterFormState extends State<RegisterForm> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 50),
-                  const Text('Zarejestruj się', style: AppStyles.formTitleStyle),
+                  const Text('Register', style: AppStyles.formTitleStyle),
                   const SizedBox(height: 30),
                   Form(
                     key: _formKey,
@@ -83,17 +83,17 @@ class _RegisterFormState extends State<RegisterForm> {
                       children: [
                         StyledTextField(
                           controller: _nameController,
-                          labelText: 'Imię',
+                          labelText: 'Name',
                         ),
                         const SizedBox(height: 12),
                         StyledTextField(
                           controller: _surnameController,
-                          labelText: 'Nazwisko',
+                          labelText: 'Surname',
                         ),
                         const SizedBox(height: 12),
                         StyledTextField(
                           controller: _emailController,
-                          labelText: 'Adres e-mail',
+                          labelText: 'E-mail',
                           keyboardType: TextInputType.emailAddress,
                         ),
                         const SizedBox(height: 12),
@@ -109,13 +109,13 @@ class _RegisterFormState extends State<RegisterForm> {
                         const SizedBox(height: 12),
                         StyledTextField(
                           controller: _passwordController,
-                          labelText: 'Hasło',
+                          labelText: 'Password',
                           obscureText: true,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Hasło jest wymagane';
+                              return 'Reapet password';
                             } else if (!_passwordRegex.hasMatch(value)) {
-                              return 'Hasło musi zawierać min. 8 znaków, w tym 1 cyfrę, 1 znak specjalny i 1 wielką literę.';
+                              return 'The password must contain at least 8 characters, including 1 digit, 1 special character, and 1 uppercase letter.';
                             }
                             return null;
                           },
@@ -123,13 +123,13 @@ class _RegisterFormState extends State<RegisterForm> {
                         const SizedBox(height: 12),
                         StyledTextField(
                           controller: _confirmPasswordController,
-                          labelText: 'Powtórz hasło',
+                          labelText: 'Reapet password',
                           obscureText: true,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Proszę potwierdzić hasło.';
+                              return 'Reapet password';
                             } else if (value != _passwordController.text) {
-                              return 'Hasła nie są zgodne.';
+                              return 'Passwords are not the same';
                             }
                             return null;
                           },
@@ -166,7 +166,7 @@ class _RegisterFormState extends State<RegisterForm> {
                             }
                           },
                           decoration: InputDecoration(
-                            labelText: 'Wybierz preferowany język',
+                            labelText: 'Chose prefered language',
                             labelStyle: TextStyle(color: _selectedLanguageCode == null ? Colors.grey : Colors.white),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(24),
@@ -209,7 +209,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         context.read<RegisterBloc>().add(RegisterSubmitted(user));
                       }
                     },
-                    child: const Text('ZAREJESTRUJ'),
+                    child: const Text('REGISTER'),
                   ),
                 ],
               ),

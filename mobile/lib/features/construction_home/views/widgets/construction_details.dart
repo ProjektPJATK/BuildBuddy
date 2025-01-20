@@ -98,7 +98,7 @@ class _ConstructionDetailsState extends State<ConstructionDetails> {
 
         setState(() {
           address = '$street $houseNumber$localNumber, $postalCode $city, $country';
-          description = data['description'] ?? 'Brak opisu';
+          description = data['description'] ?? 'No description';
         });
       } else {
         throw Exception('Nie udało się pobrać danych adresu.');
@@ -210,12 +210,12 @@ class _ConstructionDetailsState extends State<ConstructionDetails> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Szczegóły budowy:',
+                  'Construction Ditails:',
                   style: AppStyles.headerStyle,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Adres: $address',
+                  'Address: $address',
                   style: AppStyles.textStyle.copyWith(
                     fontSize: 16,
                     height: 1.5,
@@ -224,7 +224,7 @@ class _ConstructionDetailsState extends State<ConstructionDetails> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Opis: $description',
+                  'Description: $description',
                   style: AppStyles.textStyle.copyWith(
                     fontSize: 16,
                     height: 1.5,

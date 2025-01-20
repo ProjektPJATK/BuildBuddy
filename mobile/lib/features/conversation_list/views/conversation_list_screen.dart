@@ -245,14 +245,14 @@ Future<void> _updateLastChecked(int conversationId) async {
                                       // Jeśli jest więcej uczestników
                                       if (conversation['teamId'] != null) {
                                         // Jeśli teamId jest niepusty, używamy conversation['name']
-                                        conversationName = conversation['name'] ?? 'Konwersacja grupowa';
+                                        conversationName = conversation['name'] ?? 'Group chat';
                                         participantsList = participants
                                             .where((p) => p['id'] != userId)
                                             .map((p) => p['name'])
                                             .join(', ');
                                       } else {
                                         // W przeciwnym razie ustawiamy "Konwersacja grupowa"
-                                        conversationName = 'Konwersacja grupowa';
+                                        conversationName = 'Group chat';
                                         participantsList = participants
                                             .where((p) => p['id'] != userId)
                                             .map((p) => p['name'])
@@ -297,7 +297,7 @@ Future<void> _updateLastChecked(int conversationId) async {
                               }
 
                               return const Center(
-                                  child: Text('Brak konwersacji.'));
+                                  child: Text('No chat found.'));
                             },
                           ),
                         ),

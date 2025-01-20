@@ -23,7 +23,7 @@ class ConversationSearchBar extends StatelessWidget {
               controller: searchController,
               onChanged: onSearch,
               decoration: InputDecoration(
-                hintText: 'Szukaj po nazwie...',
+                hintText: 'Find by name...',
                 filled: true,
                 fillColor: Colors.white.withOpacity(0.9),
                 border: OutlineInputBorder(

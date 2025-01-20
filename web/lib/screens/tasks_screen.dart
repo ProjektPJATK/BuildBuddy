@@ -73,51 +73,61 @@ void dispose() {
   }
 }
 
-   Future<void> _fetchData() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _isError = false;
-      });
+   
+  Future<void> _fetchData() async {
+  try {
+    setState(() {
+      _isLoading = true;
+      _isError = false;
+    });
 
-      // Initial power level fetch
-      teamPowerLevels = getTeamPowerLevels();
-      print('[UI] Team Power Levels: $teamPowerLevels');
+    // Initial power level fetch
+    teamPowerLevels = getTeamPowerLevels();
 
-      final userId = window.localStorage['userId'];
-      if (userId == null) throw Exception('User ID is missing from localStorage.');
+    final userId = _getCookieValue('userId'); // Retrieve userId from cookies
+    if (userId == null) throw Exception('User ID is missing from cookies.');
 
-      addresses = await TaskService.getAddressesForUser(int.parse(userId));
-      print('[UI] Addresses fetched: $addresses');
+    addresses = await TaskService.getAddressesForUser(int.parse(userId));
+    print('[UI] Addresses fetched: $addresses');
 
-      for (final address in addresses) {
-        final addressId = address['addressId'];
-        final tasks = await TaskService.fetchTasksByAddress(addressId);
-        jobs[addressId] = tasks;
+    for (final address in addresses) {
+      final addressId = address['addressId'];
+      final tasks = await TaskService.fetchTasksByAddress(addressId);
+      jobs[addressId] = tasks;
 
-        for (final job in tasks) {
-          final jobId = job['id'];
-          try {
-            final jobActualizations = await TaskService.fetchJobActualizations(jobId);
-            actualizations[jobId] = jobActualizations;
-            print('[UI] Job Actualizations for Job ID: $jobId: $jobActualizations');
-          } catch (e) {
-            actualizations[jobId] = [];
-            print('[UI] No actualizations found for Job ID: $jobId');
-          }
+      for (final job in tasks) {
+        final jobId = job['id'];
+        try {
+          final jobActualizations = await TaskService.fetchJobActualizations(jobId);
+          actualizations[jobId] = jobActualizations;
+        } catch (e) {
+          actualizations[jobId] = [];
         }
       }
-    } catch (e) {
-      setState(() {
-        _isError = true;
-      });
-      print('Error fetching data: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+    }
+  } catch (e) {
+    setState(() {
+      _isError = true;
+    });
+    print('Error fetching data: $e');
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
+String? _getCookieValue(String key) {
+  final cookies = html.window.document.cookie; // Get cookies from document
+  if (cookies != null) {
+    for (final cookie in cookies.split(';')) {
+      final parts = cookie.split('=');
+      if (parts[0].trim() == key) {
+        return parts[1].trim();
+      }
     }
   }
+  return null;
+}
 
   Future<void> _reloadDataForJob(int jobId) async {
     try {

@@ -26,7 +26,7 @@ class LoginForm extends StatelessWidget {
         // Password TextField
         _buildStyledTextField(
           controller: passwordController,
-          labelText: 'Hasło',
+          labelText: 'Password',
           obscureText: true,
           enabled: !isLoading, // Disable input while loading
         ),
@@ -56,7 +56,7 @@ class LoginForm extends StatelessWidget {
                     );
                   }
                 },
-                child: const Text('ZALOGUJ SIĘ'),
+                child: const Text('Log in'),
               ),
         const SizedBox(height: 16),
 
@@ -68,7 +68,7 @@ class LoginForm extends StatelessWidget {
                   Navigator.pushNamed(context, '/register');
                 },
           child: const Text(
-            'Nie masz konta? Zarejestruj się',
+            'Dont have an account? Register',
             style: TextStyle(color: Colors.white),
           ),
         ),

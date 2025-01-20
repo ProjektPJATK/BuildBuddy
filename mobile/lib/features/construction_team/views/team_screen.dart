@@ -172,7 +172,7 @@ class _TeamScreenState extends State<TeamScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    member['name'] ?? 'Nieznane imię i nazwisko',
+                    member['name'] ?? 'Name and surname unknown',
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
@@ -184,9 +184,9 @@ class _TeamScreenState extends State<TeamScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Rola: ${member['role'] ?? 'Brak roli'}'),
-              Text('Email: ${member['email'] ?? 'Brak emaila'}'),
-              Text('Telefon: ${member['phone'] ?? 'Brak telefonu'}'),
+              Text('Role: ${member['role'] ?? 'no role'}'),
+              Text('Email: ${member['email'] ?? 'no email'}'),
+              Text('Phone: ${member['phone'] ?? 'no phone number'}'),
             ],
           ),
           actions: [
@@ -194,7 +194,7 @@ class _TeamScreenState extends State<TeamScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Zamknij'),
+              child: const Text('Close'),
             ),
           ],
         );
@@ -219,14 +219,14 @@ class _TeamScreenState extends State<TeamScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Zespół budowy',
+                      'Construction team',
                       style: AppStyles.headerStyle.copyWith(color: Colors.black, fontSize: 22),
                     ),
                     const SizedBox(height: 10),
                     TextField(
                       controller: searchController,
                       decoration: InputDecoration(
-                        hintText: 'Wyszukaj po imieniu i nazwisku',
+                        hintText: 'Find by name',
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -252,7 +252,7 @@ class _TeamScreenState extends State<TeamScreen> {
                             final member = filteredTeamMembers[index];
                             final isCurrentUser = member['id'] == currentUserId;
                             return TeamMemberCard(
-                              name: isCurrentUser ? '${member['name']} (ja)' : member['name'],
+                              name: isCurrentUser ? '${member['name']} (me)' : member['name'],
                               role: member['role'],
                               phone: member['phone'],
                               onInfoPressed: isCurrentUser

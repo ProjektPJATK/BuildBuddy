@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:web_app/services/teams_service.dart';
+import 'package:web_app/themes/styles.dart';
 
 class EditUserDialog extends StatefulWidget {
   final int userId;
@@ -131,99 +132,140 @@ class _EditUserDialogState extends State<EditUserDialog> {
   }
 }
 
+@override
+Widget build(BuildContext context) {
+  if (isLoading) {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    if (isLoading) {
-      return Center(child: CircularProgressIndicator());
-    }
-
-    if (isError) {
-      return AlertDialog(
-        title: Text('Błąd'),
-        content: Text('Nie udało się załadować danych użytkownika.'),
-        actions: [
-          TextButton(
-            onPressed: widget.onCancel,
-            child: Text('Zamknij'),
-          ),
-        ],
-      );
-    }
-
+  if (isError) {
     return AlertDialog(
-      title: Text('Edytuj Rangę Użytkownika'),
-      content: SingleChildScrollView(
-        child: Column(
-          children: [
-            TextField(
-              controller: _roleNameController,
-              decoration: InputDecoration(
-                labelText: 'Nazwa Rangi',
-                errorText: _roleNameController.text.trim().isEmpty
-                    ? 'Nazwa rangi nie może być pusta'
-                    : null,
-              ),
-            ),
-            SizedBox(height: 16),
-            Text('Poziom Dostępu:', style: TextStyle(fontWeight: FontWeight.bold)),
-            RadioListTile<int>(
-              title: Text('Dostęp do aplikacji mobilnej'),
-              value: 1,
-              groupValue: powerLevel,
-              onChanged: (value) {
-                setState(() {
-                  powerLevel = value!;
-                });
-              },
-            ),
-            RadioListTile<int>(
-              title: Text('Dostęp do aplikacji mobilnej i webowej bez zarządzania projektami'),
-              value: 2,
-              groupValue: powerLevel,
-              onChanged: (value) {
-                setState(() {
-                  powerLevel = value!;
-                });
-              },
-            ),
-            RadioListTile<int>(
-              title: Text('Dostęp do wszystkiego'),
-              value: 3,
-              groupValue: powerLevel,
-              onChanged: (value) {
-                setState(() {
-                  powerLevel = value!;
-                });
-              },
-            ),
-            if (powerLevel == 0)
-              Text(
-                'Musisz wybrać poziom dostępu',
-                style: TextStyle(color: Colors.red),
-              ),
-          ],
-        ),
+      backgroundColor: AppStyles.transparentWhite,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      title: Text(
+        'Błąd',
+        style: AppStyles.headerStyle,
+      ),
+      content: Text(
+        'Nie udało się załadować danych użytkownika.',
+        style: AppStyles.textStyle,
       ),
       actions: [
-        IconButton(
-          icon: Icon(Icons.delete, color: Colors.red),
-          onPressed: _confirmDeleteUser,
-        ),
         TextButton(
           onPressed: widget.onCancel,
-          child: Text('Anuluj'),
-        ),
-        TextButton(
-          onPressed: _isFormValid
-              ? () {
-                  widget.onSubmit(powerLevel, _roleNameController.text.trim());
-                  Navigator.pop(context);
-                }
-              : null,
-          child: Text('Zapisz'),
+          style: AppStyles.textButtonStyle(),
+          child: const Text('Zamknij'),
         ),
       ],
     );
   }
+
+  return AlertDialog(
+    backgroundColor: AppStyles.transparentWhite,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10.0),
+    ),
+    title: Text(
+      'Edytuj Rangę Użytkownika',
+      style: AppStyles.headerStyle,
+    ),
+    content: SingleChildScrollView(
+      child: Column(
+        children: [
+          TextField(
+            controller: _roleNameController,
+            decoration: AppStyles.inputFieldStyle(
+              hintText: 'Nazwa Rangi',
+            ).copyWith(
+              errorText: _roleNameController.text.trim().isEmpty
+                  ? 'Nazwa rangi nie może być pusta'
+                  : null,
+            ),
+            cursorColor: AppStyles.cursorColor,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Poziom Dostępu:',
+            style: AppStyles.textStyle.copyWith(fontWeight: FontWeight.bold),
+          ),
+          RadioListTile<int>(
+            title: Text(
+              'Dostęp do aplikacji mobilnej',
+              style: AppStyles.textStyle,
+            ),
+            value: 1,
+            groupValue: powerLevel,
+            activeColor: AppStyles.primaryBlue,
+            onChanged: (value) {
+              setState(() {
+                powerLevel = value!;
+              });
+            },
+          ),
+          RadioListTile<int>(
+            title: Text(
+              'Dostęp do aplikacji mobilnej i webowej bez zarządzania projektami',
+              style: AppStyles.textStyle,
+            ),
+            value: 2,
+            groupValue: powerLevel,
+            activeColor: AppStyles.primaryBlue,
+            onChanged: (value) {
+              setState(() {
+                powerLevel = value!;
+              });
+            },
+          ),
+          RadioListTile<int>(
+            title: Text(
+              'Dostęp do wszystkiego',
+              style: AppStyles.textStyle,
+            ),
+            value: 3,
+            groupValue: powerLevel,
+            activeColor: AppStyles.primaryBlue,
+            onChanged: (value) {
+              setState(() {
+                powerLevel = value!;
+              });
+            },
+          ),
+          if (powerLevel == 0)
+            Text(
+              'Musisz wybrać poziom dostępu',
+              style: AppStyles.textStyle.copyWith(color: Colors.red),
+            ),
+        ],
+      ),
+    ),
+    actions: [
+      IconButton(
+        icon: const Icon(Icons.delete, color: Color.fromARGB(255, 2, 2, 2)),
+        onPressed: _confirmDeleteUser,
+      ),
+      TextButton(
+        onPressed: widget.onCancel,
+        style: AppStyles.textButtonStyle(),
+        child: const Text('Anuluj'),
+      ),
+      ElevatedButton(
+        onPressed: _isFormValid
+            ? () {
+                widget.onSubmit(
+                    powerLevel, _roleNameController.text.trim());
+                Navigator.pop(context);
+              }
+            : null,
+        style: AppStyles.buttonStyle(),
+        child: const Text('Zapisz'),
+      ),
+    ],
+  );
+}
+
+ 
 }

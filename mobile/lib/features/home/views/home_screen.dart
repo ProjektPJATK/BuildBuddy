@@ -191,14 +191,14 @@ Widget _buildHomeContent(BuildContext context, List<dynamic> teams, bool noTeams
           child: Column(
             children: [
               const Text(
-                'Wybierz budowę',
+                'Chose team',
                 style: AppStyles.headerStyle,
               ),
               Expanded(
                 child: noTeamsFound
                     ? Center(
                         child: Text(
-                          'Nie znaleziono lub nie dodano cię do zespołu',
+                          'No team found ot you were not added to team',
                           style: AppStyles.headerStyle.copyWith(
                             color: const Color.fromARGB(179, 8, 8, 8),
                             fontSize: 18,
@@ -241,7 +241,7 @@ Widget _buildHomeContent(BuildContext context, List<dynamic> teams, bool noTeams
           child: Column(
             children: [
               const Text(
-                'Powiadomienia',
+                'Notification',
                 style: AppStyles.headerStyle,
               ),
               Expanded(
@@ -250,7 +250,7 @@ Widget _buildHomeContent(BuildContext context, List<dynamic> teams, bool noTeams
                   itemCount: hasNewMessages ? unreadConversations.length : 0,
                   itemBuilder: (context, index) {
                     return NotificationItem(
-                      title: 'Masz nowe wiadomości',
+                      title: 'You have new message',
                       onClose: _clearNotifications,
                     );
                   },

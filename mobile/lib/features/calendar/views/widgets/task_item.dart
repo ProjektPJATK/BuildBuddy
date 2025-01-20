@@ -12,8 +12,8 @@ class TaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String title = task['name'] ?? 'Brak nazwy';
-    final String description = task['message'] ?? 'Brak opisu';
+    final String title = task['name'] ?? 'no name';
+    final String description = task['message'] ?? 'lacks description';
     
     // Parse DateTime and Format
     final DateTime startTime = DateTime.parse(task['startTime']);
@@ -78,7 +78,7 @@ class TaskItem extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Godziny: $formattedStartTime - $formattedEndTime',
+                    'hours: $formattedStartTime - $formattedEndTime',
                     style: const TextStyle(fontSize: 12, color: Colors.black),
                   ),
                 ],

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:web_app/config/config.dart';
 import 'package:web_app/services/teams_service.dart';
+import 'package:web_app/themes/styles.dart';
 
 class EditTeamDialog extends StatelessWidget {
   final int teamId; // Dodano teamId
@@ -83,127 +84,130 @@ class EditTeamDialog extends StatelessWidget {
     return true;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final TextEditingController nameController = TextEditingController(text: teamName);
-    final TextEditingController cityController = TextEditingController(text: addressData['city']);
-    final TextEditingController countryController = TextEditingController(text: addressData['country']);
-    final TextEditingController streetController = TextEditingController(text: addressData['street']);
-    final TextEditingController houseNumberController = TextEditingController(text: addressData['houseNumber']);
-    final TextEditingController localNumberController = TextEditingController(text: addressData['localNumber']);
-    final TextEditingController postalCodeController = TextEditingController(text: addressData['postalCode']);
-    final TextEditingController descriptionController = TextEditingController(text: addressData['description']); // Dodano kontroler
+ @override
+Widget build(BuildContext context) {
+  final TextEditingController nameController = TextEditingController(text: teamName);
+  final TextEditingController cityController = TextEditingController(text: addressData['city']);
+  final TextEditingController countryController = TextEditingController(text: addressData['country']);
+  final TextEditingController streetController = TextEditingController(text: addressData['street']);
+  final TextEditingController houseNumberController = TextEditingController(text: addressData['houseNumber']);
+  final TextEditingController localNumberController = TextEditingController(text: addressData['localNumber']);
+  final TextEditingController postalCodeController = TextEditingController(text: addressData['postalCode']);
+  final TextEditingController descriptionController = TextEditingController(text: addressData['description']);
 
-    final controllers = [
-      nameController,
-      cityController,
-      countryController,
-      streetController,
-      houseNumberController,
-      localNumberController,
-      postalCodeController,
-      descriptionController,
-    ];
+  final controllers = [
+    nameController,
+    cityController,
+    countryController,
+    streetController,
+    houseNumberController,
+    localNumberController,
+    postalCodeController,
+    descriptionController,
+  ];
 
-    return AlertDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  return AlertDialog(
+    backgroundColor: AppStyles.transparentWhite,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10.0),
+    ),
+    title: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Edytuj Team',
+          style: AppStyles.headerStyle,
+        ),
+        IconButton(
+          icon: const Icon(Icons.delete, color: Color.fromARGB(255, 2, 2, 2)),
+          onPressed: () => _showDeleteConfirmation(context),
+        ),
+      ],
+    ),
+    content: SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Edytuj Team'),
-          IconButton(
-            icon: Icon(Icons.delete, color: Colors.red),
-            onPressed: () => _showDeleteConfirmation(context),
+          TextField(
+            controller: nameController,
+            decoration: AppStyles.inputFieldStyle(hintText: 'Nazwa Teamu'),
+            cursorColor: AppStyles.cursorColor,
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: cityController,
+            decoration: AppStyles.inputFieldStyle(hintText: 'Miasto'),
+            cursorColor: AppStyles.cursorColor,
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: countryController,
+            decoration: AppStyles.inputFieldStyle(hintText: 'Kraj'),
+            cursorColor: AppStyles.cursorColor,
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: streetController,
+            decoration: AppStyles.inputFieldStyle(hintText: 'Ulica'),
+            cursorColor: AppStyles.cursorColor,
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: houseNumberController,
+            decoration: AppStyles.inputFieldStyle(hintText: 'Numer Domu'),
+            cursorColor: AppStyles.cursorColor,
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: localNumberController,
+            decoration: AppStyles.inputFieldStyle(hintText: 'Numer Lokalu'),
+            cursorColor: AppStyles.cursorColor,
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: postalCodeController,
+            decoration: AppStyles.inputFieldStyle(hintText: 'Kod Pocztowy'),
+            cursorColor: AppStyles.cursorColor,
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: descriptionController,
+            decoration: AppStyles.inputFieldStyle(hintText: 'Opis'),
+            maxLines: 3,
+            cursorColor: AppStyles.cursorColor,
           ),
         ],
       ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: 'Nazwa Teamu'),
-            ),
-            TextField(
-              controller: cityController,
-              decoration: InputDecoration(labelText: 'Miasto'),
-            ),
-            TextField(
-              controller: countryController,
-              decoration: InputDecoration(labelText: 'Kraj'),
-            ),
-            TextField(
-              controller: streetController,
-              decoration: InputDecoration(labelText: 'Ulica'),
-            ),
-            TextField(
-              controller: houseNumberController,
-              decoration: InputDecoration(labelText: 'Numer Domu'),
-            ),
-            TextField(
-              controller: localNumberController,
-              decoration: InputDecoration(labelText: 'Numer Lokalu'),
-            ),
-            TextField(
-              controller: postalCodeController,
-              decoration: InputDecoration(labelText: 'Kod Pocztowy'),
-            ),
-            TextField(
-              controller: descriptionController,
-              decoration: InputDecoration(labelText: 'Opis'),
-              maxLines: 3, // Większe pole tekstowe dla opisu
-            ),
-          ],
-        ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: onCancel,
+        style: AppStyles.textButtonStyle(),
+        child: const Text('Anuluj'),
       ),
-      actions: [
-        TextButton(
-          onPressed: onCancel,
-          child: Text('Anuluj'),
-        ),
-        TextButton(
-          onPressed: () {
-            if (_validateFields(context, controllers)) {
-              onSubmit(
-                nameController.text,
-                {
-                  'city': cityController.text,
-                  'country': countryController.text,
-                  'street': streetController.text,
-                  'houseNumber': houseNumberController.text,
-                  'localNumber': localNumberController.text,
-                  'postalCode': postalCodeController.text,
-                  'description': descriptionController.text, // Dodano opis
-                },
-              );
-              Navigator.pop(context);
-            }
-          },
-          child: Text('Zapisz'),
-        ),
-      ],
-    );
-  }
+      ElevatedButton(
+        onPressed: () {
+          if (_validateFields(context, controllers)) {
+            onSubmit(
+              nameController.text,
+              {
+                'city': cityController.text,
+                'country': countryController.text,
+                'street': streetController.text,
+                'houseNumber': houseNumberController.text,
+                'localNumber': localNumberController.text,
+                'postalCode': postalCodeController.text,
+                'description': descriptionController.text,
+              },
+            );
+            Navigator.pop(context);
+          }
+        },
+        style: AppStyles.buttonStyle(),
+        child: const Text('Zapisz'),
+      ),
+    ],
+  );
 }
 
-extension TeamsServiceExtensions on TeamsService {
-  Future<void> deleteTeam(int teamId) async {
-    final client = HttpClient();
-    try {
-      final url = '${AppConfig.getBaseUrl()}/api/Team/$teamId';
-      final request = await client.deleteUrl(Uri.parse(url));
-      final response = await request.close();
-
-      if (response.statusCode == 204) {
-        print('Team deleted successfully.');
-      } else {
-        throw Exception('Failed to delete team: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error deleting team: $e');
-      rethrow;
-    } finally {
-      client.close();
-    }
-  }
 }

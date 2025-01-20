@@ -77,8 +77,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         onSave: (comment, images) {
           // Debugging after saving
           print('Task Updated - Job ID: ${widget.taskId}');
-          print('Komentarz: $comment');
-          print('Zdjęcia: ${images.map((img) => img.path).toList()}');
+          print('Comment: $comment');
+          print('Photo: ${images.map((img) => img.path).toList()}');
 
           // Refresh job actualizations
           _fetchJobActualizations();
@@ -126,10 +126,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         children: [
                           Text(widget.title, style: AppStyles.formTitleStyle),
                           const SizedBox(height: 8),
-                          _buildDetailRow(Icons.description, 'Opis', widget.description),
-                          _buildDetailRow(Icons.timer, 'Rozpoczęcie', widget.startTime),
-                          _buildDetailRow(Icons.timer_off, 'Zakończenie', widget.endTime),
-                          _buildDetailRow(Icons.event, 'Data', widget.taskDate),
+                          _buildDetailRow(Icons.description, 'Description', widget.description),
+                          _buildDetailRow(Icons.timer, 'Start', widget.startTime),
+                          _buildDetailRow(Icons.timer_off, 'End', widget.endTime),
+                          _buildDetailRow(Icons.event, 'Date', widget.taskDate),
 
                           // Display job actualizations
                           if (jobActualizations.isNotEmpty) ...[
@@ -149,7 +149,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                             child: ElevatedButton.icon(
                               onPressed: () => _showTaskUpdateDialog(context),
                               icon: const Icon(Icons.add_circle_outline, color: Colors.white),
-                              label: const Text('Dodaj Aktualizację'),
+                              label: const Text('Add actualization'),
                               style: AppStyles.buttonStyle(),
                             ),
                           ),
@@ -198,7 +198,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             const SizedBox(width: 16),
             Expanded(
               child: Text(
-                'Komentarz: $message',
+                'Comment: $message',
                 style: AppStyles.textStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w500),
               ),
             ),

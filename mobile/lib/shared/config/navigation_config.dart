@@ -13,17 +13,17 @@ class NavigationConfig {
   static List<Map<String, dynamic>> getNavItems(bool isConstructionMode) {
     return isConstructionMode
         ? [
-            {'icon': Icons.calendar_today, 'label': 'Kalendarz', 'route': '/construction_calendar'},
-            {'icon': Icons.people, 'label': 'Zespół', 'route': '/construction_team'},
+            {'icon': Icons.calendar_today, 'label': 'Calendar', 'route': '/construction_calendar'},
+            {'icon': Icons.people, 'label': 'Team', 'route': '/construction_team'},
             {'icon': Icons.home, 'label': 'Home', 'route': '/home'},
-            {'icon': Icons.construction, 'label': 'Budowa', 'route': '/construction_home'},
-            {'icon': Icons.inventory, 'label': 'Inwentarz', 'route': '/construction_inventory'},
+            {'icon': Icons.construction, 'label': 'Construction', 'route': '/construction_home'},
+            {'icon': Icons.inventory, 'label': 'Inventory', 'route': '/construction_inventory'},
           ]
         : [
-            {'icon': Icons.calendar_today, 'label': 'Kalendarz', 'route': '/calendar'},
-            {'icon': Icons.chat, 'label': 'Czat', 'route': '/chats'},
+            {'icon': Icons.calendar_today, 'label': 'Calendar', 'route': '/calendar'},
+            {'icon': Icons.chat, 'label': 'Chat', 'route': '/chats'},
             {'icon': Icons.home, 'label': 'Home', 'route': '/home'},
-            {'icon': Icons.person, 'label': 'Profil', 'route': '/profile'},
+            {'icon': Icons.person, 'label': 'Profile', 'route': '/profile'},
           ];
   }
 
