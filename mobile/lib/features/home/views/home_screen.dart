@@ -191,7 +191,7 @@ Widget _buildHomeContent(BuildContext context, List<dynamic> teams, bool noTeams
           child: Column(
             children: [
               const Text(
-                'Chose team',
+                'Choose team',
                 style: AppStyles.headerStyle,
               ),
               Expanded(
