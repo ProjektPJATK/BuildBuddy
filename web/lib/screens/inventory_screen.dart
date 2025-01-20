@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart';
-import 'package:web/config/config.dart';
-import 'package:web/models/inventory_iem_model.dart';
-import 'package:web/services/inventory_service.dart';
-import 'package:web/themes/styles.dart';
+import 'package:web_app/config/config.dart';
+import 'package:web_app/models/inventory_iem_model.dart';
+import 'package:web_app/services/inventory_service.dart';
+import 'package:web_app/themes/styles.dart';
 import 'package:universal_html/html.dart' as html;
 
 class InventoryScreen extends StatefulWidget {

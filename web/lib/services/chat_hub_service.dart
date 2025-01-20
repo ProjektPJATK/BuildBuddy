@@ -1,9 +1,7 @@
-import 'dart:convert';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/html.dart';
+import 'package:signalr_core/signalr_core.dart';
 
 class ChatHubService {
-  WebSocketChannel? _channel;
+  late HubConnection _connection;
   bool _connected = false;
 
   Future<void> connect({
@@ -16,51 +14,82 @@ class ChatHubService {
     final url = '$baseUrl/Chat?conversationId=$conversationId&userId=$userId';
     print("[ChatHubService] Connecting to $url");
 
-    _channel = HtmlWebSocketChannel.connect(Uri.parse(url));
-    _connected = true;
+    _connection = HubConnectionBuilder()
+    .withUrl(
+      url,
+      HttpConnectionOptions(),
+    )
+    .withAutomaticReconnect()
+    .build();
 
-    _channel!.stream.listen((event) {
-      print("[ChatHubService] Message from server: $event");
-      final Map<String, dynamic> message = jsonDecode(event);
-      final method = message['method'];
-      final params = message['params'];
-
-      if (method == "ReceiveMessage") {
-        onMessageReceived(params);
-      } else if (method == "ReceiveHistory") {
-        onHistoryReceived(List<Map<String, dynamic>>.from(params));
+    _connection.on("ReceiveMessage", (args) {
+      if (args != null && args.isNotEmpty) {
+        print("[ChatHubService] Message received: $args");
+        final message = {
+          'senderId': args[0],
+          'text': args[1],
+          'timestamp': args[2],
+        };
+        onMessageReceived(message);
       }
-    }, onError: (error) {
-      print("[ChatHubService] WebSocket error: $error");
-      _connected = false;
-    }, onDone: () {
-      print("[ChatHubService] WebSocket connection closed.");
+    });
+
+    _connection.on("ReceiveHistory", (args) {
+      if (args != null && args.isNotEmpty) {
+        print("[ChatHubService] History received: $args");
+        final history = (args[0] as List<dynamic>)
+            .map((item) => Map<String, dynamic>.from(item))
+            .toList();
+        onHistoryReceived(history);
+      }
+    });
+
+    _connection.onclose((error) {
+      print("[ChatHubService] Connection closed: $error");
       _connected = false;
     });
+
+    try {
+      await _connection.start();
+      _connected = true;
+      print("[ChatHubService] Connected to SignalR Hub");
+    } catch (e) {
+      print("[ChatHubService] Error connecting to SignalR: $e");
+    }
   }
 
   Future<void> sendMessage(int senderId, int conversationId, String text) async {
-    if (_connected && _channel != null) {
+    if (_connected) {
       try {
-        final message = jsonEncode({
-          "method": "SendMessage",
-          "params": [senderId, conversationId, text]
-        });
-        _channel!.sink.add(message);
+        await _connection.invoke("SendMessage", args: [senderId, conversationId, text]);
         print("[ChatHubService] Message sent: $text");
       } catch (e) {
         print("[ChatHubService] Error sending message: $e");
       }
     } else {
-      print("[ChatHubService] Not connected to WebSocket.");
+      print("[ChatHubService] Not connected to the hub.");
     }
   }
 
-  void disconnect() {
-    if (_connected && _channel != null) {
-      _channel!.sink.close();
-      _connected = false;
-      print("[ChatHubService] Disconnected from WebSocket.");
+  Future<void> fetchHistory(int conversationId, int userId) async {
+  print("[ChatHubService] Invoking FetchHistory for conversationId=$conversationId, userId=$userId");
+  try {
+    await _connection.invoke("FetchHistory", args: [conversationId, userId]);
+    print("[ChatHubService] FetchHistory invoked successfully.");
+  } catch (e) {
+    print("[ChatHubService] Error invoking FetchHistory: $e");
+  }
+}
+
+  void disconnect() async {
+    if (_connected) {
+      try {
+        await _connection.stop();
+        _connected = false;
+        print("[ChatHubService] Disconnected from SignalR Hub");
+      } catch (e) {
+        print("[ChatHubService] Error during disconnect: $e");
+      }
     }
   }
 }

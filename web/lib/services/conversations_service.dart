@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:universal_io/io.dart'; // Użycie poprawnego importu
 import 'package:universal_html/html.dart' as html;
-import 'package:web/config/config.dart';
+import 'package:web_app/config/config.dart';
 
 class ConversationsService {
   ConversationsService();

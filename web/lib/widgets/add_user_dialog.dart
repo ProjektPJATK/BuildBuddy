@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web/services/teams_service.dart';
+import 'package:web_app/services/teams_service.dart';
 import 'package:universal_html/html.dart' as html;
 class AddUserDialog extends StatefulWidget {
   final int teamId;

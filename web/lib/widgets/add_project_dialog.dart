@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:web/services/teams_service.dart';
+import 'package:web_app/services/teams_service.dart';
 
 class AddProjectDialog extends StatelessWidget {
   final VoidCallback onCancel;

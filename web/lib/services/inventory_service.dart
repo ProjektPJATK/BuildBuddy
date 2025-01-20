@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:html'; // For HttpRequest and localStorage
-import 'package:web/config/config.dart';
-import 'package:web/models/inventory_iem_model.dart';
+import 'package:web_app/config/config.dart';
+import 'package:web_app/models/inventory_iem_model.dart';
 
 class InventoryService {
   // Fetch inventory items

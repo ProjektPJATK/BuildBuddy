@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:web/screens/conversations_screen.dart';
-import 'package:web/screens/inventory_screen.dart';
-import 'package:web/screens/teams_screen.dart';
+import 'package:web_app/screens/conversations_screen.dart';
+import 'package:web_app/screens/inventory_screen.dart';
+import 'package:web_app/screens/teams_screen.dart';
 
 import 'tasks_screen.dart';
 
@@ -12,8 +12,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 int? getLoggedInUserId() {
-  final userId = html.window.localStorage['userId'];
-  return userId != null ? int.tryParse(userId) : null;
+  final userId = int.tryParse(
+        (html.document.cookie?.split('; ') ?? [])
+            .firstWhere((cookie) => cookie.startsWith('userId='), orElse: () => 'userId=0')
+            .split('=')[1]);
+
+  return userId != null ? userId : null;
 }
 
 class _HomeScreenState extends State<HomeScreen> {

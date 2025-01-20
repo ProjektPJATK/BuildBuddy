@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:web/screens/chat_screen.dart';
-import 'package:web/services/conversations_service.dart';
+import 'package:web_app/screens/chat_screen.dart';
+import 'package:web_app/services/conversations_service.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:web_app/themes/styles.dart'; // Import AppStyles
 
 class ConversationsScreen extends StatefulWidget {
   const ConversationsScreen({Key? key}) : super(key: key);
@@ -47,31 +48,18 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   }
 
   String _getConversationName(Map<String, dynamic> conversation, int? userIdFromCookie) {
-    // Pobieramy participants lub users, jeśli participants nie istnieje
     final participants = conversation['participants'] as List<dynamic>? ?? conversation['users'] as List<dynamic>? ?? [];
-    print('[ConversationsScreen] Original Participants: $participants');
-
-    // Filtrujemy, aby usunąć zalogowanego użytkownika
     final filteredParticipants = participants.where((participant) => participant['id'] != userIdFromCookie).toList();
-    print('[ConversationsScreen] Filtered Participants: $filteredParticipants');
 
-    // Jeśli teamId nie jest nullem, użyj nazwy konwersacji
     if (conversation['teamId'] != null) {
-      final name = conversation['name'] ?? 'Unknown Group';
-      print('[ConversationsScreen] Group conversation with teamId, name: $name');
-      return name;
+      return conversation['name'] ?? 'Unknown Group';
     }
 
-    // Jeśli tylko dwie osoby, ustawiamy nazwę drugiej osoby
     if (filteredParticipants.length == 1) {
       final otherUser = filteredParticipants.first;
-      final name = '${otherUser['name']} ${otherUser['surname']}';
-      print('[ConversationsScreen] Two participants, name: $name');
-      return name;
+      return '${otherUser['name']} ${otherUser['surname']}';
     }
 
-    // Jeśli to konwersacja grupowa bez teamId
-    print('[ConversationsScreen] Group conversation without teamId');
     return 'Konwersacja grupowa';
   }
 
@@ -98,21 +86,22 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Conversations'),
+        title: const Text('Conversations', style: AppStyles.headerStyle),
+        backgroundColor: AppStyles.primaryBlue,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadConversations, // Wywołanie odświeżania
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: _loadConversations,
           ),
         ],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppStyles.primaryBlue))
           : errorMessage != null
               ? Center(
                   child: Text(
                     'Error: $errorMessage',
-                    style: const TextStyle(color: Colors.red),
+                    style: const TextStyle(color: Colors.red, fontSize: 16),
                   ),
                 )
               : Column(
@@ -132,15 +121,10 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                         itemCount: filteredConversations.length,
                         itemBuilder: (context, index) {
                           final conversation = filteredConversations[index];
-
-                          // Jeśli teamId nie jest nullem, użyj nazwy konwersacji
                           final conversationName = _getConversationName(conversation, userId);
-
                           final participants = (conversation['participants'] as List<dynamic>? ?? conversation['users'])
-                              .where((participant) => participant['id'] != userId) // Usunięcie zalogowanego użytkownika
+                              .where((participant) => participant['id'] != userId)
                               .toList();
-
-                          // Lista uczestników tylko dla konwersacji grupowych (teamId == null lub więcej niż 2 osoby)
                           final participantNames =
                               (conversation['teamId'] == null && participants.length > 1) ||
                                       (conversation['teamId'] != null && participants.length > 0)
@@ -153,26 +137,25 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                             name: conversationName,
                             participantsList: participantNames,
                             onTap: () {
-                                final conversationId = conversation['id'];
+                              final conversationId = conversation['id'];
+                              final teamId = conversation['teamId'];
+                              final participants = (conversation['participants'] as List<dynamic>? ?? conversation['users'] as List<dynamic>? ?? [])
+                                  .where((participant) => participant['id'] != userId)
+                                  .map((participant) => Map<String, dynamic>.from(participant))
+                                  .toList();
 
-                                // Upewnienie się, że participants ma odpowiedni typ
-                                final participants = (conversation['participants'] as List<dynamic>? ?? conversation['users'] as List<dynamic>? ?? [])
-                                    .where((participant) => participant['id'] != userId) // Usunięcie zalogowanego użytkownika
-                                    .map((participant) => Map<String, dynamic>.from(participant)) // Konwersja do Map<String, dynamic>
-                                    .toList();
-
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ChatScreen(
-                                      conversationName: conversationName,
-                                      participants: participants, // Przekazanie listy z prawidłowym typem
-                                      conversationId: conversationId,
-                                    ),
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChatScreen(
+                                    conversationName: conversationName,
+                                    participants: participants,
+                                    conversationId: conversationId,
+                                    teamId: teamId,
                                   ),
-                                );
-                              },
-
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
@@ -200,18 +183,19 @@ class _ConversationItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 12.0),
       padding: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.7),
+        color: AppStyles.transparentWhite,
         borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(color: AppStyles.primaryBlue, width: 1),
       ),
       child: ListTile(
         title: Text(
           name,
-          style: const TextStyle(color: Colors.black),
+          style: AppStyles.headerStyle,
         ),
         subtitle: participantsList.isNotEmpty
             ? Text(
                 participantsList,
-                style: const TextStyle(color: Colors.black54),
+                style: AppStyles.textStyle,
               )
             : null,
         onTap: onTap,
@@ -241,25 +225,16 @@ class _ConversationSearchBar extends StatelessWidget {
             child: TextField(
               controller: searchController,
               onChanged: onSearch,
-              decoration: InputDecoration(
-                hintText: 'Szukaj po nazwie...',
-                filled: true,
-                fillColor: Colors.white.withOpacity(0.9),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25.0),
-                  borderSide: BorderSide.none,
-                ),
-                prefixIcon: const Icon(Icons.search),
-              ),
+              decoration: AppStyles.inputFieldStyle(hintText: 'Szukaj po nazwie...'),
             ),
           ),
           OutlinedButton.icon(
             onPressed: onAddPressed,
-            icon: const Icon(Icons.add, color: Colors.blue),
-            label: const Text('Nowa wiadomość', style: TextStyle(color: Colors.blue)),
+            icon: const Icon(Icons.add, color: AppStyles.primaryBlue),
+            label: const Text('Nowa wiadomość', style: TextStyle(color: AppStyles.primaryBlue)),
             style: OutlinedButton.styleFrom(
               backgroundColor: Colors.white,
-              side: const BorderSide(color: Colors.blue),
+              side: const BorderSide(color: AppStyles.primaryBlue),
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(25.0),

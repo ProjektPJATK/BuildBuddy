@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:universal_html/html.dart' as html;
 import 'package:flutter/material.dart';
-import 'package:web/widgets/add_project_dialog.dart';
-import 'package:web/services/teams_service.dart';
-import 'package:web/widgets/add_user_dialog.dart';
-import 'package:web/widgets/edit_team_dialog.dart';
-import 'package:web/widgets/edit_user_dialog.dart';
+import 'package:web_app/widgets/add_project_dialog.dart';
+import 'package:web_app/services/teams_service.dart';
+import 'package:web_app/widgets/add_user_dialog.dart';
+import 'package:web_app/widgets/edit_team_dialog.dart';
+import 'package:web_app/widgets/edit_user_dialog.dart';
 
 class TeamsScreen extends StatefulWidget {
   final int loggedInUserId;

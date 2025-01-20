@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:html'; // For HttpRequest and localStorage
-import 'package:web/config/config.dart';
+import 'package:web_app/config/config.dart';
 
 
 class TaskService {
