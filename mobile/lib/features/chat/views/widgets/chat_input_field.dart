@@ -29,7 +29,7 @@ class ChatInputField extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   decoration: const InputDecoration(
-                    hintText: "Napisz wiadomość...",
+                    hintText: "Write message...",
                     border: InputBorder.none,
                   ),
                 ),

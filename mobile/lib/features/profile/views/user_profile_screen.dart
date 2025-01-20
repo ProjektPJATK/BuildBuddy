@@ -180,7 +180,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('EDYTUJ PROFIL'),
+                  child: const Text('EDIT PROFILE'),
                 ),
                 const SizedBox(width: 20),
                 ElevatedButton(
@@ -189,7 +189,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
                   ),
-                  child: const Text('WYLOGUJ SIĘ'),
+                  child: const Text('LOG OUT'),
                 ),
               ],
             ),

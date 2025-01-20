@@ -18,7 +18,7 @@ class ChatHeader extends StatelessWidget {
       final displayName = participants.length == 1
         ? participants.first
         : (conversationName == null || conversationName.isEmpty
-            ? 'Konwersacja grupowa'
+            ? 'Group chat'
             : conversationName!);
             
     return Column(
@@ -80,7 +80,7 @@ class ChatHeader extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Uczestnicy konwersacji'),
+          title: const Text('Chat users'),
           content: SingleChildScrollView(
             child: ListBody(
               children: participants
@@ -93,7 +93,7 @@ class ChatHeader extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Zamknij'),
+              child: const Text('Close'),
             ),
           ],
         );

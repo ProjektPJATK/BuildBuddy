@@ -27,7 +27,7 @@ class TeamMemberCard extends StatelessWidget {
           name,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text(role.isNotEmpty ? role : 'Brak roli'),
+        subtitle: Text(role.isNotEmpty ? role : 'No role asigned'),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

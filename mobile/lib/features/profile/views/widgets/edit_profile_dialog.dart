@@ -5,7 +5,7 @@ import 'package:mobile/features/profile/models/user_model.dart';
 import 'package:mobile/features/profile/services/user_service.dart';
 import 'dart:io';
 
-import 'language_picker.dart';  // Import the picker
+import 'language_picker.dart'; // Import the picker
 
 class EditProfileDialog extends StatefulWidget {
   final User user;
@@ -25,6 +25,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   late TextEditingController languageController;
   File? _selectedImage;
   bool _isLoading = false;
+  final _formKey = GlobalKey<FormState>();
   final UserService _userService = UserService();
 
   @override
@@ -49,16 +50,8 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   }
 
   Future<void> _saveProfile() async {
-    if (nameController.text.isEmpty || surnameController.text.isEmpty || emailController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          behavior: SnackBarBehavior.fixed,
-          content: Text('Wszystkie pola muszą być wypełnione.')
-        
-        ),
-        
-      );
-      return;
+    if (!_formKey.currentState!.validate()) {
+      return; // Validation failed
     }
 
     setState(() {
@@ -83,15 +76,11 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
       }
       widget.onSave(updatedUser);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-        
-          content: Text('Profil został zapisany.')),
+        const SnackBar(content: Text('Profile was saved.')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          
-          content: Text('Błąd podczas zapisywania profilu: $e')),
+        SnackBar(content: Text('Error while saving profile: $e')),
       );
     }
 
@@ -102,7 +91,6 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     Navigator.pop(context);
   }
 
-  // Show Language Picker Modal
   void _showLanguagePicker() {
     showModalBottomSheet(
       context: context,
@@ -123,69 +111,115 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     return AlertDialog(
       backgroundColor: Colors.black.withOpacity(0.8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text('Edytuj Profil', style: TextStyle(color: Colors.white)),
+      title: const Text('Edit profile', style: TextStyle(color: Colors.white)),
       content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: _pickImage,
-              child: CircleAvatar(
-                radius: 50,
-                backgroundImage: _selectedImage != null
-                    ? FileImage(_selectedImage!)
-                    : (widget.user.userImageUrl.isNotEmpty
-                        ? NetworkImage(widget.user.userImageUrl)
-                        : null) as ImageProvider?,
-                child: _selectedImage == null && widget.user.userImageUrl.isEmpty
-                    ? const Icon(Icons.person, size: 50)
-                    : null,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: _pickImage,
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundImage: _selectedImage != null
+                      ? FileImage(_selectedImage!)
+                      : (widget.user.userImageUrl.isNotEmpty
+                          ? NetworkImage(widget.user.userImageUrl)
+                          : null) as ImageProvider?,
+                  child: _selectedImage == null && widget.user.userImageUrl.isEmpty
+                      ? const Icon(Icons.person, size: 50)
+                      : null,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: nameController,
-              style: const TextStyle(color: Colors.white),
-              decoration: AppStyles.inputFieldStyle(hintText: 'Imię'),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: surnameController,
-              style: const TextStyle(color: Colors.white),
-              decoration: AppStyles.inputFieldStyle(hintText: 'Nazwisko'),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: emailController,
-              style: const TextStyle(color: Colors.white),
-              decoration: AppStyles.inputFieldStyle(hintText: 'E-mail'),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: phoneController,
-              style: const TextStyle(color: Colors.white),
-              decoration: AppStyles.inputFieldStyle(hintText: 'Telefon'),
-            ),
-            const SizedBox(height: 8),
-            GestureDetector(
-              onTap: _showLanguagePicker,
-              child: AbsorbPointer(
-                child: TextField(
-                  controller: languageController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: AppStyles.inputFieldStyle(
-                    hintText: 'Preferowany język',
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: nameController,
+                style: const TextStyle(color: Colors.white),
+                decoration: AppStyles.inputFieldStyle(hintText: 'Name'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Name is required.';
+                  }
+                  if (value.length < 2) {
+                    return 'Name must be at least 2 characters.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: surnameController,
+                style: const TextStyle(color: Colors.white),
+                decoration: AppStyles.inputFieldStyle(hintText: 'Surname'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Surname is required.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: emailController,
+                style: const TextStyle(color: Colors.white),
+                decoration: AppStyles.inputFieldStyle(hintText: 'E-mail'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Email is required.';
+                  }
+                  final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                  if (!emailRegex.hasMatch(value)) {
+                    return 'Enter a valid email address.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: phoneController,
+                style: const TextStyle(color: Colors.white),
+                decoration: AppStyles.inputFieldStyle(hintText: 'Phone number'),
+                keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Phone number is required.';
+                  }
+                   final phoneRegex = RegExp(r'^\+?[0-9]{7,15}$'); // Regex to allow only digits
+    if (!phoneRegex.hasMatch(value)) {
+      return 'Phone number must be proper.';
+    }
+                  if (value.length < 7 || value.length > 15) {
+                    return 'Phone number must be between 7 and 15 digits.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: _showLanguagePicker,
+                child: AbsorbPointer(
+                  child: TextFormField(
+                    controller: languageController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: AppStyles.inputFieldStyle(hintText: 'Preferred language'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Preferred language is required.';
+                      }
+                      return null;
+                    },
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Anuluj', style: TextStyle(color: Colors.white)),
+          child: const Text('Cancel', style: TextStyle(color: Colors.white)),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _saveProfile,
@@ -196,7 +230,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
             ),
           ),
           child: Text(
-            _isLoading ? 'Zapisywanie...' : 'Zapisz',
+            _isLoading ? 'Saving...' : 'Save',
             style: const TextStyle(color: Colors.white),
           ),
         ),

@@ -84,7 +84,7 @@ class TaskItem extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Godziny: $formattedStartTime - $formattedEndTime',
+                    'Hours: $formattedStartTime - $formattedEndTime',
                     style: const TextStyle(fontSize: 12, color: Colors.black),
                   ),
                 ],
