@@ -54,13 +54,13 @@ class InventoryService {
     patchData.add({'op': 'replace', 'path': '/name', 'value': name});
   }
   if (purchased != null) {
-    patchData.add({'op': 'replace', 'path': '/purchased', 'value': purchased});
+    patchData.add({'op': 'replace', 'path': '/quantityMax', 'value': purchased});
   }
   if (metrics != null) {
     patchData.add({'op': 'replace', 'path': '/metrics', 'value': metrics});
   }
   if (remaining != null) {
-    patchData.add({'op': 'replace', 'path': '/remaining', 'value': remaining});
+    patchData.add({'op': 'replace', 'path': '/quantityLeft', 'value': remaining});
   }
 
   if (patchData.isEmpty) {
@@ -84,17 +84,26 @@ class InventoryService {
 
     if (response.status != 200 && response.status != 204) {
       throw Exception(
-          '[InventoryService] Failed to update inventory item. Status: ${response.status}');
+          '[InventoryService] Failed to update inventory item. Status: ${response.status}, Response: ${response.responseText}');
     }
 
     print('[InventoryService] Inventory item updated successfully.');
   } catch (e) {
     print('[InventoryService] Error updating inventory item: $e');
+
+    // Provide detailed error information
+    if (e is ProgressEvent) {
+      final target = e.target as HttpRequest?;
+      if (target != null) {
+        print('[InventoryService] Network error details: '
+            'Status: ${target.status}, Response: ${target.responseText}');
+      }
+    }
+
     throw Exception(
         '[InventoryService] Failed to update inventory item. Error: $e');
   }
 }
-
 
   // Add a new building article
   Future<void> addBuildingArticle(String token, Map<String, dynamic> articleData) async {

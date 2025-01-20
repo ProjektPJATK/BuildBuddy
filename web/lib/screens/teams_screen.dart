@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:universal_html/html.dart' as html;
 import 'package:flutter/material.dart';
+import 'package:web/themes/styles.dart';
 import 'package:web/widgets/add_project_dialog.dart';
 import 'package:web/services/teams_service.dart';
 import 'package:web/widgets/add_user_dialog.dart';
@@ -255,132 +256,147 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
   );
 }
 
-  @override
+    @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(148, 49, 50, 51),
         title: Row(
           children: [
             Text(
               'Teams and Projects',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: AppStyles.headerStyle.copyWith(color: Colors.white),
             ),
-            SizedBox(width: 16), // Odstęp między tekstem a przyciskiem
+            SizedBox(width: 16),
             ElevatedButton.icon(
               onPressed: () => _showAddProjectDialog(context),
-              icon: Icon(Icons.apartment, size: 24),
+              icon: const Icon(Icons.apartment, size: 24, color: Colors.white),
               label: Text(
                 "Dodaj Projekt",
-                style: TextStyle(fontSize: 16),
+                style: AppStyles.textStyle.copyWith(color: Colors.white),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              style: AppStyles.buttonStyle().copyWith(
+                backgroundColor: MaterialStateProperty.all(AppStyles.primaryBlue),
+                padding: MaterialStateProperty.all(
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
               ),
             ),
           ],
         ),
       ),
-      body: _isLoading
-    ? const Center(child: CircularProgressIndicator())
-    : _isError
-        ? const Center(
-            child: Text(
-              'Failed to load teams.',
-              style: TextStyle(color: Colors.red),
-            ),
-          )
-        : Center(
-            child: ListView.builder(
-              itemCount: teams.length,
-              itemBuilder: (context, index) {
-                final team = teams[index];
-                final address = team['address'] as Map<String, String>;
-                final members = team['members'] as List<Map<String, String>>;
-
-                return ExpansionTile(
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        team['name'],
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.edit, color: Colors.orange),
-                            onPressed: hasPermissionForTeam(team['id'], 3)
-                                ? () {
-                                    print("Edytuj zespół: ${team['name']}");
-                                    print('Team data: ${team.toString()}');
-                                    _showEditTeamDialog(context, team);
-                                  }
-                                : () => _handleUnauthorizedAction(context),
-                          ),
-                          TextButton.icon(
-                            onPressed: hasPermissionForTeam(team['id'], 3)
-                                ? () {
-                                    print("Dodaj pracownika do teamu ${team['name']}");
-                                    _showAddUserDialog(
-                                    context,
-                                    team['id'],
-                                    team['members']?.map<int>((member) => int.parse(member['id'].toString()))?.toList() ?? [], // Lista istniejących użytkowników
-                                  );
-                                  }
-                                : () => _handleUnauthorizedAction(context),
-                            icon: Icon(Icons.add, color: Colors.blue),
-                            label: Text(
-                              "Dodaj Pracownika",
-                              style: TextStyle(color: Colors.blue),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${address['street']} ${address['houseNumber']}, ${address['city']}, ${address['country']}, ${address['postalCode']}',
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Opis: ${address['description']}', // Wyświetlanie opisu
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                  children: members
-                .map(
-                  (member) => ListTile(
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(member['name']!),
-                        IconButton(
-                          icon: Icon(Icons.edit, color: Colors.orange),
-                          onPressed: () {
-                              print("Edytuj dane użytkownika ${member['name']}, ID: ${member['id']}");
-                            _showEditUserDialog(
-                              context,
-                              int.tryParse(member['id'] ?? '0') ?? 0,
-                              int.tryParse(team['id']?.toString() ?? '0') ?? 0,
-                            );
-                          },
-                        ),
-                      ],
+      body: Container(
+        decoration: AppStyles.backgroundDecoration,
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : _isError
+                ? const Center(
+                    child: Text(
+                      'Failed to load teams.',
+                      style: TextStyle(color: Colors.red),
                     ),
-                    subtitle: Text(member['role']!),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: teams.length,
+                    itemBuilder: (context, index) {
+                      final team = teams[index];
+                      final address = team['address'] as Map<String, String>;
+                      final members = team['members'] as List<Map<String, String>>;
+
+                      return Card(
+                        color: AppStyles.transparentWhite,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: ExpansionTile(
+                          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                team['name'],
+                                style: AppStyles.headerStyle,
+                              ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: Color.fromARGB(255, 2, 2, 2)),
+                                    onPressed: hasPermissionForTeam(team['id'], 3)
+                                        ? () => _showEditTeamDialog(context, team)
+                                        : () => _handleUnauthorizedAction(context),
+                                  ),
+                                  TextButton.icon(
+                                    onPressed: hasPermissionForTeam(team['id'], 3)
+                                        ? () => _showAddUserDialog(
+                                              context,
+                                              team['id'],
+                                              team['members']
+                                                      ?.map<int>((member) => int.parse(member['id'].toString()))
+                                                      ?.toList() ??
+                                                  [],
+                                            )
+                                        : () => _handleUnauthorizedAction(context),
+                                    icon: const Icon(Icons.add, color: AppStyles.primaryBlue),
+                                    label: Text(
+                                      "Dodaj Pracownika",
+                                      style: AppStyles.textStyle.copyWith(color: AppStyles.primaryBlue),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${address['street']} ${address['houseNumber']}, ${address['city']}, ${address['country']}, ${address['postalCode']}',
+                                style: AppStyles.textStyle,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Opis: ${address['description']}',
+                                style: AppStyles.textStyle.copyWith(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          children: members
+                              .map(
+                                (member) => ListTile(
+                                  title: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        member['name']!,
+                                        style: AppStyles.textStyle,
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.edit, color: Color.fromARGB(255, 0, 0, 0)),
+                                        onPressed: () => _showEditUserDialog(
+                                          context,
+                                          int.tryParse(member['id'] ?? '0') ?? 0,
+                                          int.tryParse(team['id']?.toString() ?? '0') ?? 0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  subtitle: Text(
+                                    member['role']!,
+                                    style: AppStyles.textStyle.copyWith(color: Colors.black54),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      );
+                    },
                   ),
-                )
-                .toList(),
-                );
-              },
-            ),
-          ),
+      ),
     );
   }
+
 }

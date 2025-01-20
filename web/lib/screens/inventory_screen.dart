@@ -53,9 +53,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
       throw Exception('User token is missing from cookies. Please log in again.');
     }
 
-    final userId = html.window.localStorage['userId'];
+    // Retrieve userId from cookies
+    final userId = _getCookieValue('userId');
     if (userId == null) {
-      throw Exception('User ID is missing from localStorage. Please log in again.');
+      throw Exception('User ID is missing from cookies. Please log in again.');
     }
 
     // Fetch addresses for the user
@@ -79,13 +80,25 @@ class _InventoryScreenState extends State<InventoryScreen> {
     });
   }
 }
+String? _getCookieValue(String key) {
+  final cookies = html.window.document.cookie;
+  if (cookies != null) {
+    for (final cookie in cookies.split(';')) {
+      final parts = cookie.split('=');
+      if (parts[0].trim() == key) {
+        return parts[1].trim();
+      }
+    }
+  }
+  return null;
+}
 
 
  Future<void> _addItem(int addressId) async {
   final nameController = TextEditingController();
   final quantityController = TextEditingController();
   String selectedMetric = 'kg'; // Default metric
-  final List<String> metricsList = ['kg', 'm²', 'm³', 'pcs', 'l', 'g','mm','cm','m','ml'];
+  final List<String> metricsList = ['kg', 'm²', 'm³', 'pcs', 'l', 'g', 'mm', 'cm', 'm', 'ml'];
 
   await showDialog(
     context: context,
@@ -140,8 +153,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                if (nameController.text.isNotEmpty &&
-                    quantityController.text.isNotEmpty) {
+                if (nameController.text.isNotEmpty && quantityController.text.isNotEmpty) {
                   final newItem = {
                     'name': nameController.text,
                     'quantityMax': int.parse(quantityController.text),
@@ -172,12 +184,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
 }
 
 
-  Future<void> _editItem(int itemId, InventoryItemModel item) async {
+ Future<void> _editItem(int itemId, InventoryItemModel item) async {
   final nameController = TextEditingController(text: item.name);
   final purchasedController = TextEditingController(text: item.purchased.toString());
   final remainingController = TextEditingController(text: item.remaining.toString());
   String selectedMetric = item.metrics;
-  final List<String> metricsList = ['kg', 'm²', 'm³', 'pcs', 'l', 'g','mm','cm','m','ml'];
+  final List<String> metricsList = ['kg', 'm²', 'm³', 'pcs', 'l', 'g', 'mm', 'cm', 'm', 'ml'];
 
   await showDialog(
     context: context,
@@ -242,9 +254,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 if (nameController.text.isNotEmpty &&
                     purchasedController.text.isNotEmpty &&
                     remainingController.text.isNotEmpty) {
-                  final token = html.window.localStorage['userToken'];
+                  final token = _getTokenFromCookies(); // Retrieve token from cookies
                   if (token == null) {
-                    print('Error: Token not found.');
+                    print('Error: Token not found in cookies.');
                     return;
                   }
 
@@ -272,16 +284,18 @@ class _InventoryScreenState extends State<InventoryScreen> {
 }
 
 
-  Future<void> _deleteItem(int itemId) async {
-    final token = _getTokenFromCookies();
-    if (token == null) {
-      print('Error: Token not found.');
-      return;
-    }
 
-    await inventoryService.deleteBuildingArticle(token, itemId);
-    await _fetchData();
+ Future<void> _deleteItem(int itemId) async {
+  final token = _getTokenFromCookies();
+  if (token == null) {
+    print('Error: Token not found.');
+    return;
   }
+
+  await inventoryService.deleteBuildingArticle(token, itemId);
+  await _fetchData();
+}
+
 
   @override
 Widget build(BuildContext context) {
