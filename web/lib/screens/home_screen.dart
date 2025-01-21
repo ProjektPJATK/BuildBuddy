@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart' as html;
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'dart:typed_data';
+
 import 'package:web_app/screens/conversations_screen.dart';
 import 'package:web_app/screens/inventory_screen.dart';
 import 'package:web_app/screens/teams_screen.dart';
-
 import 'tasks_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,19 +14,15 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-int? getLoggedInUserId() {
-  final userId = int.tryParse(
-        (html.document.cookie?.split('; ') ?? [])
-            .firstWhere((cookie) => cookie.startsWith('userId='), orElse: () => 'userId=0')
-            .split('=')[1]);
-
-  return userId != null ? userId : null;
-}
-
 class _HomeScreenState extends State<HomeScreen> {
+  String? userName;
+  String? userImageUrl;
+  bool isLoadingUser = true;
+
   @override
   void initState() {
     super.initState();
+    _loadUserData();
     html.window.onPopState.listen((event) {
       if (ModalRoute.of(context)?.isCurrent ?? false) {
         html.window.history.pushState(null, '', '/home');
@@ -32,27 +31,188 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+ Future<void> _loadUserData() async {
+  final userId = int.tryParse(
+    (html.document.cookie?.split('; ') ?? [])
+        .firstWhere((cookie) => cookie.startsWith('userId='), orElse: () => 'userId=0')
+        .split('=')[1],
+  );
+
+  final token = (html.document.cookie?.split('; ') ?? [])
+      .firstWhere((cookie) => cookie.startsWith('userToken='), orElse: () => '')
+      .split('=')[1];
+
+  if (userId != null && token.isNotEmpty) {
+    try {
+      // Pobranie danych użytkownika
+      final userResponse = await http.get(
+        Uri.parse('http://localhost:5159/api/User/$userId'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (userResponse.statusCode == 200) {
+        final userData = json.decode(userResponse.body);
+        final name = '${userData['name']} ${userData['surname']}';
+
+        setState(() {
+          userName = name;
+        });
+
+        // Pobranie zdjęcia użytkownika
+        final imageResponse = await http.get(
+          Uri.parse('http://localhost:5159/api/User/$userId/image'),
+          headers: {'Authorization': 'Bearer $token'},
+        );
+
+        if (imageResponse.statusCode == 200) {
+          final imageData = json.decode(imageResponse.body) as List<dynamic>;
+          if (imageData.isNotEmpty) {
+            final imageUrl = imageData[0] as String;
+
+            // Dodaj unikalny parametr do URL, aby wymusić odświeżenie
+            final refreshedImageUrl = '$imageUrl?timestamp=${DateTime.now().millisecondsSinceEpoch}';
+            print('Odświeżony URL zdjęcia: $refreshedImageUrl');
+
+            setState(() {
+              userImageUrl = refreshedImageUrl;
+            });
+          } else {
+            print('Brak zdjęcia w odpowiedzi API.');
+          }
+        } else {
+          print('Błąd pobierania zdjęcia użytkownika: ${imageResponse.statusCode}');
+        }
+      } else {
+        print('Błąd pobierania danych użytkownika: ${userResponse.statusCode}');
+      }
+    } catch (e) {
+      print('Błąd pobierania danych użytkownika: $e');
+    }
+  } else {
+    print('Nie znaleziono userId lub tokenu w ciasteczkach.');
+  }
+}
+
+Future<void> _refreshImage(int userId, String token) async {
+  try {
+    final imageResponse = await http.get(
+      Uri.parse('http://localhost:5159/api/User/$userId/image'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (imageResponse.statusCode == 200) {
+      final imageData = json.decode(imageResponse.body) as List<dynamic>;
+      if (imageData.isNotEmpty) {
+        final imageUrl = imageData[0] as String;
+        final refreshedImageUrl = '$imageUrl?timestamp=${DateTime.now().millisecondsSinceEpoch}';
+
+        print('Odświeżony URL zdjęcia: $refreshedImageUrl');
+        setState(() {
+          userImageUrl = refreshedImageUrl; // Zaktualizuj URL zdjęcia
+        });
+      }
+    } else {
+      print('Błąd odświeżania zdjęcia użytkownika: ${imageResponse.statusCode}');
+    }
+  } catch (e) {
+    print('Błąd odświeżania zdjęcia użytkownika: $e');
+  }
+}
+
+  Future<void> _uploadUserImage(Uint8List imageBytes) async {
+  final userId = int.tryParse(
+    (html.document.cookie?.split('; ') ?? [])
+        .firstWhere((cookie) => cookie.startsWith('userId='), orElse: () => 'userId=0')
+        .split('=')[1],
+  );
+
+  final token = (html.document.cookie?.split('; ') ?? [])
+      .firstWhere((cookie) => cookie.startsWith('userToken='), orElse: () => '')
+      .split('=')[1];
+
+  if (userId != null && token.isNotEmpty) {
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://localhost:5159/api/User/$userId/upload-image'),
+      );
+      request.headers['Authorization'] = 'Bearer $token';
+
+      // Dodaj plik z kluczem "image"
+      request.files.add(http.MultipartFile.fromBytes(
+        'image',
+        imageBytes,
+        filename: 'image.jpg',
+      ));
+
+      print("Wysyłanie zdjęcia użytkownika...");
+      final response = await request.send();
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print('Zdjęcie przesłane pomyślnie.');
+        // Wymuś odświeżenie interfejsu
+        await _refreshImage(userId, token);
+      } else {
+        print('Błąd przesyłania zdjęcia: ${response.statusCode}');
+        print('Treść odpowiedzi: ${await response.stream.bytesToString()}');
+      }
+    } catch (e) {
+      print('Błąd przesyłania zdjęcia: $e');
+    }
+  } else {
+    print('Nie znaleziono userId lub tokenu w ciasteczkach.');
+  }
+}
+
+  void _showImageDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Zdjęcie użytkownika"),
+          content: userImageUrl != null
+              ? Image.network(userImageUrl!, fit: BoxFit.cover)
+              : const Text("Brak zdjęcia"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Zamknij"),
+            ),
+            TextButton(
+              onPressed: () {
+                html.FileUploadInputElement input = html.FileUploadInputElement()..accept = 'image/*';
+                input.click();
+
+                input.onChange.listen((event) async {
+                  if (input.files != null && input.files!.isNotEmpty) {
+                    final reader = html.FileReader();
+                    reader.readAsArrayBuffer(input.files![0]);
+
+                    reader.onLoadEnd.listen((_) {
+                      _uploadUserImage(reader.result as Uint8List);
+                      Navigator.pop(context);
+                    });
+                  }
+                });
+              },
+              child: const Text("Zmień zdjęcie"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _logout(BuildContext context) {
     print('Logging out user.');
     html.document.cookie = 'userToken=; path=/; max-age=0';
     html.window.localStorage.remove('userToken');
     html.window.localStorage.remove('userId');
-    html.window.localStorage.remove('powerLevel');
     Navigator.pushReplacementNamed(context, '/');
-  }
-
-  void checkLoginState(BuildContext context) {
-    final cookies = html.document.cookie?.split('; ') ?? [];
-    final isLoggedIn = cookies.any((cookie) => cookie.startsWith('userToken='));
-
-    if (!isLoggedIn) {
-      Navigator.pushReplacementNamed(context, '/');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    checkLoginState(context);
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
 
@@ -74,8 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Container(
                 color: Colors.grey[800],
                 child: Stack(
-                  children: [
-                    Positioned(
+                  children: [Positioned(
                       top: 20,
                       left: 20,
                       child: Image.asset(
@@ -85,24 +244,33 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     Positioned(
-                      top: 20,
-                      right: 80,
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.settings, color: Colors.white, size: 32),
-                            onPressed: () {
-                              // Navigation to settings screen if required
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.logout, color: Colors.white, size: 32),
-                            onPressed: () => _logout(context),
+  top: 20,
+  right: 80, // Umiejscowienie w prawym górnym rogu
+  child: Row(
+    children: [
+      GestureDetector(
+        onTap: _showImageDialog, // Kliknięcie otwiera dialog
+        child: CircleAvatar(
+          radius: 20, // Rozmiar zdjęcia
+          backgroundImage: userImageUrl != null ? NetworkImage(userImageUrl!) : null,
+          child: userImageUrl == null
+              ? const Icon(Icons.person, color: Colors.white, size: 24) // Zastępcza ikona
+              : null,
+        ),
+      ),
+      const SizedBox(width: 10), // Odstęp między zdjęciem a nazwą
+      Text(
+        userName ?? 'Ładowanie...', // Wyświetlenie nazwy użytkownika
+        style: const TextStyle(color: Colors.white, fontSize: 16),
+      ),
+      IconButton(
+        icon: const Icon(Icons.logout, color: Colors.white, size: 32),
+        onPressed: () => _logout(context),
                           ),
                         ],
-                      ),
-                    ),
-                    Padding(
+                  ),
+                ),
+               Padding(
                       padding: const EdgeInsets.only(top: 120.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -110,16 +278,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                final loggedInUserId = getLoggedInUserId();
-                                if (loggedInUserId != null) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => TeamsScreen(loggedInUserId: loggedInUserId),
-                                    ),
-                                  );
-                                } else {
-                                  print('Error: Logged in user ID not found: $loggedInUserId');
+                                final userId = int.tryParse(
+                              (html.document.cookie?.split('; ') ?? [])
+                                  .firstWhere((cookie) => cookie.startsWith('userId='), orElse: () => 'userId=0')
+                                  .split('=')[1],
+                                );
+                               if (userId != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => TeamsScreen(loggedInUserId: userId),
+                                ),
+                              );
+                            }else {
+                                  print('Error: Logged in user ID not found: $userId');
                                 }
                               },
                               child: _buildButton(
@@ -200,7 +372,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-    );
+        );
   }
 
   Widget _buildButton(
