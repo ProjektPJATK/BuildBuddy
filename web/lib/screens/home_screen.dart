@@ -111,7 +111,7 @@ Future<void> _refreshImage(int userId, String token) async {
           userImageUrl = refreshedImageUrl; // Zaktualizuj URL zdjęcia
         });
       }
-    } else {
+    } else { 
       print('Błąd odświeżania zdjęcia użytkownika: ${imageResponse.statusCode}');
     }
   } catch (e) {
@@ -169,14 +169,18 @@ Future<void> _refreshImage(int userId, String token) async {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Zdjęcie użytkownika"),
+          title: const Text("User's photo"),
           content: userImageUrl != null
               ? Image.network(userImageUrl!, fit: BoxFit.cover)
-              : const Text("Brak zdjęcia"),
+              : const Icon(
+                Icons.person,
+                size: 50, // Rozmiar ikony
+                color: Colors.grey, // Kolor ikony
+              ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Zamknij"),
+              child: const Text("Close"),
             ),
             TextButton(
               onPressed: () {
@@ -195,7 +199,7 @@ Future<void> _refreshImage(int userId, String token) async {
                   }
                 });
               },
-              child: const Text("Zmień zdjęcie"),
+              child: const Text("Change photo"),
             ),
           ],
         );
