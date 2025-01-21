@@ -4,46 +4,56 @@ import 'package:web_app/config/config.dart';
 
 
 class TaskService {
-static Future<List<Map<String, dynamic>>> fetchTasksByAddress(int addressId) async {
-  final url = AppConfig.getJobsByAddressEndpoint(addressId);
-  print('[TaskService] Fetching tasks for address ID: $url');
 
-  try {
-    final response = await HttpRequest.request(
-      url,
-      method: 'GET',
-      requestHeaders: {'Content-Type': 'application/json'},
+  static String _getAuthToken() {
+    final cookies = document.cookie?.split('; ') ?? [];
+    final tokenCookie = cookies.firstWhere(
+      (cookie) => cookie.startsWith('userToken='),
+      orElse: () => '',
     );
-
-    if (response.status == 200) {
-      final List<dynamic> data = json.decode(response.responseText!);
-      print('[TaskService] Tasks fetched successfully: ${data.length}');
-
-      return data.map<Map<String, dynamic>>((task) {
-        return {
-          'id': task['id'],
-          'name': task['name'],
-          'message': task['message'],
-          'startTime': DateTime.parse(task['startTime']),
-          'endTime': DateTime.parse(task['endTime']),
-          'allDay': task['allDay'],
-          'addressId': task['addressId'],
-        };
-      }).toList();
-    } else if (response.status == 404) {
-      // Return an empty list for 404 responses instead of throwing an error
-      print('[TaskService] 404 Not Found for address ID: $addressId. Returning empty list.');
-      return [];
-    } else {
-      print('[TaskService] Failed to fetch tasks. Status: ${response.status}');
-      throw Exception('Failed to fetch tasks for address ID: $addressId. Status: ${response.status}');
-    }
-  } catch (e) {
-    print('[TaskService] Error fetching tasks: $e');
-    return []; // Return empty list if any network or parsing error occurs
+    return tokenCookie.split('=').last;
   }
-}
 
+static Future<List<Map<String, dynamic>>> fetchTasksByAddress(int addressId) async {
+    final token = _getAuthToken();
+    final url = AppConfig.getJobsByAddressEndpoint(addressId);
+    print('[TaskService] Fetching tasks for address ID: $url');
+
+    try {
+      final response = await HttpRequest.request(
+        url,
+        method: 'GET',
+        requestHeaders: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.status == 200) {
+        final List<dynamic> data = json.decode(response.responseText!);
+        print('[TaskService] Tasks fetched successfully: ${data.length}');
+        return data.map<Map<String, dynamic>>((task) {
+          return {
+            'id': task['id'],
+            'name': task['name'],
+            'message': task['message'],
+            'startTime': DateTime.parse(task['startTime']),
+            'endTime': DateTime.parse(task['endTime']),
+            'allDay': task['allDay'],
+            'addressId': task['addressId'],
+          };
+        }).toList();
+      } else if (response.status == 404) {
+        print('[TaskService] 404 Not Found for address ID: $addressId. Returning empty list.');
+        return [];
+      } else {
+        throw Exception('Failed to fetch tasks for address ID: $addressId. Status: ${response.status}');
+      }
+    } catch (e) {
+      print('[TaskService] Error fetching tasks: $e');
+      return [];
+    }
+  }
 
 
 static Future<int> addJob({
@@ -54,6 +64,7 @@ static Future<int> addJob({
   required bool allDay,
   required int addressId,
 }) async {
+  final token = _getAuthToken();
   final url = AppConfig.postJobEndpoint();
   print('[TaskService] Adding new job at $url');
 
@@ -74,7 +85,10 @@ static Future<int> addJob({
     final response = await HttpRequest.request(
       url,
       method: 'POST',
-      requestHeaders: {'Content-Type': 'application/json-patch+json'},
+      requestHeaders: {
+      'Content-Type': 'application/json-patch+json',
+      'Authorization': 'Bearer $token',
+      },
       sendData: body,
     );
 
@@ -94,17 +108,20 @@ static Future<int> addJob({
 
 
 
-
   // Fetch team members for a specific address
 static Future<List<Map<String, dynamic>>> fetchTeamMembers(int addressId) async {
   final url = AppConfig.getTeamMembersEndpoint(addressId);
   print('[TaskService] Fetching team members for address ID: $addressId at $url');
 
   try {
+    final token = _getAuthToken();
     final response = await HttpRequest.request(
       url,
       method: 'GET',
-      requestHeaders: {'Content-Type': 'application/json'},
+      requestHeaders: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+        },
     );
 
     if (response.status == 200) {
@@ -135,10 +152,14 @@ static Future<List<Map<String, dynamic>>> fetchTeamMembers(int addressId) async 
   print('[TaskService] Assigning user ID $userId to task ID $taskId at $url');
 
   try {
+    final token = _getAuthToken();
     final response = await HttpRequest.request(
       url,
       method: 'POST', // Ensure you are using the correct HTTP method
-      requestHeaders: {'Content-Type': 'application/json'},
+      requestHeaders: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+        },
     );
 
     if (response.status == 200 || response.status == 204) {
@@ -160,10 +181,14 @@ static Future<void> toggleJobActualizationStatus(int id) async {
   print('[TaskService] Toggling status for job actualization ID: $id at $url');
 
   try {
+    final token = _getAuthToken();
     final response = await HttpRequest.request(
       url,
       method: 'POST',
-      requestHeaders: {'Content-Type': 'application/json'},
+      requestHeaders: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+        },
     );
 
     if (response.status == 204 || response.status == 200) {
@@ -185,10 +210,14 @@ static Future<List<Map<String, dynamic>>> fetchJobActualizations(int jobId) asyn
   print('[TaskService] Fetching job actualizations for Job ID: $jobId at $url');
 
   try {
+    final token = _getAuthToken();
     final response = await HttpRequest.request(
       url,
       method: 'GET',
-      requestHeaders: {'Content-Type': 'application/json'},
+      requestHeaders: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+        },
     );
 
     if (response.status == 200) {
@@ -240,10 +269,14 @@ static Future<List<Map<String, dynamic>>> fetchJobActualizations(int jobId) asyn
   print('[TaskService] Fetching images for Job Actualization ID: $jobActualizationId at $url');
 
   try {
+    final token = _getAuthToken();
     final response = await HttpRequest.request(
       url,
       method: 'GET',
-      requestHeaders: {'Content-Type': 'application/json'},
+      requestHeaders: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+        },
     );
 
     if (response.status == 200) {
@@ -277,10 +310,14 @@ static String getTeamsEndpoint(int userId) =>
     print('[TaskService] Fetching addresses for user ID: $userId at $url');
 
     try {
+      final token = _getAuthToken();
       final response = await HttpRequest.request(
         url,
         method: 'GET',
-        requestHeaders: {'Content-Type': 'application/json'},
+        requestHeaders: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+          },
       );
 
       if (response.status == 200) {
@@ -306,11 +343,14 @@ static String getTeamsEndpoint(int userId) =>
 static Future<void> deleteJob(int jobId) async {
   final url = AppConfig.deleteJobEndpoint(jobId);
   print('[TaskService] Deleting job at: $url');
-
+  final token = _getAuthToken();
   final response = await HttpRequest.request(
     url,
     method: 'DELETE',
-    requestHeaders: {'Content-Type': 'application/json'},
+    requestHeaders: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $token',
+    },
   );
 
   if (response.status != 204) {
@@ -324,10 +364,14 @@ static Future<void> deleteJob(int jobId) async {
 
   for (int attempt = 1; attempt <= retryCount; attempt++) {
     try {
+      final token = _getAuthToken();
       final response = await HttpRequest.request(
         url,
         method: 'GET',
-        requestHeaders: {'Content-Type': 'application/json'},
+        requestHeaders: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+          },
       );
 
       if (response.status == 200) {
@@ -386,10 +430,14 @@ static Future<void> deleteJob(int jobId) async {
     print('[TaskService] Deleting user ID: $userId from Job ID: $jobId at $url');
 
     try {
+      final token = _getAuthToken();
       final response = await HttpRequest.request(
         url,
         method: 'DELETE',
-        requestHeaders: {'Content-Type': 'application/json'},
+        requestHeaders: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+          },
       );
 
       if (response.status == 200 || response.status == 204) {
@@ -409,10 +457,14 @@ static Future<List<Map<String, dynamic>>> fetchTeamMembersWithPowerLevel(int add
   print('[TaskService] Fetching teammates with power levels for Address ID: $addressId at $url');
 
   try {
+    final token = _getAuthToken();
     final response = await HttpRequest.request(
       url,
       method: 'GET',
-      requestHeaders: {'Content-Type': 'application/json'},
+      requestHeaders: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+        },
     );
 
     if (response.status == 200) {

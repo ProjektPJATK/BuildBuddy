@@ -2,13 +2,28 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
 import 'package:web_app/config/config.dart';
+import 'dart:html';
 
 class NewMessageService {
+  static String _getAuthToken() {
+    final cookies = document.cookie?.split('; ') ?? [];
+    final tokenCookie = cookies.firstWhere(
+      (cookie) => cookie.startsWith('userToken='),
+      orElse: () => '',
+    );
+    return tokenCookie.split('=').last;
+  }
+
+
   Future<List<int>> getRecipientIds(int userId, List<String> recipientNames) async {
     Set<int> recipientIds = {};
     print('[NewMessageService] Start fetching recipient IDs for userId: $userId');
 
-    final response = await http.get(Uri.parse(AppConfig.getTeamsEndpoint(userId)));
+    final token = _getAuthToken();
+    final response = await http.get(
+      Uri.parse(AppConfig.getTeamsEndpoint(userId)),
+      headers: {'Authorization': 'Bearer $token'},
+    );
 
     if (response.statusCode == 200) {
       List<dynamic> teams = json.decode(response.body);
@@ -16,7 +31,10 @@ class NewMessageService {
 
       for (var team in teams) {
         final teamId = team['id'];
-        final membersResponse = await http.get(Uri.parse(AppConfig.getTeammatesEndpoint(teamId)));
+        final membersResponse = await http.get(
+          Uri.parse(AppConfig.getTeammatesEndpoint(teamId)),
+          headers: {'Authorization': 'Bearer $token'},
+        );
 
         if (membersResponse.statusCode == 200) {
           List<dynamic> teammates = json.decode(membersResponse.body);
@@ -40,8 +58,10 @@ class NewMessageService {
   }
 
   Future<Map<String, dynamic>> getConversationData(int conversationId) async {
+    final token = _getAuthToken();
     final response = await http.get(
       Uri.parse('${AppConfig.getBaseUrl()}/api/Conversation/$conversationId'),
+      headers: {'Authorization': 'Bearer $token'},
     );
 
     if (response.statusCode == 200) {
@@ -52,10 +72,14 @@ class NewMessageService {
   }
 
   Future<int> findOrCreateConversation(int userId, List<int> recipientIds) async {
+    final token = _getAuthToken();
     recipientIds = recipientIds.toSet().toList()..sort();
     print('[NewMessageService] Searching for conversation with recipient IDs: $recipientIds');
 
-    final response = await http.get(Uri.parse(AppConfig.getChatListEndpoint(userId)));
+    final response = await http.get(
+      Uri.parse(AppConfig.getChatListEndpoint(userId)),
+      headers: {'Authorization': 'Bearer $token'},
+    );
 
     if (response.statusCode == 200) {
       List<dynamic> conversations = json.decode(response.body);
@@ -84,7 +108,7 @@ class NewMessageService {
       '${AppConfig.createConversationEndpoint()}?user1Id=$userId&user2Id=${recipientIds.first}',
     );
 
-    final createResponse = await http.post(uri);
+    final createResponse = await http.post(uri, headers: {'Authorization': 'Bearer $token'});
 
     if (createResponse.statusCode == 200) {
       final newConversation = json.decode(createResponse.body);
@@ -96,7 +120,10 @@ class NewMessageService {
           '${AppConfig.getBaseUrl()}/api/Conversation/$conversationId/addUser?userId=${recipientIds[i]}',
         );
 
-        final addUserResponse = await http.post(addUserUri);
+        final addUserResponse = await http.post(
+          addUserUri,
+          headers: {'Authorization': 'Bearer $token'},
+        );
 
         if (addUserResponse.statusCode == 200) {
           print('[NewMessageService] Added user ${recipientIds[i]} to conversation $conversationId');

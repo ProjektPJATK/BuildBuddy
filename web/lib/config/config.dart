@@ -24,8 +24,6 @@ static const String s3BaseUrl = "https://buildbuddybucket.s3.amazonaws.com";
   static String registerEndpoint() => '${getBaseUrl()}/api/User/register';
   static String getUpdateInventoryItemEndpoint(int itemId) =>
     '${getBaseUrl()}/api/BuildingArticles/$itemId';
-
-
   // Nowe endpointy
   static String exitChatEndpoint(int conversationId, int userId) => 
       '${getBaseUrl()}/api/Chat/exit-chat?conversationId=$conversationId&userId=$userId';

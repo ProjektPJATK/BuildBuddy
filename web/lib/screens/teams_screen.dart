@@ -295,21 +295,20 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.edit, color: Color.fromARGB(255, 2, 2, 2)),
-                                    onPressed: hasPermissionForTeam(team['id'], 3)
-                                        ? () => _showEditTeamDialog(context, team)
-                                        : () => _handleUnauthorizedAction(context),
+                                    onPressed:
+                                      () => _showEditTeamDialog(context, team)
+                                    
                                   ),
                                   TextButton.icon(
-                                    onPressed: hasPermissionForTeam(team['id'], 3)
-                                        ? () => _showAddUserDialog(
+                                    onPressed: 
+                                         () => _showAddUserDialog(
                                               context,
                                               team['id'],
                                               team['members']
                                                       ?.map<int>((member) => int.parse(member['id'].toString()))
                                                       ?.toList() ??
                                                   [],
-                                            )
-                                        : () => _handleUnauthorizedAction(context),
+                                            ),
                                     icon: const Icon(Icons.add, color: AppStyles.primaryBlue),
                                     label: Text(
                                       "Add worker",

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart';
 import 'package:web_app/config/config.dart';
-import 'package:web_app/models/inventory_iem_model.dart';
+import 'package:web_app/models/inventory_item_model.dart';
 import 'package:web_app/services/inventory_service.dart';
 import 'package:web_app/themes/styles.dart';
 import 'package:universal_html/html.dart' as html;
@@ -66,7 +66,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     // Fetch inventory for each address
     for (final address in addresses) {
       final addressId = address['addressId'];
-      final items = await inventoryService.fetchInventoryItems(token, addressId);
+      final items = await inventoryService.fetchInventoryItems(addressId);
       inventory[addressId] = items; // Store as InventoryItemModel list
     }
   } catch (e) {
@@ -168,7 +168,7 @@ String? _getCookieValue(String key) {
                     return;
                   }
 
-                  await inventoryService.addBuildingArticle(token, newItem);
+                  await inventoryService.addBuildingArticle(newItem);
                   Navigator.pop(context);
                   await _fetchData();
                 }
@@ -261,7 +261,6 @@ String? _getCookieValue(String key) {
                   }
 
                   await inventoryService.updateInventoryItem(
-                    token,
                     itemId,
                     name: nameController.text,
                     purchased: double.parse(purchasedController.text),
@@ -292,7 +291,7 @@ String? _getCookieValue(String key) {
     return;
   }
 
-  await inventoryService.deleteBuildingArticle(token, itemId);
+  await inventoryService.deleteBuildingArticle(itemId);
   await _fetchData();
 }
 

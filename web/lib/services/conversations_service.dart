@@ -6,6 +6,15 @@ import 'package:web_app/config/config.dart';
 class ConversationsService {
   ConversationsService();
 
+  String _getAuthToken() {
+    final cookies = html.document.cookie?.split('; ') ?? [];
+    final tokenCookie = cookies.firstWhere(
+      (cookie) => cookie.startsWith('userToken='),
+      orElse: () => '',
+    );
+    return tokenCookie.split('=').last;
+  }
+
   Future<List<Map<String, dynamic>>> fetchConversations() async {
     final currentUserId = int.tryParse(
         (html.document.cookie?.split('; ') ?? [])
@@ -19,7 +28,11 @@ class ConversationsService {
     print('[ConversationsService] Endpoint: $endpoint');
 
     try {
+      final token = _getAuthToken();
       final request = await client.getUrl(Uri.parse(endpoint));
+      request.headers.set('Authorization', 'Bearer $token');
+      request.headers.set('Accept', 'application/json');
+
       print('[ConversationsService] Sending request to $endpoint');
 
       final response = await request.close();

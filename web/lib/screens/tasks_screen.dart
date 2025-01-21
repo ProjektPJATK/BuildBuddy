@@ -24,65 +24,22 @@ class _TasksScreenState extends State<TasksScreen> {
   void initState() {
     super.initState();
     _fetchData();
-    _startPowerLevelRefetch(); // Start periodic refetching
   }
-@override
- 
-
- 
-
-
-  late Timer _powerLevelTimer; // Declare the timer
-  Map<int, int> teamPowerLevels = {}; // Store power levels for teams
 
  @override
 void dispose() {
   // Unfocus any text fields or HTML inputs before disposing
   FocusScope.of(context).unfocus();
-
-  // Cancel your timer to avoid memory leaks
-  _powerLevelTimer.cancel();
   super.dispose();
 }
 
-  void _startPowerLevelRefetch() {
-    _powerLevelTimer = Timer.periodic(
-      const Duration( minutes: 5), // Refetch every 5 minutes
-      (timer) async {
-        await _refetchPowerLevels(); // Method to refetch power levels
-      },
-    );
-  }
-
-  Future<void> _refetchPowerLevels() async {
-  try {
-    final updatedPowerLevels = await getTeamPowerLevels(); // Fetch updated power levels
-    setState(() {
-      teamPowerLevels = updatedPowerLevels; // Update state with new power levels
-    });
-
-    // Update localStorage with the latest power levels
-    html.window.localStorage['teamsWithPowerLevels'] = json.encode([
-      for (var entry in updatedPowerLevels.entries)
-        {'teamId': entry.key, 'powerLevel': entry.value}
-    ]);
-
-    print('[UI] Updated Power Levels: $teamPowerLevels');
-  } catch (e) {
-    print('[UI] Error refetching power levels: $e');
-  }
-}
-
-   
+  
   Future<void> _fetchData() async {
   try {
     setState(() {
       _isLoading = true;
       _isError = false;
     });
-
-    // Initial power level fetch
-    teamPowerLevels = getTeamPowerLevels();
 
     final userId = _getCookieValue('userId'); // Retrieve userId from cookies
     if (userId == null) throw Exception('User ID is missing from cookies.');
@@ -498,16 +455,6 @@ Widget build(BuildContext context) {
           final addressId = address['addressId'];
           final addressName = address['name'];
           final addressJobs = jobs[addressId] ?? [];
-          final teamId = address['id'];
-          final powerLevel = teamPowerLevels[teamId] ?? 0;
-
-          // Skip address if power level is insufficient
-          if (powerLevel < 2) {
-            print('[UI] Skipping address ID $addressId due to insufficient power level: $powerLevel');
-            return const SizedBox.shrink();
-          }
-
-          print('[UI] Displaying address ID $addressId with sufficient power level: $powerLevel');
 
           // Always return an ExpansionTile for this address
           return Card(
@@ -637,48 +584,6 @@ Widget build(BuildContext context) {
     ),
   );
 }
-
-
-
-
-
-int getUserPowerLevel(int teamId) {
-  final String? powerLevelsJson = html.window.localStorage['teamsWithPowerLevels'];
-  if (powerLevelsJson == null || powerLevelsJson.isEmpty) {
-    return 0; // No power level found
-  }
-
-  try {
-    final List<dynamic> teamsWithPowerLevels = json.decode(powerLevelsJson);
-    final team = teamsWithPowerLevels.firstWhere(
-      (entry) => entry['teamId'] == teamId,
-      orElse: () => null,
-    );
-
-    if (team != null && team['powerLevel'] != null) {
-      return int.tryParse(team['powerLevel'].toString()) ?? 0;
-    }
-  } catch (e) {
-    print('Error fetching user power level: $e');
-  }
-  return 0; // Default to no privileges
-}
-
-// Parse team power levels
-  Map<int, int> getTeamPowerLevels() {
-    final String? powerLevelsJson = html.window.localStorage['teamsWithPowerLevels'];
-    if (powerLevelsJson == null || powerLevelsJson.isEmpty) {
-      return {};
-    }
-
-    try {
-      final List<dynamic> teamsWithPowerLevels = json.decode(powerLevelsJson);
-      return {for (var entry in teamsWithPowerLevels) entry['teamId']: entry['powerLevel']};
-    } catch (e) {
-      print('[UI] Error Parsing Power Levels: $e');
-      return {};
-    }
-  }
 
 
 }
