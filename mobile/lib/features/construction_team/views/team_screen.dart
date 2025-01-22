@@ -40,31 +40,36 @@ class _TeamScreenState extends State<TeamScreen> {
     super.dispose();
   }
 
-  Future<void> _loadTeamMembers() async {
-    try {
-      final members = await teamService.getTeamMembers();
-      final prefs = await SharedPreferences.getInstance();
-      currentUserId = prefs.getInt('userId');
+Future<void> _loadTeamMembers() async {
+  try {
+    // Fetch team members from the service
+    final members = await teamService.getTeamMembers();
+    final prefs = await SharedPreferences.getInstance();
+    currentUserId = prefs.getInt('userId');
 
-      for (var member in members) {
-        final role = member['roles'].isEmpty
-            ? 'Brak roli'
-            : await teamService.getRoleName(member['roles'][0]['roleId']);
-        member['role'] = role;
+    for (var member in members) {
+      // Safely handle roles
+      if (member['roleId'] != null) {
+        // Use the roleName directly from the member
+        member['role'] = member['roleName'] ?? 'No Role'; // Default to 'No Role'
+      } else {
+        member['role'] = 'No Role';
       }
-
-      setState(() {
-        teamMembers = members;
-        filteredTeamMembers = members; // Początkowo wyświetlamy wszystkich
-        isLoading = false;
-      });
-    } catch (e) {
-      print('Error loading team members: $e');
-      setState(() {
-        isLoading = false;
-      });
     }
+
+    // Update state
+    setState(() {
+      teamMembers = members;
+      filteredTeamMembers = members; // Initially display all members
+      isLoading = false;
+    });
+  } catch (e) {
+    print('Error loading team members: $e');
+    setState(() {
+      isLoading = false;
+    });
   }
+}
 
   void _filterTeamMembers() {
     final query = searchController.text.toLowerCase();

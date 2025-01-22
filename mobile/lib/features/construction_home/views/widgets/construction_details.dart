@@ -29,6 +29,12 @@ class _ConstructionDetailsState extends State<ConstructionDetails> {
     _loadConstructionDetailsAndData();
   }
 
+  // Fetch token from SharedPreferences
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
   Future<void> _loadConstructionDetailsAndData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -52,6 +58,7 @@ class _ConstructionDetailsState extends State<ConstructionDetails> {
   }
 
   Future<void> _saveLastMessageTime(int conversationId) async {
+    final token = await _getToken();
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('userId') ?? 0;
 
@@ -63,7 +70,13 @@ class _ConstructionDetailsState extends State<ConstructionDetails> {
     final url = AppConfig.exitChatEndpoint(conversationId, userId);
 
     try {
-      final response = await http.post(Uri.parse(url));
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
 
       if (response.statusCode == 200) {
         print("[ConstructionDetails] Last message time saved");
@@ -75,16 +88,18 @@ class _ConstructionDetailsState extends State<ConstructionDetails> {
     }
   }
 
-  Future<void> _updateLastChecked(int conversationId) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('lastChecked_$conversationId', DateTime.now().toIso8601String());
-
-    print("[ConstructionDetails] Last checked updated for conversation $conversationId");
-  }
-
   Future<void> _loadAddressDetails(int addressId) async {
+    final token = await _getToken();
+    final url = AppConfig.getAddressInfoEndpoint(addressId);
+
     try {
-      final response = await http.get(Uri.parse(AppConfig.getAddressInfoEndpoint(addressId)));
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -109,8 +124,17 @@ class _ConstructionDetailsState extends State<ConstructionDetails> {
   }
 
   Future<void> _loadTeamId(int addressId) async {
+    final token = await _getToken();
+    final url = AppConfig.getAllTeamsEndpoint();
+
     try {
-      final response = await http.get(Uri.parse(AppConfig.getAllTeamsEndpoint()));
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> teams = json.decode(response.body);
@@ -136,8 +160,17 @@ class _ConstructionDetailsState extends State<ConstructionDetails> {
   }
 
   Future<void> _loadConversationDetails(int teamId) async {
+    final token = await _getToken();
+    final url = AppConfig.getConversationsEndpoint();
+
     try {
-      final response = await http.get(Uri.parse(AppConfig.getConversationsEndpoint()));
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> conversations = json.decode(response.body);
@@ -165,36 +198,6 @@ class _ConstructionDetailsState extends State<ConstructionDetails> {
       setState(() {
         isLoading = false;
       });
-    }
-  }
-
-  Future<void> _navigateToConversation() async {
-    if (conversationId != null) {
-      // Aktualizacja stanu aplikacji
-      appState.currentPage = 'chats';
-      appState.isConstructionContext = false;
-
-      // Zapisanie czasu ostatniej wiadomości i aktualizacja ostatniego wejścia
-      await _saveLastMessageTime(conversationId!);
-      await _updateLastChecked(conversationId!);
-
-      // Nawigacja do ekranu czatu
-      Navigator.pushNamed(
-        context,
-        '/chat',
-        arguments: {
-          'conversationId': conversationId,
-          'conversationName': conversationName,
-          'participants': participants,
-        },
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nie znaleziono konwersacji'),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
 
@@ -235,7 +238,7 @@ class _ConstructionDetailsState extends State<ConstructionDetails> {
                 Align(
                   alignment: Alignment.center,
                   child: ConstructionChatButton(
-                    onPressed: _navigateToConversation,
+                    onPressed: () => print("Navigate to chat"),
                   ),
                 ),
               ],
