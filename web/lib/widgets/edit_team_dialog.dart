@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:web/config/config.dart';
-import 'package:web/services/teams_service.dart';
-import 'package:web/themes/styles.dart';
+import 'package:web_app/config/config.dart';
+import 'package:web_app/services/teams_service.dart';
+import 'package:web_app/themes/styles.dart';
 
 class EditTeamDialog extends StatelessWidget {
   final int teamId; // Added teamId

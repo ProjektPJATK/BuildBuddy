@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:universal_html/html.dart' as html;
 import 'package:flutter/material.dart';
-import 'package:web/themes/styles.dart';
-import 'package:web/widgets/add_project_dialog.dart';
-import 'package:web/services/teams_service.dart';
-import 'package:web/widgets/add_user_dialog.dart';
-import 'package:web/widgets/edit_team_dialog.dart';
-import 'package:web/widgets/edit_user_dialog.dart';
+import 'package:web_app/themes/styles.dart';
+import 'package:web_app/widgets/add_project_dialog.dart';
+import 'package:web_app/services/teams_service.dart';
+import 'package:web_app/widgets/add_user_dialog.dart';
+import 'package:web_app/widgets/edit_team_dialog.dart';
+import 'package:web_app/widgets/edit_user_dialog.dart';
 
 class TeamsScreen extends StatefulWidget {
   final int loggedInUserId;
@@ -59,38 +59,8 @@ late BuildContext _messengerContext;
     );
   }
 
-  bool hasPermissionForTeam(int teamId, int requiredPowerLevel) {
-    final teamsJson = html.window.localStorage['teamsWithPowerLevels'];
-    if (teamsJson == null) return false;
-
-    final List<dynamic> teamsWithPowerLevels = jsonDecode(teamsJson);
-
-    // Znajdź team i sprawdź powerLevel
-    final team = teamsWithPowerLevels.firstWhere(
-      (team) => team['teamId'] == teamId,
-      orElse: () => null,
-    );
-
-    if (team == null) return false;
-
-    return team['powerLevel'] >= requiredPowerLevel;
-  }
 
   void _showAddProjectDialog(BuildContext context) {
-    final teamsJson = html.window.localStorage['teamsWithPowerLevels'];
-    if (teamsJson == null) {
-      _showAlert(context, "you dont have access", "you dont have access, to do it.");
-      return;
-    }
-
-    final List<dynamic> teamsWithPowerLevels = jsonDecode(teamsJson);
-
-    final hasPermission = teamsWithPowerLevels.any((team) => team['powerLevel'] == 3);
-
-    if (!hasPermission) {
-      _showAlert(context, "you dont have access", "you dont have access, to do it.");
-      return;
-    }
 
     showDialog(
       context: context,
@@ -261,12 +231,12 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(148, 49, 50, 51),
+        backgroundColor: const Color.fromARGB(144, 81, 85, 87),
         title: Row(
           children: [
             Text(
               'Teams and Projects',
-              style: AppStyles.headerStyle.copyWith(color: Colors.white),
+              style: AppStyles.headerStyle.copyWith(color: const Color.fromARGB(255, 0, 0, 0)),
             ),
             SizedBox(width: 16),
             ElevatedButton.icon(
@@ -325,21 +295,20 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.edit, color: Color.fromARGB(255, 2, 2, 2)),
-                                    onPressed: hasPermissionForTeam(team['id'], 3)
-                                        ? () => _showEditTeamDialog(context, team)
-                                        : () => _handleUnauthorizedAction(context),
+                                    onPressed:
+                                      () => _showEditTeamDialog(context, team)
+                                    
                                   ),
                                   TextButton.icon(
-                                    onPressed: hasPermissionForTeam(team['id'], 3)
-                                        ? () => _showAddUserDialog(
+                                    onPressed: 
+                                         () => _showAddUserDialog(
                                               context,
                                               team['id'],
                                               team['members']
                                                       ?.map<int>((member) => int.parse(member['id'].toString()))
                                                       ?.toList() ??
                                                   [],
-                                            )
-                                        : () => _handleUnauthorizedAction(context),
+                                            ),
                                     icon: const Icon(Icons.add, color: AppStyles.primaryBlue),
                                     label: Text(
                                       "Add worker",

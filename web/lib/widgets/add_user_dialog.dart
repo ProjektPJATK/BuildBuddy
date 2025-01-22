@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web/services/teams_service.dart';
+import 'package:web_app/services/teams_service.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:web/themes/styles.dart';
+import 'package:web_app/themes/styles.dart';
 
 class AddUserDialog extends StatefulWidget {
   final int teamId;
@@ -36,11 +36,16 @@ class _AddUserDialogState extends State<AddUserDialog> {
     _fetchUsers();
   }
 
-  int _getLoggedInUserId() {
-    final loggedInUserId = int.tryParse(html.window.localStorage['userId'] ?? '0') ?? 0;
-    print('Logged-in user ID: $loggedInUserId');
-    return loggedInUserId;
-  }
+int? _getLoggedInUserId() {
+  final loggedInUserId = int.tryParse(
+        (html.document.cookie?.split('; ') ?? [])
+            .firstWhere((cookie) => cookie.startsWith('userId='), orElse: () => 'userId=0')
+            .split('=')[1]);
+
+  print('Zalogowany użytkownik ma ID: $loggedInUserId');
+  return loggedInUserId;
+}
+
 
   Future<void> _fetchUsers() async {
     try {
