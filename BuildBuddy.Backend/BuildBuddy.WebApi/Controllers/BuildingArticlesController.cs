@@ -1,6 +1,7 @@
 ﻿
 using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,6 +25,8 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(items);
         }
 
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("{id}")]
         public async Task<ActionResult<BuildingArticlesDto>> GetItemById(int id)
         {
@@ -34,7 +37,9 @@ namespace BuildBuddy.WebApi.Controllers;
             }
             return Ok(item);
         }
-
+        
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPost]
         public async Task<ActionResult<BuildingArticlesDto>> CreateItem(BuildingArticlesDto buildingArticlesDto)
         {
@@ -42,6 +47,9 @@ namespace BuildBuddy.WebApi.Controllers;
             return CreatedAtAction(nameof(GetItemById), new { id = createdItem.Id }, createdItem);
         }
 
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchItem(int id, JsonPatchDocument<BuildingArticlesDto> patchDocument)
         {
@@ -68,13 +76,17 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
 
-
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteItem(int id)
         {
             await _buildingArticlesService.DeleteItemAsync(id);
             return NoContent();
         }
+        
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("address/{addressId}")]
         public async Task<IActionResult> GetItemsByPlace(int addressId)
         {

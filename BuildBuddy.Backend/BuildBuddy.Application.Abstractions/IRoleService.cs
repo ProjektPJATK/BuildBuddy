@@ -10,6 +10,6 @@ public interface IRoleService
     Task UpdateRoleAsync(int id, RoleDto roleDto);
     Task DeleteRoleAsync(int id);
     Task<List<UserDto>> GetUsersByRoleIdAsync(int roleId);
-    Task RemoveRoleFromUserInTeamAsync(int userId, int roleId, int teamId);
-    Task AssignRoleToUserInTeamAsync(int userId, int roleId, int teamId);
+    Task RemoveRoleFromUserAsync(int userId);
+    Task AssignUserToRoleAsync(int userId, int roleId);
 }

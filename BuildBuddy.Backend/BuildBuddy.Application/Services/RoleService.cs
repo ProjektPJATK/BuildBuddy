@@ -80,67 +80,61 @@ public class RoleService : IRoleService
         }
     }
 
-    public async Task AssignRoleToUserInTeamAsync(int userId, int roleId, int teamId)
+    public async Task AssignUserToRoleAsync(int userId, int roleId)
     {
-        var userInTeam = await _dbContext.TeamUsers.GetAsync(
-            filter: tu => tu.UserId == userId && tu.TeamId == teamId
-        );
-
-        if (!userInTeam.Any())
+        var user = await _dbContext.Users.GetByID(userId);
+        if (user == null)
         {
-            throw new Exception("User is not part of the specified team.");
+            throw new KeyNotFoundException($"User with ID {userId} not found.");
         }
-        
-        var existingRoleAssignment = await _dbContext.TeamUserRoles.GetAsync(
-            filter: tur => tur.UserId == userId && tur.RoleId == roleId && tur.TeamId == teamId
-        );
 
-        if (existingRoleAssignment.Any())
+        var role = await _dbContext.Roles.GetByID(roleId);
+        if (role == null)
         {
-            throw new Exception("Role is already assigned to the user in this team.");
+            throw new KeyNotFoundException($"Role with ID {roleId} not found.");
         }
-        var teamUserRole = new TeamUserRole
-        {
-            UserId = userId,
-            RoleId = roleId,
-            TeamId = teamId
-        };
 
-        _dbContext.TeamUserRoles.Insert(teamUserRole);
+        user.RoleId = role.Id;
+        _dbContext.Users.Update(user);
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task RemoveRoleFromUserInTeamAsync(int userId, int roleId, int teamId)
-    {
-        var teamUserRole = await _dbContext.TeamUserRoles.GetAsync(
-            filter: tur => tur.UserId == userId && tur.RoleId == roleId && tur.TeamId == teamId
-        );
 
-        if (teamUserRole.Any())
+    public async Task RemoveRoleFromUserAsync(int userId)
+    {
+        var user = await _dbContext.Users.GetByID(userId);
+        if (user == null)
         {
-            _dbContext.TeamUserRoles.Delete(teamUserRole.First());
-            await _dbContext.SaveChangesAsync();
+            throw new KeyNotFoundException($"User with ID {userId} not found.");
         }
+
+        user.RoleId = 0;
+        _dbContext.Users.Update(user);
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<List<UserDto>> GetUsersByRoleIdAsync(int roleId)
     {
-        var users = await _dbContext.TeamUserRoles.GetAsync(
-            filter: tur => tur.RoleId == roleId,
-            mapper: tur => new UserDto
+        var users = await _dbContext.Users.GetAsync(
+            filter: u => u.RoleId == roleId,
+            mapper: u => new UserDto
             {
-                Id = tur.User.Id,
-                Name = tur.User.Name,
-                Surname = tur.User.Surname,
-                Mail = tur.User.Mail,
-                TelephoneNr = tur.User.TelephoneNr,
-                UserImageUrl = tur.User.UserImageUrl,
-                PreferredLanguage = tur.User.PreferredLanguage
+                Id = u.Id,
+                Name = u.Name,
+                Surname = u.Surname,
+                Mail = u.Mail,
+                TelephoneNr = u.TelephoneNr,
+                UserImageUrl = u.UserImageUrl,
+                PreferredLanguage = u.PreferredLanguage,
+                RoleId = u.RoleId ?? 0,
+                RoleName = u.Role != null ? u.Role.Name : "No Role",
+                PowerLevel = u.Role != null ? u.Role.PowerLevel : 0
             },
-            includeProperties: "User"
+            includeProperties: "Role"
         );
 
-        return users.DistinctBy(u => u.Id).ToList();
+        return users.ToList();
     }
+
 }
 

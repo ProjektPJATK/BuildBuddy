@@ -1,4 +1,5 @@
 ﻿using BuildBuddy.Application.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuildBuddy.WebApi.Controllers;
@@ -20,7 +21,10 @@ namespace BuildBuddy.WebApi.Controllers;
             var conversations = await _conversationService.GetAllConversationsAsync();
             return Ok(conversations);
         }
-
+        
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("{conversationId}")]
         public async Task<IActionResult> GetConversationById(int conversationId)
         {
@@ -32,6 +36,9 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(conversation);
         }
 
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateConversation(int user1Id, int user2Id)
         {
@@ -39,6 +46,9 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(new { ConversationId = conversationId });
         }
 
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPost("{conversationId}/addUser")]
         public async Task<IActionResult> AddUserToConversation(int conversationId, int userId)
         {
@@ -46,6 +56,9 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok();
         }
         
+        [Authorize(Policy = "PowerLevel1")]
+        [Authorize(Policy = "PowerLevel2")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpGet("user/{userId}/conversations")]
         public async Task<IActionResult> GetUserConversations(int userId)
         {
@@ -55,6 +68,8 @@ namespace BuildBuddy.WebApi.Controllers;
 
             return Ok(conversations);
         }
+        
+        
         [HttpDelete("{conversationId}")]
         public async Task<IActionResult> DeleteConversation(int conversationId)
         {
