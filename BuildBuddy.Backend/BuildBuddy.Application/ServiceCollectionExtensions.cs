@@ -3,6 +3,8 @@ using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Application.Services;
 using BuildBuddy.Data.Repositories;
 using BuildBuddy.Storage.Repository;
+using Microsoft.AspNetCore.Authorization;
+
 namespace BuildBuddy.Application;
 
 public static class ServiceCollectionExtensions
@@ -19,6 +21,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<IChatService, ChatService>()
             .AddScoped<ITranslationService, TranslationService>()
             .AddScoped<IRoleService, RoleService>()
+            .AddScoped<IAuthorizationHandler, PowerLevelHandler>()
             .AddBuildBuddyData(configuration)
             .AddStorageServices(configuration)
             .AddSingleton<AmazonTranslateClient>(sp =>

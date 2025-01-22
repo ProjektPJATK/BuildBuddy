@@ -6,7 +6,7 @@ public interface ITeamService
 {
     Task<IEnumerable<TeamDto>> GetAllTeamsAsync();
     Task<TeamDto> GetTeamByIdAsync(int id);
-    Task<List<UserDto>> GetUsersByTeamId(int teamId);
+    Task<List<UserDto>> GetUsersByTeamIdAsync(int teamId);
     Task<TeamDto> CreateTeamAsync(TeamDto conversationDto);
     Task UpdateTeamAsync(int id, TeamDto conversationDto);
     Task DeleteTeamAsync(int id);

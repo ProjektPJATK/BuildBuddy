@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using BuildBuddy.Application.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -12,7 +13,10 @@ public class ChatController : ControllerBase
     {
         _chatService = chatService;
     }
-
+    
+    [Authorize(Policy = "PowerLevel1")]
+    [Authorize(Policy = "PowerLevel2")]
+    [Authorize(Policy = "PowerLevel3")]
     [HttpGet("unread-count")]
     public async Task<IActionResult> GetUnreadMessagesCount(int conversationId, int userId)
     {
@@ -20,6 +24,9 @@ public class ChatController : ControllerBase
         return Ok(new { Time = time });
     }
     
+    [Authorize(Policy = "PowerLevel1")]
+    [Authorize(Policy = "PowerLevel2")]
+    [Authorize(Policy = "PowerLevel3")]
     [HttpPost("exit-chat")]
     public async Task<IActionResult> ExitChat(int conversationId, int userId)
     {
