@@ -6,14 +6,19 @@ import 'dart:convert';
 
 class ChatPollingService {
   late Timer _timer;
-  final int pollingInterval = 10; // Interwał w sekundach
+  final int pollingInterval = 10; // Interval in seconds
   bool _isPolling = false;
 
-  // Start pollingu dla nowych wiadomości
+  // Fetch token from SharedPreferences
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  // Start polling for new messages
   Future<void> startPolling() async {
     if (_isPolling) {
-      //print("[ChatPollingService] Polling is already active. Skipping start.");
-      return;
+      return; // Prevent multiple polling instances
     }
 
     _isPolling = true;
@@ -21,75 +26,88 @@ class ChatPollingService {
     final userId = prefs.getInt('userId') ?? 0;
 
     if (userId == 0) {
-      //print("[ChatPollingService] User not logged in, stopping polling.");
+      print("[ChatPollingService] User not logged in, stopping polling.");
       return;
     }
-    //print("[ChatPollingService] Starting polling for userId: $userId");
+
+    print("[ChatPollingService] Starting polling for userId: $userId");
 
     _timer = Timer.periodic(Duration(seconds: pollingInterval), (timer) async {
-     // print("[ChatPollingService] Polling for new messages...");
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        print("[ChatPollingService] Token is missing or empty.");
+        stopPolling();
+        return;
+      }
 
       final chatListUrl = AppConfig.getChatListEndpoint(userId);
-     // print("[ChatPollingService] Fetching chat list from: $chatListUrl");
+      print("[ChatPollingService] Fetching chat list from: $chatListUrl");
 
       try {
-        final response = await http.get(Uri.parse(chatListUrl));
+        final response = await http.get(
+          Uri.parse(chatListUrl),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+          },
+        );
 
         if (response.statusCode == 200) {
           final List<dynamic> conversations = json.decode(response.body);
-         // print("[ChatPollingService] Fetched ${conversations.length} conversations");
+          print("[ChatPollingService] Fetched ${conversations.length} conversations");
 
           for (var conversation in conversations) {
             final conversationId = conversation['id'];
-            //print("[ChatPollingService] Checking unread count for conversationId: $conversationId");
-
             final unreadCountUrl = AppConfig.unreadCountEndpoint(conversationId, userId);
-            //print("[ChatPollingService] Fetching unread count from: $unreadCountUrl");
 
-            final unreadResponse = await http.get(Uri.parse(unreadCountUrl));
+            final unreadResponse = await http.get(
+              Uri.parse(unreadCountUrl),
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Accept': 'application/json',
+              },
+            );
 
             if (unreadResponse.statusCode == 200) {
               final unreadData = json.decode(unreadResponse.body);
-              //print("[ChatPollingService] Unread count data for conversationId $conversationId: $unreadData");
 
               if (unreadData.containsKey('time')) {
                 final lastMessageTime = DateTime.parse(unreadData['time']);
                 final currentTime = DateTime.now();
 
                 // Save the latest message time in SharedPreferences
-                final prefs = await SharedPreferences.getInstance();
                 await prefs.setString('lastMessageTime_$conversationId', lastMessageTime.toIso8601String());
 
-                // If the message is recent, consider it as new
+                // Log new messages
                 if (lastMessageTime.isAfter(currentTime.subtract(Duration(minutes: 5)))) {
-                //  print("[ChatPollingService] New messages detected in conversationId: $conversationId");
+                  print("[ChatPollingService] New messages detected in conversationId: $conversationId");
                 } else {
-                  //print("[ChatPollingService] No new messages in conversationId: $conversationId");
+                  print("[ChatPollingService] No new messages in conversationId: $conversationId");
                 }
               } else {
-              //  print("[ChatPollingService] No 'time' field in unread count response for conversationId: $conversationId");
+                print("[ChatPollingService] No 'time' field in unread count response for conversationId: $conversationId");
               }
             } else {
-              //print("[ChatPollingService] Error fetching unread count for conversationId: $conversationId. Status code: ${unreadResponse.statusCode}");
+              print("[ChatPollingService] Error fetching unread count for conversationId: $conversationId. Status code: ${unreadResponse.statusCode}");
             }
           }
         } else {
-         // print("[ChatPollingService] Error fetching conversation list. Status code: ${response.statusCode}");
+          print("[ChatPollingService] Error fetching conversation list. Status code: ${response.statusCode}");
         }
       } catch (e) {
-        //print("[ChatPollingService] Error occurred during polling: $e");
+        print("[ChatPollingService] Error occurred during polling: $e");
       }
     });
   }
 
-  // Stop pollingu
+  // Stop polling
   void stopPolling() {
     if (_isPolling) {
       _timer.cancel();
       _isPolling = false;
-     // print("[ChatPollingService] Stopped polling.");
+      print("[ChatPollingService] Stopped polling.");
     } else {
-     // print("[ChatPollingService] Polling was not active.");
+      print("[ChatPollingService] Polling was not active.");
     }
   }
 }

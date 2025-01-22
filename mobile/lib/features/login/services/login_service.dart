@@ -28,7 +28,8 @@ class LoginService {
         // Successful login
         final token = json.decode(response.body)['token'];
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userToken', token);
+        await prefs.setString('token', token);
+        print(token);
         final data = jsonDecode(response.body);
         return LoginResponse.fromJson(data);
       } else if (response.statusCode == 401) {

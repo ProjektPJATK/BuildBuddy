@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../shared/themes/styles.dart';
 import 'widgets/task_update_dialog.dart';
 import '../../../shared/config/config.dart';
@@ -39,32 +40,48 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   // Fetch all job actualizations for the task
-  Future<void> _fetchJobActualizations() async {
-    // Debugging the jobId used for fetching actualizations
-    print('Fetching Job Actualizations for Job ID: ${widget.taskId}');
+ // Fetch all job actualizations for the task
+Future<void> _fetchJobActualizations() async {
+  print('Fetching Job Actualizations for Job ID: ${widget.taskId}');
 
-    try {
-      final response = await http.get(
-        Uri.parse(AppConfig.getJobActualizationEndpoint(widget.taskId)),
-      );
+  try {
+    // Fetch token from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
 
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-
-        // Debugging the response from the server
-        print('Job Actualizations Fetched: $jsonData');
-
-        setState(() {
-          jobActualizations = List<Map<String, dynamic>>.from(jsonData);
-          isLoading = false;
-        });
-      } else {
-        print('Failed to fetch actualizations. Status: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error fetching job actualizations: $e');
+    if (token == null || token.isEmpty) {
+      print('[TaskDetailScreen] Error: Token is missing or empty.');
+      throw Exception('Token not found in SharedPreferences');
     }
+
+    // Make the API request with the token in the Authorization header
+    final response = await http.get(
+      Uri.parse(AppConfig.getJobActualizationEndpoint(widget.taskId)),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      print('Job Actualizations Fetched: $jsonData');
+
+      setState(() {
+        jobActualizations = List<Map<String, dynamic>>.from(jsonData);
+        isLoading = false;
+      });
+    } else {
+      print('Failed to fetch actualizations. Status: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error fetching job actualizations: $e');
+    setState(() {
+      isLoading = false;
+    });
   }
+}
+
 
   void _showTaskUpdateDialog(BuildContext context) {
     // Debugging the jobId being passed to the TaskUpdateDialog

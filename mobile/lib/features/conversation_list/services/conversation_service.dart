@@ -6,12 +6,29 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ConversationService {
   ConversationService();
 
-  // Wspólna funkcja do obsługi żądań HTTP
+  // Fetch token from SharedPreferences
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  // Shared function to handle HTTP requests with token
   Future<http.Response> _makeRequest(String url, String method) async {
+    final token = await _getToken();
+
+    if (token == null) {
+      throw Exception('[ConversationService] Missing token for authorization.');
+    }
+
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
+    };
+
     try {
       switch (method.toUpperCase()) {
         case 'GET':
-          return await http.get(Uri.parse(url));
+          return await http.get(Uri.parse(url), headers: headers);
         default:
           throw Exception('[ConversationService] Unsupported HTTP method: $method');
       }
@@ -20,7 +37,7 @@ class ConversationService {
     }
   }
 
-  /// Pobiera surowe dane z endpointu, dodaje klucz 'usersName' i zwraca listę konwersacji.
+  /// Fetches raw data from the endpoint, adds the 'usersName' key, and returns a list of conversations.
   Future<List<Map<String, dynamic>>> fetchConversations() async {
     final prefs = await SharedPreferences.getInstance();
     final currentUserId = prefs.getInt('userId') ?? 0;
@@ -35,7 +52,7 @@ class ConversationService {
         return data.map((c) => c as Map<String, dynamic>).toList();
       } else if (response.statusCode == 404) {
         print('[ConversationService] No conversations found (404).');
-        return []; // Zwracamy pustą listę dla 404
+        return []; // Return an empty list for 404
       } else {
         throw Exception('[ConversationService] Failed to load conversations. Status: ${response.statusCode}');
       }
@@ -45,7 +62,7 @@ class ConversationService {
     }
   }
 
-  /// Zapisuje surowe konwersacje do cache
+  /// Saves raw conversations to cache
   Future<void> saveConversationsToCache(List<Map<String, dynamic>> conversations) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -58,7 +75,7 @@ class ConversationService {
     }
   }
 
-  /// Odczytuje surowe konwersacje z cache
+  /// Reads raw conversations from cache
   Future<List<Map<String, dynamic>>> loadConversationsFromCache() async {
     try {
       final prefs = await SharedPreferences.getInstance();
