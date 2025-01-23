@@ -23,8 +23,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(places);
         }
         
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpGet("{id}")]
         public async Task<ActionResult<AddressDto>> GetPlaceById(int id)
         {
@@ -58,9 +57,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpGet("{addressId}/teammembers")]
         public async Task<ActionResult<List<UserDto>>> GetTeamMembersByAddressId(int addressId)
         {

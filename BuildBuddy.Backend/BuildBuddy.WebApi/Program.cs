@@ -98,7 +98,17 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("PowerLevel3", policy =>
         policy.Requirements.Add(new PowerLevelRequirement(3)));
+
+    options.AddPolicy("PowerLevel1And2", policy =>
+        policy.Requirements.Add(new PowerLevelRequirement(1, 2)));
+
+    options.AddPolicy("PowerLevel2And3", policy =>
+        policy.Requirements.Add(new PowerLevelRequirement(2, 3)));
+
+    options.AddPolicy("PowerLevelAll", policy =>
+        policy.Requirements.Add(new PowerLevelRequirement(1, 2, 3)));
 });
+
 
 var app = builder.Build();
 
