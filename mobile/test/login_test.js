@@ -48,7 +48,6 @@ const opts = {
             // Poczekaj na potencjalną odpowiedź aplikacji
             await driver.pause(2000); // Poczekaj 2 sekundy na reakcję aplikacji
         }
-        
     
         // Test 1: Niepoprawne dane logowania
         console.log("Test 1: Niepoprawne dane logowania");
