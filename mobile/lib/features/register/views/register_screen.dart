@@ -21,16 +21,16 @@ class RegisterScreen extends StatelessWidget {
         listener: (context, state) {
           if (state is RegisterSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Rejestracja zakończona pomyślnie!')),
+              const SnackBar(content: Text('Registration successful!')),
             );
             Navigator.pop(context);
           } else if (state is RegisterFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error)),
+              SnackBar(content: Text('Registration failed: ${state.error}')),
             );
           }
         },
-        child: RegisterForm(),
+        child: const RegisterForm(),
       ),
     );
   }
@@ -50,7 +50,6 @@ class _RegisterFormState extends State<RegisterForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _telephoneNrController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
   String _selectedCountryCode = '+48';
   String? _selectedLanguageCode;
 
@@ -113,23 +112,9 @@ class _RegisterFormState extends State<RegisterForm> {
                           obscureText: true,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Reapet password';
+                              return 'Password is required';
                             } else if (!_passwordRegex.hasMatch(value)) {
                               return 'The password must contain at least 8 characters, including 1 digit, 1 special character, and 1 uppercase letter.';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        StyledTextField(
-                          controller: _confirmPasswordController,
-                          labelText: 'Reapet password',
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Reapet password';
-                            } else if (value != _passwordController.text) {
-                              return 'Passwords are not the same';
                             }
                             return null;
                           },
@@ -166,7 +151,7 @@ class _RegisterFormState extends State<RegisterForm> {
                             }
                           },
                           decoration: InputDecoration(
-                            labelText: 'Chose prefered language',
+                            labelText: 'Choose preferred language',
                             labelStyle: TextStyle(color: _selectedLanguageCode == null ? Colors.grey : Colors.white),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(24),
@@ -200,10 +185,10 @@ class _RegisterFormState extends State<RegisterForm> {
                           telephoneNr: '$_selectedCountryCode${_telephoneNrController.text}',
                           password: _passwordController.text,
                           userImageUrl: "string",
-                          preferredLanguage: _selectedLanguageCode ?? "",
-                          rolesInTeams: [
-                            RoleInTeam(teamId: 0, roleId: 0), // Replace with dynamic values if necessary
-                          ],
+                          preferredLanguage: _selectedLanguageCode ?? "en",
+                          roleId: 0, // Default role assignment
+                          roleName: "string", // Default role name
+                          powerLevel: 0, // Default power level
                         );
 
                         context.read<RegisterBloc>().add(RegisterSubmitted(user));

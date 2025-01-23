@@ -36,7 +36,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final imageUrl = await userService.getUserImage(user.id);
       emit(ProfileLoaded(user, imageUrl: imageUrl));
     } catch (e) {
-      emit(ProfileError('Failed to fetch profile: $e'));
+      emit(ProfileError('Failed to load profile'));
     }
   }
 

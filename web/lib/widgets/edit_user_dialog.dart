@@ -44,48 +44,29 @@ class _EditUserDialogState extends State<EditUserDialog> {
   }
 
   Future<void> _fetchUserRoleData() async {
-    try {
-      print('Fetching user role data for userId: ${widget.userId}, teamId: ${widget.teamId}');
-      final userData = await _teamsService.getUserData(widget.userId);
-      print('User data fetched: $userData');
+  try {
+    print('Fetching user role data for userId: ${widget.userId}');
+    final userData = await _teamsService.getUserData(widget.userId);
+    print('User data fetched: $userData');
 
-      final rolesInTeams = userData['rolesInTeams'] as List<dynamic>;
-      print('Roles in teams: $rolesInTeams');
-
-      final roleData = rolesInTeams.firstWhere(
-        (role) => role['teamId'] == widget.teamId,
-        orElse: () => null,
-      );
-
-      if (roleData != null) {
-        final roleId = roleData['roleId'];
-        final roleDetails = await _teamsService.getRoleDetails(roleId);
-
-        setState(() {
-          roleName = roleDetails['name'];
-          powerLevel = roleDetails['powerLevel'];
-          _roleNameController.text = roleName;
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          roleName = '';
-          powerLevel = 0;
-          _roleNameController.text = roleName;
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        isError = true;
-        isLoading = false;
-      });
-      print('Error fetching user role data: $e');
-    }
+    setState(() {
+      roleName = userData['roleName'] ?? ''; // Pobiera nazwę roli bezpośrednio
+      powerLevel = userData['powerLevel'] ?? 0; // Pobiera poziom uprawnień
+      _roleNameController.text = roleName;
+      isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      isError = true;
+      isLoading = false;
+    });
+    print('Error fetching user role data: $e');
   }
+}
 
-  bool get _isFormValid =>
-      _roleNameController.text.trim().isNotEmpty && powerLevel > 0;
+
+  bool get _isFormValid => _roleNameController.text.trim().isNotEmpty;
+
 
   void _validateForm() {
     setState(() {});
@@ -220,20 +201,6 @@ Widget build(BuildContext context) {
               });
             },
           ),
-          RadioListTile<int>(
-            title: Text(
-              'Access to all',
-              style: AppStyles.textStyle,
-            ),
-            value: 3,
-            groupValue: powerLevel,
-            activeColor: AppStyles.primaryBlue,
-            onChanged: (value) {
-              setState(() {
-                powerLevel = value!;
-              });
-            },
-          ),
           if (powerLevel == 0)
             Text(
               'Must choose access level',
@@ -253,16 +220,31 @@ Widget build(BuildContext context) {
         child: const Text('Cancel'),
       ),
       ElevatedButton(
-        onPressed: _isFormValid
-            ? () {
-                widget.onSubmit(
-                    powerLevel, _roleNameController.text.trim());
-                Navigator.pop(context);
-              }
-            : null,
-        style: AppStyles.buttonStyle(),
-        child: const Text('Save'),
-      ),
+  onPressed: _isFormValid
+      ? () async {
+          try {
+            await _teamsService.updateUserRole(
+              widget.userId,
+              _roleNameController.text.trim(),
+              powerLevel,
+            );
+            widget.onSubmit(powerLevel, _roleNameController.text.trim());
+            Navigator.pop(context);
+          } catch (e) {
+            print('Error updating user role: $e');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to update user role.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      : null,
+  style: AppStyles.buttonStyle(),
+  child: const Text('Save'),
+),
+
     ],
   );
 }

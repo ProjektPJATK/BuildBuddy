@@ -86,5 +86,10 @@ static String postBuildingArticleEndpoint() => '${getBaseUrl()}/api/BuildingArti
 // Endpoint to delete a building article by ID
 static String deleteBuildingArticleEndpoint(int id) => '${getBaseUrl()}/api/BuildingArticles/$id';
 
+static String createRoleEndpoint() => "${getBaseUrl()}/api/Roles"; 
+
+static String assignUserToRoleEndpoint(int roleId, int userId) => "${getBaseUrl()}/api/Roles/$roleId/users/$userId"; 
+
+static String patchUserRoleEndpoint(int userId) => "${getBaseUrl()}/api/User/$userId"; 
 }
   

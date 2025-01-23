@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/user_model_register.dart';
 import 'package:mobile/shared/config/config.dart';
 
-import '../models/user_model_register.dart';
+
 
 class RegisterService {
   static Future<bool> registerUser(User user) async {
