@@ -7,7 +7,9 @@ class User {
   final String password;
   final String userImageUrl;
   final String preferredLanguage;
-  final List<RoleInTeam> rolesInTeams;
+  final int roleId;
+  final String roleName;
+  final int powerLevel;
 
   User({
     this.id = 0,
@@ -17,8 +19,10 @@ class User {
     required this.telephoneNr,
     required this.password,
     this.userImageUrl = "string",
-    this.preferredLanguage = "pl",
-    required this.rolesInTeams,
+    this.preferredLanguage = "string",
+    this.roleId = 0,
+    this.roleName = "string",
+    this.powerLevel = 0,
   });
 
   // Conversion to JSON
@@ -32,7 +36,9 @@ class User {
       "password": password,
       "userImageUrl": userImageUrl,
       "preferredLanguage": preferredLanguage,
-      "rolesInTeams": rolesInTeams.map((role) => role.toJson()).toList(),
+      "roleId": roleId,
+      "roleName": roleName,
+      "powerLevel": powerLevel,
     };
   }
 
@@ -46,31 +52,10 @@ class User {
       telephoneNr: json['telephoneNr'],
       password: json['password'],
       userImageUrl: json['userImageUrl'] ?? "string",
-      preferredLanguage: json['preferredLanguage'] ?? "pl",
-      rolesInTeams: (json['rolesInTeams'] as List<dynamic>)
-          .map((role) => RoleInTeam.fromJson(role))
-          .toList(),
-    );
-  }
-}
-
-class RoleInTeam {
-  final int teamId;
-  final int roleId;
-
-  RoleInTeam({required this.teamId, required this.roleId});
-
-  Map<String, dynamic> toJson() {
-    return {
-      "teamId": teamId,
-      "roleId": roleId,
-    };
-  }
-
-  factory RoleInTeam.fromJson(Map<String, dynamic> json) {
-    return RoleInTeam(
-      teamId: json['teamId'],
-      roleId: json['roleId'],
+      preferredLanguage: json['preferredLanguage'] ?? "string",
+      roleId: json['roleId'] ?? 0,
+      roleName: json['roleName'] ?? "string",
+      powerLevel: json['powerLevel'] ?? 0,
     );
   }
 }

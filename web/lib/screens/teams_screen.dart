@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:universal_html/html.dart' as html;
 import 'package:flutter/material.dart';
+import 'package:universal_html/html.dart' as html;
 import 'package:web_app/themes/styles.dart';
 import 'package:web_app/widgets/add_project_dialog.dart';
 import 'package:web_app/services/teams_service.dart';
@@ -10,7 +10,6 @@ import 'package:web_app/widgets/edit_user_dialog.dart';
 
 class TeamsScreen extends StatefulWidget {
   final int loggedInUserId;
-  
 
   TeamsScreen({required this.loggedInUserId});
 
@@ -23,12 +22,11 @@ class _TeamsScreenState extends State<TeamsScreen> {
   List<Map<String, dynamic>> teams = [];
   bool _isLoading = true;
   bool _isError = false;
-late BuildContext _messengerContext;
+
   @override
   void initState() {
     super.initState();
     _fetchTeams();
-    _messengerContext = context;
   }
 
   void _showAlert(BuildContext context, String title, String message) {
@@ -39,10 +37,8 @@ late BuildContext _messengerContext;
         content: Text(message),
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('OK'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -59,40 +55,17 @@ late BuildContext _messengerContext;
     );
   }
 
-
-  void _showAddProjectDialog(BuildContext context) {
-
-    showDialog(
-      context: context,
-      builder: (context) => AddProjectDialog(
-        onCancel: () {
-          Navigator.pop(context);
-        },
-        onSuccess: (projectData) {
-          print('Project added: $projectData');
-          _showSuccessNotification(context, 'Project added succesfully.');
-          _fetchTeams(); // Odświeżenie danych zespołów
-        },
-      ),
-    );
-  }
-
-  void _handleUnauthorizedAction(BuildContext context) {
-    _showAlert(context, "you dont have access", "you dont have access, to do it.");
-  }
-
   Future<void> _fetchTeams() async {
-    setState(() {
-      _isLoading = true; // Pokazuje loader podczas odświeżania
-    });
-
+    setState(() => _isLoading = true);
     try {
-      final fetchedTeams = await _teamsService.fetchTeamsWithMembers(widget.loggedInUserId, widget.loggedInUserId);
-
+      final fetchedTeams = await _teamsService.fetchTeamsWithMembers(
+        widget.loggedInUserId,
+        widget.loggedInUserId,
+      );
       if (mounted) {
         setState(() {
           teams = fetchedTeams;
-          _isLoading = false; // Ukrywa loader po odświeżeniu
+          _isLoading = false;
         });
       }
     } catch (e) {
@@ -105,98 +78,80 @@ late BuildContext _messengerContext;
       print('Error fetching teams: $e');
     }
   }
-  
-void _showAddUserDialog(BuildContext context, int teamId, List<int> existingUserIds) {
-  final scaffoldMessengerContext = ScaffoldMessenger.of(context);
 
-  showDialog(
-    context: context,
-    builder: (context) => AddUserDialog(
-      teamId: teamId,
-      existingUserIds: existingUserIds,
-      onCancel: () {
-        Navigator.pop(context);
-      },
-      onSuccess: (List<int> userIds) async {
-        try {
-          for (final userId in userIds) {
-            print('Dodawanie użytkownika $userId do zespołu $teamId');
-            await _teamsService.addUserToTeam(teamId, userId);
+  void _showAddProjectDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AddProjectDialog(
+        onCancel: () => Navigator.pop(context),
+        onSuccess: (projectData) {
+          print('Project added: $projectData');
+          _showSuccessNotification(context, 'Project added successfully.');
+          _fetchTeams();
+        },
+      ),
+    );
+  }
+
+  void _showAddUserDialog(BuildContext context, int teamId, List<int> existingUserIds) {
+    showDialog(
+      context: context,
+      builder: (context) => AddUserDialog(
+        teamId: teamId,
+        existingUserIds: existingUserIds,
+        onCancel: () => Navigator.pop(context),
+        onSuccess: (List<int> userIds) async {
+          try {
+            for (final userId in userIds) {
+              print('Adding user $userId to team $teamId');
+              await _teamsService.addUserToTeam(teamId, userId);
+            }
+            _showSuccessNotification(context, 'Successfully added worker.');
+            await _fetchTeams();
+          } catch (e) {
+            print('Error adding users: $e');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to add worker.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          } finally {
+            Navigator.pop(context);
           }
+        },
+      ),
+    );
+  }
 
-          // Wyświetl komunikat o sukcesie
-          scaffoldMessengerContext.showSnackBar(
-            SnackBar(
-              content: Text('Succesfully added worker.'),
-              backgroundColor: Colors.green,
-            ),
-          );
-
-          // Odśwież widok zespołów
-          await _fetchTeams();
-
-        } catch (e) {
-          print('Błąd podczas dodawania użytkowników: $e');
-          scaffoldMessengerContext.showSnackBar(
-            SnackBar(
-              content: Text('Filed to add worker.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        } finally {
-          Navigator.pop(context);
-        }
-      },
-    ),
-  );
-}
-
-
-
-void _showEditTeamDialog(BuildContext context, Map<String, dynamic> team) {
-  final scaffoldMessengerContext = ScaffoldMessenger.of(context);
-
-  showDialog(
-    context: context,
-    builder: (context) => EditTeamDialog(
-      teamId: team['id'], // Przekazanie teamId
-      teamName: team['name'],
-      addressData: team['address'] as Map<String, String>,
-      onSubmit: (updatedName, updatedAddress) async {
-        final addressId = team['addressId'];
-
-        try {
-          await _teamsService.updateAddress(addressId, updatedAddress);
-          await _teamsService.updateTeam(team['id'], updatedName, addressId);
-
-          // Wyświetl komunikat o sukcesie
-          scaffoldMessengerContext.showSnackBar(
-            SnackBar(
-              content: Text('Team was updated.'),
-              backgroundColor: Colors.green,
-            ),
-          );
-
-          // Odśwież widok zespołów
-          await _fetchTeams();
-
-        } catch (e) {
-          print('Error updating team or address: $e');
-          scaffoldMessengerContext.showSnackBar(
-            SnackBar(
-              content: Text('Nie udało się zaktualizować zespołu.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      },
-      onCancel: () {
-        Navigator.pop(context);
-      },
-      onTeamDeleted: _fetchTeams,
-    ),
-  );
-}
+  void _showEditTeamDialog(BuildContext context, Map<String, dynamic> team) {
+    showDialog(
+      context: context,
+      builder: (context) => EditTeamDialog(
+        teamId: team['id'],
+        teamName: team['name'],
+        addressData: team['address'] as Map<String, String>,
+        onSubmit: (updatedName, updatedAddress) async {
+          try {
+            await _teamsService.updateAddress(team['addressId'], updatedAddress);
+            await _teamsService.updateTeam(team['id'], updatedName, team['addressId']);
+            _showSuccessNotification(context, 'Team was updated successfully.');
+            await _fetchTeams();
+          } catch (e) {
+            print('Error updating team or address: $e');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to update team.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        onCancel: () => Navigator.pop(context),
+        onTeamDeleted: _fetchTeams,
+      ),
+    );
+  }
 
 void _showEditUserDialog(BuildContext context, int userId, int teamId) {
   showDialog(
@@ -210,7 +165,7 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
       onSubmit: (newPowerLevel, newRoleName) async {
         try {
           // Aktualizacja roli użytkownika
-          await _teamsService.updateUserRole(userId, teamId, newPowerLevel, newRoleName);
+          await _teamsService.updateUserRole(userId, newRoleName, newPowerLevel);
           print('Rola użytkownika zaktualizowana pomyślnie');
 
           // Odświeżenie widoku zespołów
@@ -226,9 +181,9 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
   );
 }
 
-    @override
+
+  @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(144, 81, 85, 87),
@@ -236,14 +191,14 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
           children: [
             Text(
               'Teams and Projects',
-              style: AppStyles.headerStyle.copyWith(color: const Color.fromARGB(255, 0, 0, 0)),
+              style: AppStyles.headerStyle.copyWith(color: Colors.black),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             ElevatedButton.icon(
               onPressed: () => _showAddProjectDialog(context),
               icon: const Icon(Icons.apartment, size: 24, color: Colors.white),
               label: Text(
-                "Add project",
+                "Add Project",
                 style: AppStyles.textStyle.copyWith(color: Colors.white),
               ),
               style: AppStyles.buttonStyle().copyWith(
@@ -259,9 +214,7 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
       body: Container(
         decoration: AppStyles.backgroundDecoration,
         child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
+            ? const Center(child: CircularProgressIndicator())
             : _isError
                 ? const Center(
                     child: Text(
@@ -294,24 +247,21 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
                               Row(
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.edit, color: Color.fromARGB(255, 2, 2, 2)),
-                                    onPressed:
-                                      () => _showEditTeamDialog(context, team)
-                                    
+                                    icon: const Icon(Icons.edit, color: Colors.black),
+                                    onPressed: () => _showEditTeamDialog(context, team),
                                   ),
                                   TextButton.icon(
-                                    onPressed: 
-                                         () => _showAddUserDialog(
-                                              context,
-                                              team['id'],
-                                              team['members']
-                                                      ?.map<int>((member) => int.parse(member['id'].toString()))
-                                                      ?.toList() ??
-                                                  [],
-                                            ),
+                                    onPressed: () => _showAddUserDialog(
+                                      context,
+                                      team['id'],
+                                      team['members']
+                                              ?.map<int>((member) => int.parse(member['id']))
+                                              ?.toList() ??
+                                          [],
+                                    ),
                                     icon: const Icon(Icons.add, color: AppStyles.primaryBlue),
                                     label: Text(
-                                      "Add worker",
+                                      "Add Worker",
                                       style: AppStyles.textStyle.copyWith(color: AppStyles.primaryBlue),
                                     ),
                                   ),
@@ -344,7 +294,7 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
                                         style: AppStyles.textStyle,
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.edit, color: Color.fromARGB(255, 0, 0, 0)),
+                                        icon: const Icon(Icons.edit, color: Colors.black),
                                         onPressed: () => _showEditUserDialog(
                                           context,
                                           int.tryParse(member['id'] ?? '0') ?? 0,
@@ -367,5 +317,4 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
       ),
     );
   }
-
 }

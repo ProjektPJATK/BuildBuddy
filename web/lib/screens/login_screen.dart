@@ -15,7 +15,6 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _errorMessage;
 
   void _handleLogin() async {
-
   setState(() {
     _isLoading = true;
     _errorMessage = null;
@@ -24,19 +23,23 @@ class _LoginScreenState extends State<LoginScreen> {
   try {
     final email = _emailController.text;
     final password = _passwordController.text;
+
+    // Simulate login attempt
     final response = await _loginService.login(email, password);
-    print("Pomyślnie zalogowano");
 
     if (_loginService.isLoggedIn()) {
+      // Navigate to the home page on successful login
       Navigator.pushReplacementNamed(context, '/home');
     } else {
+      // Friendly error message for user
       setState(() {
-        _errorMessage = 'Login failed: unable to verify session.';
+        _errorMessage = 'Invalid email or password. Please try again.';
       });
     }
   } catch (e) {
+    // Generic error message for unexpected errors
     setState(() {
-      _errorMessage = e.toString();
+      _errorMessage = 'Invalid email or password. Please try again.';
     });
   } finally {
     setState(() {
@@ -44,6 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 }
+
 
 void _unfocus(BuildContext context) {
   final currentFocus = FocusScope.of(context);
@@ -125,12 +129,23 @@ Widget _buildLoginCard(BuildContext context) {
         const SizedBox(height: 16),
         _buildPasswordField(),
         const SizedBox(height: 20),
+        // Show error message if available
+        if (_errorMessage != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Text(
+              _errorMessage!,
+              style: TextStyle(
+                color: Colors.redAccent,
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
         if (_isLoading)
           CircularProgressIndicator()
         else
           _buildLoginButton(),
-        const SizedBox(height: 10),
-      
       ],
     ),
   );

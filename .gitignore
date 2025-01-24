@@ -37,3 +37,4 @@ obj/
 # NuGet
 *.nupkg
 *.nuget
+/web/test

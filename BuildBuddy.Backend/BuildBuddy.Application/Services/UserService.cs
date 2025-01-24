@@ -116,13 +116,24 @@ namespace BuildBuddy.Application.Services
                 Mail = userDto.Mail,
                 Password = userDto.Password,
                 UserImageUrl = userDto.UserImageUrl,
-                PreferredLanguage = userDto.PreferredLanguage
+                PreferredLanguage = userDto.PreferredLanguage,
             };
+
+            var role = await _dbContext.Roles.GetAsync(filter: r => r.PowerLevel == 1);
+            var roleEntity = role.FirstOrDefault();
+            if (roleEntity != null)
+            {
+                user.RoleId = roleEntity.Id;
+            }
 
             _dbContext.Users.Insert(user);
             await _dbContext.SaveChangesAsync();
 
             userDto.Id = user.Id;
+            userDto.RoleId = user.RoleId ?? 0;
+            userDto.RoleName = roleEntity?.Name ?? "No Role";
+            userDto.PowerLevel = roleEntity?.PowerLevel ?? 0;
+
             return userDto;
         }
 

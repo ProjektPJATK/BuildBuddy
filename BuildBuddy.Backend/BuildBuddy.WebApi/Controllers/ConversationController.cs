@@ -22,9 +22,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(conversations);
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpGet("{conversationId}")]
         public async Task<IActionResult> GetConversationById(int conversationId)
         {
@@ -35,20 +33,16 @@ namespace BuildBuddy.WebApi.Controllers;
             }
             return Ok(conversation);
         }
-
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateConversation(int user1Id, int user2Id)
         {
             var conversationId = await _conversationService.CreateConversationAsync(user1Id, user2Id);
             return Ok(new { ConversationId = conversationId });
         }
-
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpPost("{conversationId}/addUser")]
         public async Task<IActionResult> AddUserToConversation(int conversationId, int userId)
         {
@@ -56,9 +50,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok();
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpGet("user/{userId}/conversations")]
         public async Task<IActionResult> GetUserConversations(int userId)
         {

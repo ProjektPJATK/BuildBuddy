@@ -25,9 +25,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(users);
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDto>> GetUserById(int id)
         {
@@ -47,9 +45,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchUser(int id, [FromBody] JsonPatchDocument<UserDto> patchDoc)
         {
@@ -80,9 +76,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpGet("{id}/teams")]
         public async Task<ActionResult<IEnumerable<TeamDto>>> GetUserTeams(int id)
         {
@@ -117,9 +111,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(new { token, user.Id});
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpPost("{userId}/upload-image")]
         public async Task<IActionResult> UploadUserImage(int userId, IFormFile image)
         {
@@ -128,9 +120,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpGet("{userId}/image")]
         public async Task<IActionResult> GetUserImage(int userId)
         {
@@ -149,8 +139,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(image);
         }
         
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpGet("job/{jobId}")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsersByJobId(int jobId)
         {
@@ -161,5 +150,4 @@ namespace BuildBuddy.WebApi.Controllers;
             }
             return Ok(users);
         }
-
     }

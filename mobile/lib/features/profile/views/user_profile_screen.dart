@@ -53,14 +53,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         user: profile,
         onSave: (updatedProfile) async {
           setState(() {
-            userProfile = updatedProfile;  // Update local cache
+            userProfile = updatedProfile; // Update local cache
           });
           context.read<ProfileBloc>().add(EditProfileEvent(updatedProfile));
 
           // Reload the user image after profile update
           final updatedImageUrl = await _userService.getUserImage(profile.id);
           setState(() {
-            userImageUrl = updatedImageUrl;  // Update image cache
+            userImageUrl = updatedImageUrl; // Update image cache
           });
         },
       ),
@@ -89,20 +89,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         if (state is ProfileLoading && userProfile == null) {
                           return const Center(child: CircularProgressIndicator());
                         } else if (state is ProfileLoaded) {
-                          userProfile = state.profile;  // Cache profile
+                          userProfile = state.profile; // Cache profile
                           return _buildProfileContent(userProfile!);
                         } else if (state is LogoutSuccess) {
                           Future.microtask(() {
                             Navigator.pushReplacementNamed(context, '/');
                           });
                           return const SizedBox.shrink();
-                        } else if (state is ProfileError && userProfile == null) {
-                          return Center(
-                            child: Text(
-                              state.message,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          );
+                        } else if (state is ProfileError) {
+                          return _buildErrorMessage(state.message);
                         } else if (userProfile != null) {
                           // If the cached profile exists, display it
                           return _buildProfileContent(userProfile!);
@@ -150,7 +145,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           child: Icon(Icons.person, size: 50),
                         );
                       } else {
-                        userImageUrl = snapshot.data;  // Cache the image URL
+                        userImageUrl = snapshot.data; // Cache the image URL
                         return CircleAvatar(
                           radius: 50,
                           backgroundImage: NetworkImage(userImageUrl!),
@@ -199,15 +194,39 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
+  Widget _buildErrorMessage(String message) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            message,
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _logout,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromARGB(255, 1, 149, 248),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('LOG OUT'),
+          ),
+        ],
+      ),
+    );
+  }
+
   // Load user image from cache or API
   Future<String> _loadUserImage(int userId) async {
     if (userImageUrl != null) return userImageUrl!;
     try {
       final imageUrl = await _userService.getUserImage(userId);
-      userImageUrl = imageUrl;  // Cache the result
+      userImageUrl = imageUrl; // Cache the result
       return imageUrl;
     } catch (e) {
-      return '';  // Return empty if loading fails
+      return ''; // Return empty if loading fails
     }
   }
 }
