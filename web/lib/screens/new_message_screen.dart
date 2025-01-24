@@ -31,7 +31,7 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
     ) ?? 0;
   }
 
-  Future<void> _handleSendMessage() async {
+Future<void> _handleSendMessage() async {
   final text = _messageController.text.trim();
   if (selectedRecipients.isEmpty || text.isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -48,18 +48,45 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
   });
 
   try {
-    final recipientIds = await _newMessageService.getRecipientIds(loggedInUserId, selectedRecipients);
-    final conversationId = await _newMessageService.findOrCreateConversation(loggedInUserId, recipientIds);
-    final conversationData = await _newMessageService.getConversationData(conversationId);
+    // Pobierz pełną listę odbiorców
+    final recipients = await _newMessageService.getRecipientIds(loggedInUserId);
 
+    // Przefiltruj odbiorców na podstawie wybranych imion i nazwisk
+    final recipientIds = recipients
+        .where((recipient) =>
+            selectedRecipients.contains('${recipient['name']} ${recipient['surname']}'))
+        .map<int>((recipient) => recipient['id'] as int)
+        .toList();
+
+    if (recipientIds.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nie znaleziono wybranych odbiorców.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Znajdź lub utwórz konwersację
+    final conversationId =
+        await _newMessageService.findOrCreateConversation(loggedInUserId, recipientIds);
+
+    // Pobierz dane konwersacji
+    final conversationData =
+        await _newMessageService.getConversationData(conversationId);
+
+    // Przygotuj dane do wyświetlenia w ekranie czatu
     final String conversationName = _getConversationName(conversationData, loggedInUserId);
     final List<Map<String, dynamic>> participants =
         (conversationData['users'] as List<dynamic>?)
             ?.where((user) => user['id'] != loggedInUserId)
             .map((user) => Map<String, dynamic>.from(user))
-            .toList() ?? [];
+            .toList() ??
+        [];
     final int? teamId = conversationData['teamId'];
 
+    // Przejdź do ekranu czatu
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -85,6 +112,7 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
     });
   }
 }
+
 
 
  String _getConversationName(Map<String, dynamic> conversation, int? userIdFromCookie) {
@@ -233,31 +261,23 @@ class _RecipientSelectionScreenState extends State<RecipientSelectionScreen> {
   }
 
   Future<void> _loadRecipients() async {
-    final response = await widget.newMessageService.getRecipientIds(widget.userId, []);
-    final List<Map<String, dynamic>> recipients = [];
-
-    final teamResponse = await http.get(Uri.parse(AppConfig.getTeamsEndpoint(widget.userId)));
-    if (teamResponse.statusCode == 200) {
-      final List<dynamic> teams = json.decode(teamResponse.body);
-      for (final team in teams) {
-        final teamId = team['id'];
-        final membersResponse = await http.get(Uri.parse(AppConfig.getTeammatesEndpoint(teamId)));
-        if (membersResponse.statusCode == 200) {
-          final List<dynamic> teammates = json.decode(membersResponse.body);
-          for (final teammate in teammates) {
-            if (teammate['id'] != widget.userId && !recipients.any((r) => r['id'] == teammate['id'])) {
-              recipients.add(teammate);
-            }
-          }
-        }
-      }
-    }
-
+  try {
+    final recipients = await widget.newMessageService.getRecipientIds(widget.userId);
     setState(() {
       _recipients = recipients;
       _filteredRecipients = List.from(_recipients);
     });
+  } catch (e) {
+    print('Error loading recipients: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Failed to load recipients'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
+
 
   void _filterRecipients() {
     final query = _searchController.text.toLowerCase();
@@ -270,79 +290,131 @@ class _RecipientSelectionScreenState extends State<RecipientSelectionScreen> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(144, 81, 85, 87),
-        title: const Text(
-          'Wybierz odbiorców',
-          style: TextStyle(color: Colors.black),
-        ),
-        iconTheme: const IconThemeData(color: Colors.black),
+ @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      backgroundColor: const Color.fromARGB(144, 81, 85, 87),
+      title: const Text(
+        'Wybierz odbiorców',
+        style: TextStyle(color: Colors.black),
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: AppStyles.backgroundDecoration,
-          ),
-          Container(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Search by name and surname... ',
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: const OutlineInputBorder(),
-                    ),
+      iconTheme: const IconThemeData(color: Colors.black),
+    ),
+    body: Stack(
+      children: [
+        Container(
+          decoration: AppStyles.backgroundDecoration,
+        ),
+        Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search by name and surname...',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                Expanded(
-                  child: ListView(
-                    children: _filteredRecipients.map((recipient) {
-                      final recipientName = '${recipient['name']} ${recipient['surname']}';
-                      return Row(
-                        children: [
-                          Checkbox(
-                            value: _selectedRecipients.contains(recipient),
-                            onChanged: (bool? value) {
-                              setState(() {
-                                if (value == true && !_selectedRecipients.contains(recipient)) {
-                                  _selectedRecipients.add(recipient);
-                                } else {
-                                  _selectedRecipients.remove(recipient);
-                                }
-                              });
-                            },
-                          ),
-                          Text(recipientName),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: ElevatedButton(
-        onPressed: () {
-          Navigator.pop(context, _selectedRecipients.map((r) => '${r['name']} ${r['surname']}').toList());
-        },
-        child: const Text(
-          'Confirm',
-          style: TextStyle(color: Colors.blue),
+            Expanded(
+              child: _filteredRecipients.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No recipients found',
+                        style: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 16,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _filteredRecipients.length,
+                      itemBuilder: (context, index) {
+                        final recipient = _filteredRecipients[index];
+                        final recipientName =
+                            '${recipient['name']} ${recipient['surname']}';
+
+                        return Container(
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ListTile(
+                            leading: Checkbox(
+                              value: _selectedRecipients.contains(recipient),
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  if (value == true &&
+                                      !_selectedRecipients
+                                          .contains(recipient)) {
+                                    _selectedRecipients.add(recipient);
+                                  } else {
+                                    _selectedRecipients.remove(recipient);
+                                  }
+                                });
+                              },
+                            ),
+                            title: Text(
+                              recipientName,
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                              ),
+                            ),
+                            subtitle: Text(
+                              recipient['mail'] ?? '',
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
         ),
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size(300, 80),
-          side: const BorderSide(color: Colors.black),
-        ),
+      ],
+    ),
+    floatingActionButton: ElevatedButton(
+      onPressed: _selectedRecipients.isNotEmpty
+          ? () {
+              Navigator.pop(
+                context,
+                _selectedRecipients
+                    .map((r) => '${r['name']} ${r['surname']}')
+                    .toList(),
+              );
+            }
+          : null,
+      child: const Text(
+        'Confirm',
+        style: TextStyle(color: Colors.white),
       ),
-    );
-  }
+      style: ElevatedButton.styleFrom(
+        backgroundColor:
+            _selectedRecipients.isNotEmpty ? Colors.blue : Colors.grey,
+        minimumSize: const Size(300, 80),
+        side: const BorderSide(color: Colors.black),
+      ),
+    ),
+  );
+}
 }

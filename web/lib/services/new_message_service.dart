@@ -15,47 +15,54 @@ class NewMessageService {
   }
 
 
-  Future<List<int>> getRecipientIds(int userId, List<String> recipientNames) async {
-    Set<int> recipientIds = {};
-    print('[NewMessageService] Start fetching recipient IDs for userId: $userId');
+  Future<List<Map<String, dynamic>>> getRecipientIds(int userId) async {
+  List<Map<String, dynamic>> recipients = [];
+  print('[NewMessageService] Start fetching recipients for userId: $userId');
 
-    final token = _getAuthToken();
-    final response = await http.get(
-      Uri.parse(AppConfig.getTeamsEndpoint(userId)),
-      headers: {'Authorization': 'Bearer $token'},
-    );
+  final token = _getAuthToken();
+  final response = await http.get(
+    Uri.parse(AppConfig.getTeamsEndpoint(userId)),
+    headers: {'Authorization': 'Bearer $token'},
+  );
 
-    if (response.statusCode == 200) {
-      List<dynamic> teams = json.decode(response.body);
-      print('[NewMessageService] Teams fetched: $teams');
+  if (response.statusCode == 200) {
+    List<dynamic> teams = json.decode(response.body);
+    print('[NewMessageService] Teams fetched: $teams');
 
-      for (var team in teams) {
-        final teamId = team['id'];
-        final membersResponse = await http.get(
-          Uri.parse(AppConfig.getTeammatesEndpoint(teamId)),
-          headers: {'Authorization': 'Bearer $token'},
-        );
+    for (var team in teams) {
+      final teamId = team['id'];
+      final membersResponse = await http.get(
+        Uri.parse(AppConfig.getTeammatesEndpoint(teamId)),
+        headers: {'Authorization': 'Bearer $token'},
+      );
 
-        if (membersResponse.statusCode == 200) {
-          List<dynamic> teammates = json.decode(membersResponse.body);
-          print('[NewMessageService] Teammates fetched for teamId $teamId: $teammates');
+      if (membersResponse.statusCode == 200) {
+        List<dynamic> teammates = json.decode(membersResponse.body);
+        print('[NewMessageService] Teammates fetched for teamId $teamId: $teammates');
 
-          for (var mate in teammates) {
-            String fullName = '${mate['name']} ${mate['surname']}';
-            if (recipientNames.contains(fullName) && mate['id'] != userId) {
-              recipientIds.add(mate['id']);
-              print('[NewMessageService] Added recipient ID: ${mate['id']} for $fullName');
-            }
+        for (var mate in teammates) {
+          if (mate['id'] != userId && !recipients.any((r) => r['id'] == mate['id'])) {
+            recipients.add({
+              'id': mate['id'],
+              'name': mate['name'],
+              'surname': mate['surname'],
+            });
+            print('[NewMessageService] Added recipient: ${mate['name']} ${mate['surname']}');
           }
         }
+      } else {
+        print('[NewMessageService] Error fetching teammates for teamId $teamId: ${membersResponse.statusCode}');
       }
-    } else {
-      print('[NewMessageService] Error fetching teams: ${response.statusCode}, ${response.body}');
     }
-
-    print('[NewMessageService] Final recipient IDs (unique): $recipientIds');
-    return recipientIds.toList();
+  } else {
+    print('[NewMessageService] Error fetching teams: ${response.statusCode}, ${response.body}');
   }
+
+  print('[NewMessageService] Final recipients: $recipients');
+  return recipients;
+}
+
+
 
   Future<Map<String, dynamic>> getConversationData(int conversationId) async {
     final token = _getAuthToken();
