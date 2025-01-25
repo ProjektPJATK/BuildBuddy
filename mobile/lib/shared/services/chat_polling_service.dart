@@ -57,6 +57,7 @@ class ChatPollingService {
           print("[ChatPollingService] Fetched ${conversations.length} conversations");
 
           for (var conversation in conversations) {
+            
             final conversationId = conversation['id'];
             final unreadCountUrl = AppConfig.unreadCountEndpoint(conversationId, userId);
 
@@ -70,7 +71,7 @@ class ChatPollingService {
 
             if (unreadResponse.statusCode == 200) {
               final unreadData = json.decode(unreadResponse.body);
-
+              
               if (unreadData.containsKey('time')) {
                 final lastMessageTime = DateTime.parse(unreadData['time']);
                 final currentTime = DateTime.now();

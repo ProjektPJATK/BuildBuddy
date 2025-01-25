@@ -198,7 +198,7 @@ Widget _buildHomeContent(BuildContext context, List<dynamic> teams, bool noTeams
                 child: noTeamsFound
                     ? Center(
                         child: Text(
-                          'No team found ot you were not added to team',
+                          'No team found or you were not added to a team',
                           style: AppStyles.headerStyle.copyWith(
                             color: const Color.fromARGB(179, 8, 8, 8),
                             fontSize: 18,
@@ -234,7 +234,8 @@ Widget _buildHomeContent(BuildContext context, List<dynamic> teams, bool noTeams
           ),
         ),
       ),
-       Expanded(
+      // Notifications Section
+      Expanded(
         flex: 4,
         child: Container(
           color: AppStyles.transparentWhite,
@@ -245,16 +246,25 @@ Widget _buildHomeContent(BuildContext context, List<dynamic> teams, bool noTeams
                 style: AppStyles.headerStyle,
               ),
               Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: hasNewMessages ? unreadConversations.length : 0,
-                  itemBuilder: (context, index) {
-                    return NotificationItem(
-                      title: 'You have new message',
-                      onClose: _clearNotifications,
-                    );
-                  },
-                ),
+                child: hasNewMessages
+                    ? ListView(
+                        padding: EdgeInsets.zero,
+                        children: [
+                          NotificationItem(
+                            title: 'You have new messages',
+                            onClose: _clearNotifications,
+                          ),
+                        ],
+                      )
+                    : Center(
+                        child: Text(
+                          'No new messages',
+                          style: AppStyles.headerStyle.copyWith(
+                            fontSize: 18,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
               ),
             ],
           ),
@@ -263,6 +273,7 @@ Widget _buildHomeContent(BuildContext context, List<dynamic> teams, bool noTeams
     ],
   );
 }
+
 
 
   // Method to save `addressId` and `placeId` in SharedPreferences

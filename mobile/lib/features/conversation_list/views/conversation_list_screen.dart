@@ -63,9 +63,14 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
   print('[ConversationListScreen] Filtered conversations: $filteredConversations');
 }
 
+Future<String?> _getToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('token');
+}
 
   // Funkcja do zapisywania czasu przed wejściem na czat
 Future<void> _saveLastMessageTime(int conversationId) async {
+  final token = await _getToken();
   final prefs = await SharedPreferences.getInstance();
   final userId = prefs.getInt('userId') ?? 0; // Pobieramy userId z SharedPreferences
   if (userId == 0) {
@@ -77,7 +82,12 @@ Future<void> _saveLastMessageTime(int conversationId) async {
   print("[ConversationListScreen] user id ${userId}");
 
   try {
-    final response = await http.post(Uri.parse(url));
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
 
     if (response.statusCode == 200) {
 
@@ -100,48 +110,45 @@ Future<void> _saveLastMessageTime(int conversationId) async {
 
   // Sprawdzanie stanu ładowania konwersacji w funkcji
 void _updateConversations(List<Map<String, dynamic>> conversations) async {
+  final prefs = await SharedPreferences.getInstance();
+  final Map<int, DateTime> lastMessageTimes = {};
+
+  for (var conversation in conversations) {
+    final conversationId = conversation['id'];
+    final lastMessageTimeStr = prefs.getString('lastMessageTime_$conversationId');
+    if (lastMessageTimeStr != null) {
+      lastMessageTimes[conversationId] = DateTime.parse(lastMessageTimeStr);
+    } else {
+      lastMessageTimes[conversationId] = DateTime(1970);
+    }
+    conversation['lastMessageTime'] = lastMessageTimes[conversationId]?.toIso8601String();
+  }
+
+  // Sortowanie konwersacji po czasie ostatniej wiadomości
+  conversations.sort((a, b) {
+    final lastMessageTimeA = lastMessageTimes[a['id']] ?? DateTime(1970);
+    final lastMessageTimeB = lastMessageTimes[b['id']] ?? DateTime(1970);
+    return lastMessageTimeB.compareTo(lastMessageTimeA);
+  });
+
+  // Logowanie uporządkowanej listy konwersacji
+  print("[ConversationListScreen] Sorted conversations with times:");
+  for (var conversation in conversations) {
+    final id = conversation['id'];
+    final name = conversation['name'] ?? 'Unnamed Conversation';
+    final lastMessageTime = conversation['lastMessageTime'] ?? 'No Time';
+    print("  - ID: $id, Name: $name, LastMessageTime: $lastMessageTime");
+  }
+
   setState(() {
     allConversations = conversations;
-
-    // Logowanie rozmów przed sortowaniem
-    print("[ConversationListScreen] Conversations before sorting: $allConversations");
-
-    // Pobieranie czasów ostatnich wiadomości z SharedPreferences
-    SharedPreferences.getInstance().then((prefs) {
-      final Map<int, DateTime> lastMessageTimes = {};
-
-      for (var conversation in allConversations) {
-        final conversationId = conversation['id'];
-        final lastMessageTimeStr = prefs.getString('lastMessageTime_$conversationId');
-        if (lastMessageTimeStr != null) {
-          lastMessageTimes[conversationId] = DateTime.parse(lastMessageTimeStr);
-        } else {
-          // Jeśli nie ma zapisanej daty, ustaw domyślną datę
-          lastMessageTimes[conversationId] = DateTime(1970);
-        }
-      }
-
-      // Sortowanie konwersacji po dacie ostatniej wiadomości
-      allConversations.sort((a, b) {
-        final lastMessageTimeA = lastMessageTimes[a['id']] ?? DateTime(1970);
-        final lastMessageTimeB = lastMessageTimes[b['id']] ?? DateTime(1970);
-
-        print("[ConversationListScreen] Sorting conversations:");
-        print("[ConversationListScreen] lastMessageTimeA: $lastMessageTimeA, lastMessageTimeB: $lastMessageTimeB");
-
-        return lastMessageTimeB.compareTo(lastMessageTimeA); // Sortowanie malejąco (od najnowszej)
-      });
-
-      // Logowanie po posortowaniu
-      print("[ConversationListScreen] Conversations after sorting: $allConversations");
-
-      filteredConversations = allConversations; // Zaktualizuj również filtrowane rozmowy
-      isLoading = false;
-
-      setState(() {});  // Ponownie wywołaj setState po zakończeniu sortowania
-    });
+    filteredConversations = allConversations;
+    isLoading = false;
   });
 }
+
+
+
 
 Future<void> _updateLastChecked(int conversationId) async {
   final prefs = await SharedPreferences.getInstance();
