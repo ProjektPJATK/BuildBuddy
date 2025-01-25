@@ -48,17 +48,21 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
   }
 
   void _filterConversations(String query) {
-    final results = allConversations
-        .where((conv) => conv['usersName']
-            .toString()
-            .toLowerCase()
-            .contains(query.toLowerCase()))
-        .toList();
+  final results = allConversations
+      .where((conv) {
+        final conversationName = conv['conversationName']?.toString().toLowerCase() ?? '';
+        print('[ConversationListScreen] Filtering for query "$query" in conversationName: $conversationName');
+        return conversationName.contains(query.toLowerCase());
+      })
+      .toList();
 
-    setState(() {
-      filteredConversations = results;
-    });
-  }
+  setState(() {
+    filteredConversations = results;
+  });
+
+  print('[ConversationListScreen] Filtered conversations: $filteredConversations');
+}
+
 
   // Funkcja do zapisywania czasu przed wejściem na czat
 Future<void> _saveLastMessageTime(int conversationId) async {
@@ -258,8 +262,9 @@ Future<void> _updateLastChecked(int conversationId) async {
                                             .map((p) => p['name'])
                                             .join(', ');
                                       }
+                                      
                                     }
-
+                                    conversation['conversationName'] = conversationName;
                                     return ConversationItem(
                                       name: conversationName,
                                       onTap: () async {

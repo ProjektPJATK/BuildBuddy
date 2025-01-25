@@ -24,6 +24,11 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
   TextEditingController messageController = TextEditingController();
   int? userId;
 
+Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
   @override
   void initState() {
     super.initState();
@@ -32,11 +37,13 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
 
   Future<void> _updateLastChecked(int conversationId) async {
     final prefs = await SharedPreferences.getInstance();
+
     await prefs.setString('lastChecked_$conversationId', DateTime.now().toIso8601String());
     print("[NewMessageScreen] Last checked time for conversation $conversationId updated.");
   }
 
   Future<void> _saveLastMessageTime(int conversationId) async {
+    final token = await _getToken();
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('userId') ?? 0;
     if (userId == 0) {
@@ -46,7 +53,11 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
 
     final url = AppConfig.exitChatEndpoint(conversationId, userId);
     try {
-      final response = await http.post(Uri.parse(url));
+      final response = await http.post(Uri.parse(url),
+      headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
       if (response.statusCode == 200) {
         print("[ConversationListScreen] Time saved for conversation $conversationId.");
       } else {
@@ -148,14 +159,23 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
 
   Future<List<Map<String, dynamic>>> _getParticipantsWithIds(List<String> recipientNames) async {
     List<Map<String, dynamic>> participants = [];
-    final teamsResponse = await http.get(Uri.parse(AppConfig.getTeamsEndpoint(userId!)));
+    final token = await _getToken();
+    final teamsResponse = await http.get(Uri.parse(AppConfig.getTeamsEndpoint(userId!)),
+    headers: {
+        'Authorization': 'Bearer $token',
+      },
+      );
 
     if (teamsResponse.statusCode == 200) {
       List<dynamic> teams = json.decode(teamsResponse.body);
 
       for (var team in teams) {
         final teamId = team['id'];
-        final membersResponse = await http.get(Uri.parse(AppConfig.getTeammatesEndpoint(teamId)));
+        final membersResponse = await http.get(Uri.parse(AppConfig.getTeammatesEndpoint(teamId)),
+        headers: {
+            'Authorization': 'Bearer $token',
+          },
+        );
 
         if (membersResponse.statusCode == 200) {
           List<dynamic> teammates = json.decode(membersResponse.body);
@@ -231,7 +251,7 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
         },
         decoration: InputDecoration(
           hintText: selectedRecipients.isEmpty
-              ? 'Dodaj odbiorców'
+              ? 'Add recpients'
               : selectedRecipients.join(', '),
           filled: true,
           fillColor: Colors.white.withOpacity(0.9),
