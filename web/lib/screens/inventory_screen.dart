@@ -405,6 +405,13 @@ Widget build(BuildContext context) {
     appBar: AppBar(
       title: const Text('Manage Inventory', style: TextStyle(fontWeight: FontWeight.bold)),
       backgroundColor: const Color.fromARGB(144, 81, 85, 87),
+      actions: [
+    IconButton(
+      icon: const Icon(Icons.refresh, color: Colors.white),
+      onPressed: _fetchData, // Trigger refresh function
+      tooltip: 'Refresh',
+    ),
+  ],
     ),
     body: Container(
       decoration: AppStyles.backgroundDecoration,

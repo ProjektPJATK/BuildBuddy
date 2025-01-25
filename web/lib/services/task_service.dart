@@ -259,6 +259,40 @@ static Future<List<Map<String, dynamic>>> fetchJobActualizations(int jobId) asyn
   }
 }
 
+  static Future<void> editTask({
+  required int jobId,
+  required List<Map<String, dynamic>> patchOperations,
+}) async {
+  final url = AppConfig.editTaskEndpoint(jobId);
+  print('[TaskService] Editing task with ID: $jobId at $url');
+  final token = _getAuthToken();
+
+  try {
+    print('[TaskService] Patch Operations: ${jsonEncode(patchOperations)}');
+
+    final response = await HttpRequest.request(
+      url,
+      method: 'PATCH',
+      requestHeaders: {
+        'Content-Type': 'application/json-patch+json',
+        'Authorization': 'Bearer $token',
+      },
+      sendData: jsonEncode(patchOperations),
+    );
+
+    if (response.status! >= 200 && response.status! < 300) {
+      print('[TaskService] Successfully edited task with ID: $jobId');
+    } else {
+      final errorDetails = response.responseText ?? 'No additional details';
+      print('[TaskService] Failed to edit task. Status: ${response.status}, Details: $errorDetails');
+      throw Exception('Failed to edit task with ID: $jobId. Status: ${response.status}');
+    }
+  } catch (e) {
+    print('[TaskService] Error editing task with ID: $jobId: $e');
+    rethrow;
+  }
+}
+
 
 
 

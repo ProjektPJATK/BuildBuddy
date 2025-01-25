@@ -91,5 +91,8 @@ static String createRoleEndpoint() => "${getBaseUrl()}/api/Roles";
 static String assignUserToRoleEndpoint(int roleId, int userId) => "${getBaseUrl()}/api/Roles/$roleId/users/$userId"; 
 
 static String patchUserRoleEndpoint(int userId) => "${getBaseUrl()}/api/User/$userId"; 
+
+static String editTaskEndpoint(int taskId) => "${getBaseUrl()}/api/Job/$taskId";
+
 }
   
