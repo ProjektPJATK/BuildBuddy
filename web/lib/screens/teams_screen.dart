@@ -208,8 +208,16 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
                 ),
               ),
             ),
+            
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: _fetchTeams, // Trigger refresh function
+            tooltip: 'Refresh',
+          ),
+        ],
       ),
       body: Container(
         decoration: AppStyles.backgroundDecoration,
