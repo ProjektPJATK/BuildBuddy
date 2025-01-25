@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/features/login/bloc/login_bloc.dart';
+import 'package:mobile/shared/config/config.dart';
 import '../bloc/login_event.dart';
 import '../bloc/login_state.dart';
 import 'widgets/login_form.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../shared/themes/styles.dart';
-
+import 'package:http/http.dart' as http;
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -22,12 +23,41 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _checkUserSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    if (token != null) {
-      Navigator.pushReplacementNamed(context, '/home');
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+  if (token != null) {
+    try {
+      // Endpoint do sprawdzenia ważności tokena
+      final response = await http.get(
+        Uri.parse('${AppConfig.getBaseUrl()}/api/Address'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        // Token jest ważny
+        Navigator.pushReplacementNamed(context, '/home');
+      } else if (response.statusCode == 401) {
+        // Token jest nieważny, wylogowanie
+        print('[SessionCheck] Token expired or invalid. Logging out.');
+        await prefs.clear();
+        Navigator.pushReplacementNamed(context, '/login');
+      } else {
+        // Inny błąd
+        print('[SessionCheck] Unexpected error: ${response.statusCode}');
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } catch (e) {
+      // Obsługa błędu sieciowego
+      print('[SessionCheck] Network error: $e');
+      Navigator.pushReplacementNamed(context, '/login');
     }
+  } else {
+    // Brak tokena, przekierowanie na ekran logowania
+    Navigator.pushReplacementNamed(context, '/login');
   }
+}
 
   @override
   Widget build(BuildContext context) {

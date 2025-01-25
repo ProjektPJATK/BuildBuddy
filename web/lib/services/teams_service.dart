@@ -160,114 +160,150 @@ Future<void> _assignRoleToUser(
 }
 
 Future<void> updateAddress(int addressId, Map<String, String> addressData) async {
-    final client = HttpClient();
-    try {
-      final addressUrl = '${AppConfig.getBaseUrl()}/api/Address/$addressId';
-      final request = await client.putUrl(Uri.parse(addressUrl));
-      final token = _getAuthToken();
-      request.headers.set('Authorization', 'Bearer $token');
-      request.headers.set('Content-Type', 'application/json');
-      request.add(utf8.encode(jsonEncode(addressData)));
+  final client = HttpClient();
+  try {
+    final addressUrl = '${AppConfig.getBaseUrl()}/api/Address/$addressId';
+    final request = await client.putUrl(Uri.parse(addressUrl));
+    final token = _getAuthToken();
+    request.headers.set('Authorization', 'Bearer $token');
+    request.headers.set('Content-Type', 'application/json');
+    request.add(utf8.encode(jsonEncode(addressData)));
 
-      final response = await request.close();
+    final response = await request.close();
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        print('Address updated successfully.');
-      } else {
-        throw Exception('Failed to update address: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error updating address: $e');
-      rethrow;
-    } finally {
-      client.close();
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      print('Address updated successfully.');
+    } else if (response.statusCode == 403) {
+      print('Error 403: Unauthorized access. Insufficient permissions to update address.');
+      throw Exception('Unauthorized: You do not have the required permissions to update this address.');
+    } else {
+      throw Exception('Failed to update address: ${response.statusCode}');
     }
+  } catch (e) {
+    print('Error updating address: $e');
+    rethrow;
+  } finally {
+    client.close();
   }
+}
+
   
   Future<int> createAddress(Map<String, String> addressData) async {
-    final client = HttpClient();
-    try {
-      final addressUrl = '${AppConfig.getBaseUrl()}/api/Address';
-      final request = await client.postUrl(Uri.parse(addressUrl));
-      final token = _getAuthToken();
-      request.headers.set('Authorization', 'Bearer $token');
-      request.headers.set('Content-Type', 'application/json');
-      request.add(utf8.encode(jsonEncode(addressData)));
+  final client = HttpClient();
+  try {
+    final addressUrl = '${AppConfig.getBaseUrl()}/api/Address';
+    final token = await _getAuthToken(); // Upewnij się, że funkcja zwraca wartość asynchronicznie
+    print('[CreateAddress] Endpoint URL: $addressUrl');
+    print('[CreateAddress] Address Data: $addressData');
+    print('[CreateAddress] Authorization Token: Bearer $token');
 
-      final response = await request.close();
+    final request = await client.postUrl(Uri.parse(addressUrl));
+    request.headers.set('Authorization', 'Bearer $token');
+    request.headers.set('Content-Type', 'application/json');
+    request.add(utf8.encode(jsonEncode(addressData)));
+    print('[CreateAddress] Headers: ${request.headers}');
+    
+    final response = await request.close();
+    print('[CreateAddress] Response Status Code: ${response.statusCode}');
 
-      if (response.statusCode == 201) {
-        final responseBody = await response.transform(utf8.decoder).join();
-        final data = jsonDecode(responseBody);
-        return data['id'];
-      } else {
-        throw Exception('Failed to create address: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error creating address: $e');
-      rethrow;
-    } finally {
-      client.close();
+    if (response.statusCode == 201) {
+      final responseBody = await response.transform(utf8.decoder).join();
+      print('[CreateAddress] Response Body: $responseBody');
+      
+      final data = jsonDecode(responseBody);
+      print('[CreateAddress] Parsed Response Data: $data');
+      return data['id'];
+    } else if (response.statusCode == 403) {
+      final responseBody = await response.transform(utf8.decoder).join();
+      print('[CreateAddress] 403 Forbidden Response Body: $responseBody');
+      throw Exception('You do not have the required permissions to create an address.'); // Wyjątek dla statusu 403
+    } else {
+      final responseBody = await response.transform(utf8.decoder).join();
+      print('[CreateAddress] Error Response Body: $responseBody');
+      throw Exception('Failed to create address: ${response.statusCode}');
     }
+  } catch (e) {
+    print('[CreateAddress] Error creating address: $e');
+    rethrow;
+  } finally {
+    client.close();
   }
+}
 
   Future<int> createTeam(String teamName, int addressId) async {
-    final client = HttpClient();
-    try {
-      final teamUrl = '${AppConfig.getBaseUrl()}/api/Team';
-      final request = await client.postUrl(Uri.parse(teamUrl));
-      final token = _getAuthToken();
-      request.headers.set('Authorization', 'Bearer $token');
-      request.headers.set('Content-Type', 'application/json');
-      request.add(utf8.encode(jsonEncode({
-        'name': teamName,
-        'addressId': addressId,
-      })));
+  final client = HttpClient();
+  try {
+    final teamUrl = '${AppConfig.getBaseUrl()}/api/Team';
+    final token = await _getAuthToken(); // Upewnij się, że funkcja zwraca wartość asynchronicznie
+    print('[CreateTeam] Endpoint URL: $teamUrl');
+    print('[CreateTeam] Team Name: $teamName, Address ID: $addressId');
+    print('[CreateTeam] Authorization Token: Bearer $token');
 
-      final response = await request.close();
+    final request = await client.postUrl(Uri.parse(teamUrl));
+    request.headers.set('Authorization', 'Bearer $token');
+    request.headers.set('Content-Type', 'application/json');
+    request.add(utf8.encode(jsonEncode({
+      'name': teamName,
+      'addressId': addressId,
+    })));
 
-      if (response.statusCode == 201) {
-        final responseBody = await response.transform(utf8.decoder).join();
-        final data = jsonDecode(responseBody);
-        return data['id'];
-      } else {
-        throw Exception('Failed to create team: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error creating team: $e');
-      rethrow;
-    } finally {
-      client.close();
+    print('[CreateTeam] Request Headers: ${request.headers}');
+    final response = await request.close();
+    print('[CreateTeam] Response Status Code: ${response.statusCode}');
+
+    if (response.statusCode == 201) {
+      final responseBody = await response.transform(utf8.decoder).join();
+      print('[CreateTeam] Response Body: $responseBody');
+
+      final data = jsonDecode(responseBody);
+      print('[CreateTeam] Parsed Response Data: $data');
+      return data['id'];
+    } else if (response.statusCode == 403) {
+      final responseBody = await response.transform(utf8.decoder).join();
+      print('[CreateTeam] 403 Forbidden Response Body: $responseBody');
+      throw Exception('You do not have the required permissions to create a team.');
+    } else {
+      final responseBody = await response.transform(utf8.decoder).join();
+      print('[CreateTeam] Error Response Body: $responseBody');
+      throw Exception('Failed to create team: ${response.statusCode}');
     }
+  } catch (e) {
+    print('[CreateTeam] Error creating team: $e');
+    rethrow;
+  } finally {
+    client.close();
   }
+}
 
   Future<void> addUserToTeam(int teamId, int userId) async {
-    final client = HttpClient();
-    try {
-      final addUserUrl = '${AppConfig.getBaseUrl()}/api/Team/$teamId/users/$userId';
-      print('Starting to add user $userId to team $teamId with URL: $addUserUrl');
+  final client = HttpClient();
+  try {
+    final addUserUrl = '${AppConfig.getBaseUrl()}/api/Team/$teamId/users/$userId';
+    print('Starting to add user $userId to team $teamId with URL: $addUserUrl');
 
-      final request = await client.postUrl(Uri.parse(addUserUrl));
-      final token = _getAuthToken();
-      request.headers.set('Authorization', 'Bearer $token');
-      request.headers.set('Content-Type', 'application/json');
+    final request = await client.postUrl(Uri.parse(addUserUrl));
+    final token = _getAuthToken();
+    request.headers.set('Authorization', 'Bearer $token');
+    request.headers.set('Content-Type', 'application/json');
 
-      final response = await request.close();
+    final response = await request.close();
 
-      if (response.statusCode == 204 || response.statusCode == 200 || response.statusCode == 201) {
-        print('User $userId successfully added to team $teamId');
-      } else {
-        final responseBody = await response.transform(utf8.decoder).join();
-        print('Failed to add user: ${response.statusCode}, Response: $responseBody');
-        throw Exception('Failed to add user to team: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error adding user $userId to team $teamId: $e');
-      rethrow;
-    } finally {
-      client.close();
+    if (response.statusCode == 204 || response.statusCode == 200 || response.statusCode == 201) {
+      print('User $userId successfully added to team $teamId');
+    } else if (response.statusCode == 403) {
+      print('Error 403: Unauthorized access. Insufficient permissions to add user to team.');
+      throw Exception('Unauthorized: You do not have the required permissions to add a user to this team.');
+    } else {
+      final responseBody = await response.transform(utf8.decoder).join();
+      throw Exception('Failed to add user to team: ${response.statusCode}, Response: $responseBody');
     }
+  } catch (e) {
+    print('Error adding user $userId to team $teamId: $e');
+    rethrow;
+  } finally {
+    client.close();
   }
+}
 
  Future<List<Map<String, dynamic>>> fetchAllUsers() async {
     final client = HttpClient();
@@ -348,64 +384,34 @@ Future<void> updateAddress(int addressId, Map<String, String> addressData) async
     }
   }
 
-  Future<void> addRoleToUserInTeam({
-    required int userId,
-    required int teamId,
-    required int roleId,
-  }) async {
-    final client = HttpClient();
-    final url = '${AppConfig.getBaseUrl()}/api/Roles/$roleId/users/$userId/teams/$teamId';
-    print('Attempting to add role: $roleId to user: $userId in team: $teamId with URL: $url');
-
-    try {
-      final request = await client.postUrl(Uri.parse(url));
-      final token = _getAuthToken();
-      request.headers.set('Authorization', 'Bearer $token');
-      request.headers.set('Content-Type', 'application/json');
-
-      final response = await request.close();
-
-      if (response.statusCode == 201 || response.statusCode == 204 || response.statusCode == 200) {
-        print('Role added successfully for user $userId in team $teamId.');
-
-      } else {
-        throw Exception('Failed to add role: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error adding role to user in team: $e');
-      rethrow;
-    } finally {
-      client.close();
-    }
-  }
 
   Future<void> deleteTeam(int teamId) async {
-    final client = HttpClient();
-    try {
-      final deleteUrl = '${AppConfig.getBaseUrl()}/api/Team/$teamId';
-      final request = await client.deleteUrl(Uri.parse(deleteUrl));
-      final token = _getAuthToken();
-      request.headers.set('Authorization', 'Bearer $token');
-      request.headers.set('Content-Type', 'application/json');
+  final client = HttpClient();
+  try {
+    final deleteUrl = '${AppConfig.getBaseUrl()}/api/Team/$teamId';
+    final request = await client.deleteUrl(Uri.parse(deleteUrl));
+    final token = _getAuthToken();
+    request.headers.set('Authorization', 'Bearer $token');
+    request.headers.set('Content-Type', 'application/json');
 
-      final response = await request.close();
+    final response = await request.close();
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        print('Team $teamId deleted successfully.');
-      } else {
-        final responseBody = await response.transform(utf8.decoder).join();
-        print('Failed to delete team $teamId: ${response.statusCode}');
-        print('Response body: $responseBody');
-        throw Exception('Failed to delete team: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error deleting team $teamId: $e');
-      rethrow;
-    } finally {
-      client.close();
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      print('Team $teamId deleted successfully.');
+    } else if (response.statusCode == 403) {
+      print('Error 403: Unauthorized access. Insufficient permissions to delete team.');
+      throw Exception('Unauthorized: You do not have the required permissions to delete this team.');
+    } else {
+      final responseBody = await response.transform(utf8.decoder).join();
+      throw Exception('Failed to delete team: ${response.statusCode}, Response: $responseBody');
     }
+  } catch (e) {
+    print('Error deleting team $teamId: $e');
+    rethrow;
+  } finally {
+    client.close();
   }
-
+}
 
   Future<Map<String, String>> fetchAddress(int addressId) async {
     final client = HttpClient();
@@ -465,7 +471,7 @@ Future<void> updateAddress(int addressId, Map<String, String> addressData) async
     if (response.statusCode == 200) {
       final responseBody = await response.transform(utf8.decoder).join();
       final List<dynamic> data = jsonDecode(responseBody);
-      print('Team members fetched successfully: $responseBody');
+      //print('Team members fetched successfully: $responseBody');
 
       // Process each member
       return data
@@ -496,8 +502,6 @@ Future<void> updateAddress(int addressId, Map<String, String> addressData) async
   }
 }
 
-
-
  Future<Map<String, dynamic>> getUserData(int userId) async {
   final client = HttpClient();
   final url = '${AppConfig.getBaseUrl()}/api/User/$userId';
@@ -527,8 +531,6 @@ Future<void> updateAddress(int addressId, Map<String, String> addressData) async
     client.close();
   }
 }
-
-
 
  Future<Map<String, dynamic>> getRoleDetails(int roleId) async {
   if (roleId == 0) {
@@ -576,8 +578,6 @@ Future<void> updateAddress(int addressId, Map<String, String> addressData) async
   }
 }
 
-
-
    Future<String> fetchRoleName(int roleId) async {
     if (roleId == 0) {
       return 'Brak rangi';
@@ -609,75 +609,74 @@ Future<void> updateAddress(int addressId, Map<String, String> addressData) async
     }
   }
  
-/// Create a new role
-  Future<void> createRole(String roleName, int powerLevel) async {
-    final client = HttpClient();
-    try {
-      final token = _getAuthToken();
-      final createRoleEndpoint = AppConfig.createRoleEndpoint();
+Future<void> createRole(String roleName, int powerLevel) async {
+  final client = HttpClient();
+  try {
+    final token = _getAuthToken();
+    final createRoleEndpoint = AppConfig.createRoleEndpoint();
 
-      print('Creating role with name: $roleName, powerLevel: $powerLevel');
+    print('Creating role with name: $roleName, powerLevel: $powerLevel');
 
-      // Build the request
-      final request = await client.postUrl(Uri.parse(createRoleEndpoint));
-      request.headers.set('Authorization', 'Bearer $token');
-      request.headers.set('Content-Type', 'application/json');
+    final request = await client.postUrl(Uri.parse(createRoleEndpoint));
+    request.headers.set('Authorization', 'Bearer $token');
+    request.headers.set('Content-Type', 'application/json');
 
-      // Prepare the JSON payload
-      final createBody = {
-        "id": 0,
-        "name": roleName,
-        "powerLevel": powerLevel
-      };
+    final createBody = {
+      "id": 0,
+      "name": roleName,
+      "powerLevel": powerLevel
+    };
 
-      request.add(utf8.encode(jsonEncode(createBody)));
+    request.add(utf8.encode(jsonEncode(createBody)));
 
-      // Handle the response
-      final response = await request.close();
+    final response = await request.close();
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        print('Role created successfully.');
-      } else {
-        final responseBody = await response.transform(utf8.decoder).join();
-        throw Exception('Failed to create role: ${response.statusCode}, Response: $responseBody');
-      }
-    } catch (e) {
-      print('Error creating role: $e');
-      rethrow;
-    } finally {
-      client.close();
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print('Role created successfully.');
+    } else if (response.statusCode == 403) {
+      print('Error 403: Unauthorized access. Insufficient permissions to create role.');
+      throw Exception('Unauthorized: You do not have the required permissions to create roles.');
+    } else {
+      final responseBody = await response.transform(utf8.decoder).join();
+      throw Exception('Failed to create role: ${response.statusCode}, Response: $responseBody');
     }
+  } catch (e) {
+    print('Error creating role: $e');
+    rethrow;
+  } finally {
+    client.close();
   }
+}
 
-  /// Assign a user to an existing role
-  Future<void> assignUserToRole(int roleId, int userId) async {
-    final client = HttpClient();
-    try {
-      final token = _getAuthToken();
-      final assignRoleEndpoint = AppConfig.assignUserToRoleEndpoint(roleId, userId);
+ Future<void> assignUserToRole(int roleId, int userId) async {
+  final client = HttpClient();
+  try {
+    final token = _getAuthToken();
+    final assignRoleEndpoint = AppConfig.assignUserToRoleEndpoint(roleId, userId);
 
-      print('Assigning userId: $userId to roleId: $roleId');
+    print('Assigning userId: $userId to roleId: $roleId');
 
-      final request = await client.postUrl(Uri.parse(assignRoleEndpoint));
-      request.headers.set('Authorization', 'Bearer $token');
-      request.headers.set('Content-Type', 'application/json');
+    final request = await client.postUrl(Uri.parse(assignRoleEndpoint));
+    request.headers.set('Authorization', 'Bearer $token');
+    request.headers.set('Content-Type', 'application/json');
 
-      final response = await request.close();
+    final response = await request.close();
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        print('User assigned to role successfully.');
-      } else {
-        final responseBody = await response.transform(utf8.decoder).join();
-        throw Exception('Failed to assign user to role: ${response.statusCode}, Response: $responseBody');
-      }
-    } catch (e) {
-      print('Error assigning user to role: $e');
-      rethrow;
-    } finally {
-      client.close();
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      print('User assigned to role successfully.');
+    } else if (response.statusCode == 403) {
+      print('Error 403: Unauthorized access. Insufficient permissions to assign role.');
+      throw Exception('Unauthorized: You do not have the required permissions to assign roles.');
+    } else {
+      final responseBody = await response.transform(utf8.decoder).join();
+      throw Exception('Failed to assign user to role: ${response.statusCode}, Response: $responseBody');
     }
+  } catch (e) {
+    print('Error assigning user to role: $e');
+    rethrow;
+  } finally {
+    client.close();
   }
-
- 
+}
 
 }

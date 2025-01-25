@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:mobile/features/register/views/widgets/phone_number_field.dart';
 import 'package:mobile/features/register/views/widgets/styled_text_field.dart';
 import 'package:mobile/shared/localization/language_list.dart';

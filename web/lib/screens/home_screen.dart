@@ -210,8 +210,6 @@ Future<void> _refreshImage(int userId, String token) async {
   void _logout(BuildContext context) {
     print('Logging out user.');
     html.document.cookie = 'userToken=; path=/; max-age=0';
-    html.window.localStorage.remove('userToken');
-    html.window.localStorage.remove('userId');
     Navigator.pushReplacementNamed(context, '/');
   }
 

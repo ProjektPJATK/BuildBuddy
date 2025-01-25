@@ -112,12 +112,10 @@ class _TeamsScreenState extends State<TeamsScreen> {
             print('Error adding users: $e');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Failed to add worker.'),
+                content: Text('Failed to add worker. Insufficient permissions to add user to team. '),
                 backgroundColor: Colors.red,
               ),
             );
-          } finally {
-            Navigator.pop(context);
           }
         },
       ),
@@ -141,7 +139,7 @@ class _TeamsScreenState extends State<TeamsScreen> {
             print('Error updating team or address: $e');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Failed to update team.'),
+                content: Text('Failed to update team. Insufficient permissions to add user to team.'),
                 backgroundColor: Colors.red,
               ),
             );

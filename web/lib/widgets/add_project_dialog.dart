@@ -4,6 +4,7 @@ import 'package:universal_html/html.dart' as html;
 import 'package:web_app/services/teams_service.dart';
 import 'package:web_app/themes/styles.dart';
 
+
 class AddProjectDialog extends StatelessWidget {
   final VoidCallback onCancel;
   final Function(Map<String, String>) onSuccess;
@@ -58,6 +59,22 @@ class AddProjectDialog extends StatelessWidget {
       }
       return true;
     }
+
+      int _getUserIdFromCookies() {
+        final cookies = html.document.cookie ?? '';
+        final cookieMap = Map.fromEntries(
+          cookies.split('; ').map((cookie) {
+            final parts = cookie.split('=');
+            return MapEntry(parts[0], parts.sublist(1).join('='));
+          }),
+        );
+
+        final userIdString = cookieMap['userId'] ?? '0'; // Zmień 'userId' na właściwy klucz w cookies
+        final userId = int.tryParse(userIdString) ?? 0;
+
+        print('[AddProjectDialog] Extracted userId from cookies: $userId');
+        return userId;
+      }
 
     return AlertDialog(
       backgroundColor: AppStyles.transparentWhite,
@@ -246,14 +263,9 @@ class AddProjectDialog extends StatelessWidget {
                 final teamName = teamNameController.text;
                 final teamId = await teamsService.createTeam(teamName, addressId);
 
-                final userId = int.tryParse(html.window.localStorage['userId'] ?? '0') ?? 0;
+                final userId = _getUserIdFromCookies();
                 if (userId > 0) {
                   await teamsService.addUserToTeam(teamId, userId);
-                  await teamsService.addRoleToUserInTeam(
-                    userId: userId,
-                    teamId: teamId,
-                    roleId: 2, // Default role
-                  );
                 }
 
                 onSuccess({

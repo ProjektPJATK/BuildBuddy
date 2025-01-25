@@ -245,7 +245,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Failed to update user role.'),
+                        content: Text('Failed to update user role. Insufficient permissions to add user to team.'),
                         backgroundColor: Colors.red,
                       ),
                     );
