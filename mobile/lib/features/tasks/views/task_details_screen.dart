@@ -40,48 +40,46 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   // Fetch all job actualizations for the task
- // Fetch all job actualizations for the task
-Future<void> _fetchJobActualizations() async {
-  print('Fetching Job Actualizations for Job ID: ${widget.taskId}');
+  Future<void> _fetchJobActualizations() async {
+    print('Fetching Job Actualizations for Job ID: ${widget.taskId}');
 
-  try {
-    // Fetch token from SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    try {
+      // Fetch token from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
 
-    if (token == null || token.isEmpty) {
-      print('[TaskDetailScreen] Error: Token is missing or empty.');
-      throw Exception('Token not found in SharedPreferences');
-    }
+      if (token == null || token.isEmpty) {
+        print('[TaskDetailScreen] Error: Token is missing or empty.');
+        throw Exception('Token not found in SharedPreferences');
+      }
 
-    // Make the API request with the token in the Authorization header
-    final response = await http.get(
-      Uri.parse(AppConfig.getJobActualizationEndpoint(widget.taskId)),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
+      // Make the API request with the token in the Authorization header
+      final response = await http.get(
+        Uri.parse(AppConfig.getJobActualizationEndpoint(widget.taskId)),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body);
-      print('Job Actualizations Fetched: $jsonData');
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        print('Job Actualizations Fetched: $jsonData');
 
+        setState(() {
+          jobActualizations = List<Map<String, dynamic>>.from(jsonData);
+          isLoading = false;
+        });
+      } else {
+        print('Failed to fetch actualizations. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching job actualizations: $e');
       setState(() {
-        jobActualizations = List<Map<String, dynamic>>.from(jsonData);
         isLoading = false;
       });
-    } else {
-      print('Failed to fetch actualizations. Status: ${response.statusCode}');
     }
-  } catch (e) {
-    print('Error fetching job actualizations: $e');
-    setState(() {
-      isLoading = false;
-    });
   }
-}
-
 
   void _showTaskUpdateDialog(BuildContext context) {
     // Debugging the jobId being passed to the TaskUpdateDialog
@@ -106,82 +104,94 @@ Future<void> _fetchJobActualizations() async {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(decoration: AppStyles.backgroundDecoration),
-          Container(color: AppStyles.filterColor.withOpacity(0.75)),
+  return Scaffold(
+    body: Stack(
+      children: [
+        Container(decoration: AppStyles.backgroundDecoration),
+        Container(color: AppStyles.filterColor.withOpacity(0.75)),
 
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 50, left: 16),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 50, left: 16),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
                     ),
                   ),
-                  Padding(
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
                     padding: const EdgeInsets.all(16.0),
-                    child: Container(
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: AppStyles.transparentWhite,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(widget.title, style: AppStyles.formTitleStyle),
-                          const SizedBox(height: 8),
-                          _buildDetailRow(Icons.description, 'Description', widget.description),
-                          _buildDetailRow(Icons.timer, 'Start', widget.startTime),
-                          _buildDetailRow(Icons.timer_off, 'End', widget.endTime),
-                          _buildDetailRow(Icons.event, 'Date', widget.taskDate),
-
-                          // Display job actualizations
-                          if (jobActualizations.isNotEmpty) ...[
-                            const SizedBox(height: 20),
-                            ...jobActualizations.map((actualization) {
-                              return Column(
-                                children: [
-                                  _buildJobActualizationCard(actualization),
-                                  const Divider(color: Colors.white),
-                                ],
-                              );
-                            }).toList(),
-                          ],
-
-                          const SizedBox(height: 30),
-                          Center(
-                            child: ElevatedButton.icon(
-                              onPressed: () => _showTaskUpdateDialog(context),
-                              icon: const Icon(Icons.add_circle_outline, color: Colors.white),
-                              label: const Text('Add actualization'),
-                              style: AppStyles.buttonStyle(),
+                    decoration: BoxDecoration(
+                      color: AppStyles.transparentWhite,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              widget.title,
+                              style: AppStyles.formTitleStyle,
                             ),
-                          ),
+                            IconButton(
+                              icon: const Icon(Icons.refresh, color: Color.fromARGB(255, 245, 243, 243)),
+                              onPressed: _fetchJobActualizations,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        _buildDetailRow(Icons.description, 'Description', widget.description),
+                        _buildDetailRow(Icons.timer, 'Start', widget.startTime),
+                        _buildDetailRow(Icons.timer_off, 'End', widget.endTime),
+                        _buildDetailRow(Icons.event, 'Date', widget.taskDate),
+
+                        // Display job actualizations
+                        if (jobActualizations.isNotEmpty) ...[
+                          const SizedBox(height: 20),
+                          ...jobActualizations.map((actualization) {
+                            return Column(
+                              children: [
+                                _buildJobActualizationCard(actualization),
+                                const Divider(color: Colors.white),
+                              ],
+                            );
+                          }).toList(),
                         ],
-                      ),
+
+                        const SizedBox(height: 30),
+                        Center(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showTaskUpdateDialog(context),
+                            icon: const Icon(Icons.add_circle_outline, color: Colors.white),
+                            label: const Text('Add actualization'),
+                            style: AppStyles.buttonStyle(),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildDetailRow(IconData icon, String title, String content) {
     return Padding(

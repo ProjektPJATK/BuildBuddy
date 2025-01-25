@@ -151,141 +151,172 @@ Future<void> _deleteJob(int jobId, int addressId) async {
   DateTime? startTime, endTime;
 
   await showDialog(
-    context: context,
-    builder: (context) {
-      bool allDay = false;
-      return StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          backgroundColor: AppStyles.transparentWhite, // Apply transparent background
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0), // Rounded corners for dialog
-          ),
-          title: const Text('Add Task', style: AppStyles.headerStyle), // Styled title
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: AppStyles.inputFieldStyle(hintText: 'Name'), // Styled input field
-                  cursorColor: AppStyles.cursorColor,
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: messageController,
-                  decoration: AppStyles.inputFieldStyle(hintText: 'Message'), // Styled input field
-                  cursorColor: AppStyles.cursorColor,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    TextButton(
-                      onPressed: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                        );
-                        if (date != null) {
-                          setState(() => startTime = date);
-                        }
-                      },
-                      style: AppStyles.textButtonStyle(), // Styled button
-                      child: const Text('Start Time'),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      startTime != null
-                          ? '${startTime!.year}-${startTime!.month.toString().padLeft(2, '0')}-${startTime!.day.toString().padLeft(2, '0')}'
-                          : 'Select Start Time',
-                      style: AppStyles.textStyle, // Styled text
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    TextButton(
-                      onPressed: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                        );
-                        if (date != null) {
-                          setState(() => endTime = date);
-                        }
-                      },
-                      style: AppStyles.textButtonStyle(), // Styled button
-                      child: const Text('End Time'),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      endTime != null
-                          ? '${endTime!.year}-${endTime!.month.toString().padLeft(2, '0')}-${endTime!.day.toString().padLeft(2, '0')}'
-                          : 'Select End Time',
-                      style: AppStyles.textStyle, // Styled text
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: allDay,
-                      onChanged: (value) {
-                        setState(() {
-                          allDay = value!;
-                        });
-                      },
-                    ),
-                    const Text('All Day', style: AppStyles.textStyle), // Styled text
-                  ],
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              style: AppStyles.textButtonStyle(), // Styled text button
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (nameController.text.isNotEmpty &&
-                    messageController.text.isNotEmpty &&
-                    startTime != null &&
-                    endTime != null) {
-                  final adjustedStartTime = allDay
-                      ? DateTime(startTime!.year, startTime!.month, startTime!.day, 0, 0, 0).toUtc()
-                      : startTime!.toUtc();
-                  final adjustedEndTime = allDay
-                      ? DateTime(endTime!.year, endTime!.month, endTime!.day, 23, 59, 59).toUtc()
-                      : endTime!.toUtc();
-
-                  await TaskService.addJob(
-                    name: nameController.text,
-                    message: messageController.text,
-                    startTime: adjustedStartTime,
-                    endTime: adjustedEndTime,
-                    allDay: allDay,
-                    addressId: addressId,
-                  );
-                  Navigator.pop(context);
-                  await _fetchData();
-                }
-              },
-              style: AppStyles.buttonStyle(), // Styled button
-              child: const Text('Add'),
-            ),
-          ],
+  context: context,
+  builder: (context) {
+    bool allDay = false;
+    return StatefulBuilder(
+      builder: (context, setState) => AlertDialog(
+        backgroundColor: AppStyles.transparentWhite, // Apply transparent background
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0), // Rounded corners for dialog
         ),
-      );
-    },
-  );
+        title: const Text('Add Task', style: AppStyles.headerStyle), // Styled title
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  hintText: 'Name',
+                  hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.blue),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                ),
+                cursorColor: AppStyles.cursorColor,
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: messageController,
+                decoration: InputDecoration(
+                  hintText: 'Message',
+                  hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.blue),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                ),
+                cursorColor: AppStyles.cursorColor,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (date != null) {
+                        setState(() => startTime = date);
+                      }
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.black, // Black text color for Start Time
+                    ),
+                    child: const Text('Start Time'),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    startTime != null
+                        ? '${startTime!.year}-${startTime!.month.toString().padLeft(2, '0')}-${startTime!.day.toString().padLeft(2, '0')}'
+                        : 'Select Start Time',
+                    style: AppStyles.textStyle, // Styled text
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (date != null) {
+                        setState(() => endTime = date);
+                      }
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.black, // Black text color for End Time
+                    ),
+                    child: const Text('End Time'),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    endTime != null
+                        ? '${endTime!.year}-${endTime!.month.toString().padLeft(2, '0')}-${endTime!.day.toString().padLeft(2, '0')}'
+                        : 'Select End Time',
+                    style: AppStyles.textStyle, // Styled text
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Checkbox(
+                    value: allDay,
+                    onChanged: (value) {
+                      setState(() {
+                        allDay = value!;
+                      });
+                    },
+                  ),
+                  const Text('All Day', style: AppStyles.textStyle), // Styled text
+                ],
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.black, // Black text color for Cancel
+            ),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (nameController.text.isNotEmpty &&
+                  messageController.text.isNotEmpty &&
+                  startTime != null &&
+                  endTime != null) {
+                final adjustedStartTime = allDay
+                    ? DateTime(startTime!.year, startTime!.month, startTime!.day, 0, 0, 0).toUtc()
+                    : startTime!.toUtc();
+                final adjustedEndTime = allDay
+                    ? DateTime(endTime!.year, endTime!.month, endTime!.day, 23, 59, 59).toUtc()
+                    : endTime!.toUtc();
+
+                await TaskService.addJob(
+                  name: nameController.text,
+                  message: messageController.text,
+                  startTime: adjustedStartTime,
+                  endTime: adjustedEndTime,
+                  allDay: allDay,
+                  addressId: addressId,
+                );
+                Navigator.pop(context);
+                await _fetchData();
+              }
+            },
+            style: AppStyles.buttonStyle(), // Styled button
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  },
+);
+
 }
 
 Future<void> _manageUsers(int jobId, int addressId) async {

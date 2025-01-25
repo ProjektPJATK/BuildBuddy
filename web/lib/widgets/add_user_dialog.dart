@@ -36,16 +36,15 @@ class _AddUserDialogState extends State<AddUserDialog> {
     _fetchUsers();
   }
 
-int? _getLoggedInUserId() {
-  final loggedInUserId = int.tryParse(
+  int? _getLoggedInUserId() {
+    final loggedInUserId = int.tryParse(
         (html.document.cookie?.split('; ') ?? [])
             .firstWhere((cookie) => cookie.startsWith('userId='), orElse: () => 'userId=0')
             .split('=')[1]);
 
-  print('Zalogowany użytkownik ma ID: $loggedInUserId');
-  return loggedInUserId;
-}
-
+    print('Logged in user ID: $loggedInUserId');
+    return loggedInUserId;
+  }
 
   Future<void> _fetchUsers() async {
     try {
@@ -105,7 +104,7 @@ int? _getLoggedInUserId() {
         ),
         title: Text(
           'Add Users to Team',
-          style: AppStyles.headerStyle,
+          style: AppStyles.headerStyle.copyWith(color: Colors.black), // Black title text
         ),
         content: SizedBox(
           width: MediaQuery.of(context).size.width * 0.7,
@@ -123,10 +122,19 @@ int? _getLoggedInUserId() {
                       children: [
                         TextField(
                           controller: _searchController,
-                          decoration: AppStyles.inputFieldStyle(
+                          decoration: InputDecoration(
                             hintText: 'Search User',
-                          ).copyWith(
-                            prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                            hintStyle: const TextStyle(color: Colors.black), // Black placeholder
+                            prefixIcon: const Icon(Icons.search, color: Colors.black),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(color: Colors.grey),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(color: Colors.blue),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                           ),
                           cursorColor: AppStyles.cursorColor,
                           onChanged: _filterUsers,
@@ -158,7 +166,9 @@ int? _getLoggedInUserId() {
             onPressed: () {
               widget.onCancel();
             },
-            style: AppStyles.textButtonStyle(),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.black, // Black text color for Cancel button
+            ),
             child: const Text('Cancel'),
           ),
           ElevatedButton(

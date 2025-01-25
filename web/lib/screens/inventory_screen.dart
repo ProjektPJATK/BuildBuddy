@@ -100,87 +100,126 @@ String? _getCookieValue(String key) {
   String selectedMetric = 'kg'; // Default metric
   final List<String> metricsList = ['kg', 'm²', 'm³', 'pcs', 'l', 'g', 'mm', 'cm', 'm', 'ml'];
 
-  await showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          backgroundColor: AppStyles.transparentWhite,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          title: const Text('Add Item', style: AppStyles.headerStyle),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: AppStyles.inputFieldStyle(hintText: 'Name'),
-                  cursorColor: AppStyles.cursorColor,
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: quantityController,
-                  decoration: AppStyles.inputFieldStyle(hintText: 'Quantity'),
-                  keyboardType: TextInputType.number,
-                  cursorColor: AppStyles.cursorColor,
-                ),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: selectedMetric,
-                  items: metricsList.map((metric) {
-                    return DropdownMenuItem(
-                      value: metric,
-                      child: Text(metric),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedMetric = value ?? 'kg';
-                    });
-                  },
-                  decoration: AppStyles.inputFieldStyle(hintText: 'Select Metric'),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              style: AppStyles.textButtonStyle(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (nameController.text.isNotEmpty && quantityController.text.isNotEmpty) {
-                  final newItem = {
-                    'name': nameController.text,
-                    'quantityMax': int.parse(quantityController.text),
-                    'metrics': selectedMetric,
-                    'quantityLeft': int.parse(quantityController.text),
-                    'addressId': addressId,
-                  };
-
-                  final token = _getTokenFromCookies();
-                  if (token == null) {
-                    print('Error: Token not found.');
-                    return;
-                  }
-
-                  await inventoryService.addBuildingArticle(newItem);
-                  Navigator.pop(context);
-                  await _fetchData();
-                }
-              },
-              style: AppStyles.buttonStyle(),
-              child: const Text('Add'),
-            ),
-          ],
+ await showDialog(
+  context: context,
+  builder: (context) {
+    return StatefulBuilder(
+      builder: (context, setState) => AlertDialog(
+        backgroundColor: AppStyles.transparentWhite,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
         ),
-      );
-    },
-  );
+        title: const Text('Add Item', style: AppStyles.headerStyle),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  hintText: 'Name',
+                  hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.blue),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                ),
+                cursorColor: AppStyles.cursorColor,
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: quantityController,
+                decoration: InputDecoration(
+                  hintText: 'Quantity',
+                  hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.blue),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                ),
+                keyboardType: TextInputType.number,
+                cursorColor: AppStyles.cursorColor,
+              ),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: selectedMetric,
+                items: metricsList.map((metric) {
+                  return DropdownMenuItem(
+                    value: metric,
+                    child: Text(metric),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedMetric = value ?? 'kg';
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: 'Select Metric',
+                  hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.blue),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.black, // Black text color for Cancel
+            ),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (nameController.text.isNotEmpty && quantityController.text.isNotEmpty) {
+                final newItem = {
+                  'name': nameController.text,
+                  'quantityMax': int.parse(quantityController.text),
+                  'metrics': selectedMetric,
+                  'quantityLeft': int.parse(quantityController.text),
+                  'addressId': addressId,
+                };
+
+                final token = _getTokenFromCookies();
+                if (token == null) {
+                  print('Error: Token not found.');
+                  return;
+                }
+
+                await inventoryService.addBuildingArticle(newItem);
+                Navigator.pop(context);
+                await _fetchData();
+              }
+            },
+            style: AppStyles.buttonStyle(),
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  },
+);
+
 }
 
 
@@ -191,95 +230,146 @@ String? _getCookieValue(String key) {
   String selectedMetric = item.metrics;
   final List<String> metricsList = ['kg', 'm²', 'm³', 'pcs', 'l', 'g', 'mm', 'cm', 'm', 'ml'];
 
-  await showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          backgroundColor: AppStyles.transparentWhite,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          title: const Text('Edit Item', style: AppStyles.headerStyle),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: AppStyles.inputFieldStyle(hintText: 'Enter name'),
-                  cursorColor: AppStyles.cursorColor,
-                ),
-                const SizedBox(height: 15),
-                TextField(
-                  controller: purchasedController,
-                  decoration: AppStyles.inputFieldStyle(hintText: 'Enter max quantity'),
-                  keyboardType: TextInputType.number,
-                  cursorColor: AppStyles.cursorColor,
-                ),
-                const SizedBox(height: 15),
-                DropdownButtonFormField<String>(
-                  value: selectedMetric,
-                  items: metricsList.map((metric) {
-                    return DropdownMenuItem(
-                      value: metric,
-                      child: Text(metric),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedMetric = value ?? item.metrics;
-                    });
-                  },
-                  decoration: AppStyles.inputFieldStyle(hintText: 'Select Metric'),
-                ),
-                const SizedBox(height: 15),
-                TextField(
-                  controller: remainingController,
-                  decoration: AppStyles.inputFieldStyle(hintText: 'Enter remaining quantity'),
-                  keyboardType: TextInputType.number,
-                  cursorColor: AppStyles.cursorColor,
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              style: AppStyles.textButtonStyle(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (nameController.text.isNotEmpty &&
-                    purchasedController.text.isNotEmpty &&
-                    remainingController.text.isNotEmpty) {
-                  final token = _getTokenFromCookies(); // Retrieve token from cookies
-                  if (token == null) {
-                    print('Error: Token not found in cookies.');
-                    return;
-                  }
-
-                  await inventoryService.updateInventoryItem(
-                    itemId,
-                    name: nameController.text,
-                    purchased: double.parse(purchasedController.text),
-                    metrics: selectedMetric,
-                    remaining: double.parse(remainingController.text),
-                  );
-
-                  Navigator.pop(context);
-                  await _fetchData();
-                }
-              },
-              style: AppStyles.buttonStyle(),
-              child: const Text('Save'),
-            ),
-          ],
+ await showDialog(
+  context: context,
+  builder: (context) {
+    return StatefulBuilder(
+      builder: (context, setState) => AlertDialog(
+        backgroundColor: AppStyles.transparentWhite,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
         ),
-      );
-    },
-  );
+        title: const Text('Edit Item', style: AppStyles.headerStyle),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  hintText: 'Enter name',
+                  hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.blue),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                ),
+                cursorColor: AppStyles.cursorColor,
+              ),
+              const SizedBox(height: 15),
+              TextField(
+                controller: purchasedController,
+                decoration: InputDecoration(
+                  hintText: 'Enter max quantity',
+                  hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.blue),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                ),
+                keyboardType: TextInputType.number,
+                cursorColor: AppStyles.cursorColor,
+              ),
+              const SizedBox(height: 15),
+              DropdownButtonFormField<String>(
+                value: selectedMetric,
+                items: metricsList.map((metric) {
+                  return DropdownMenuItem(
+                    value: metric,
+                    child: Text(metric),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedMetric = value ?? item.metrics;
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: 'Select Metric',
+                  hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.blue),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                ),
+              ),
+              const SizedBox(height: 15),
+              TextField(
+                controller: remainingController,
+                decoration: InputDecoration(
+                  hintText: 'Enter remaining quantity',
+                  hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Colors.blue),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                ),
+                keyboardType: TextInputType.number,
+                cursorColor: AppStyles.cursorColor,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.black, // Black text color for Cancel
+            ),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (nameController.text.isNotEmpty &&
+                  purchasedController.text.isNotEmpty &&
+                  remainingController.text.isNotEmpty) {
+                final token = _getTokenFromCookies(); // Retrieve token from cookies
+                if (token == null) {
+                  print('Error: Token not found in cookies.');
+                  return;
+                }
+
+                await inventoryService.updateInventoryItem(
+                  itemId,
+                  name: nameController.text,
+                  purchased: double.parse(purchasedController.text),
+                  metrics: selectedMetric,
+                  remaining: double.parse(remainingController.text),
+                );
+
+                Navigator.pop(context);
+                await _fetchData();
+              }
+            },
+            style: AppStyles.buttonStyle(),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  },
+);
+
 }
 
 

@@ -34,7 +34,9 @@ class AddProjectDialog extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              style: AppStyles.textButtonStyle(),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.black, // Black text color
+              ),
               child: const Text('OK'),
             ),
           ],
@@ -58,13 +60,13 @@ class AddProjectDialog extends StatelessWidget {
     }
 
     return AlertDialog(
-      backgroundColor: const Color.fromARGB(132, 8, 8, 8),
+      backgroundColor: AppStyles.transparentWhite,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
       title: Text(
         'Add Project',
-        style: AppStyles.headerStyle.copyWith(color: Colors.white),
+        style: AppStyles.headerStyle.copyWith(color: Colors.black),
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -72,49 +74,145 @@ class AddProjectDialog extends StatelessWidget {
           children: [
             TextField(
               controller: teamNameController,
-              decoration: AppStyles.inputFieldStyle(hintText: 'Team Name'),
+              decoration: InputDecoration(
+                hintText: 'Team Name',
+                hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.grey),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              ),
               cursorColor: AppStyles.cursorColor,
             ),
             const SizedBox(height: 10),
             TextField(
               controller: cityController,
-              decoration: AppStyles.inputFieldStyle(hintText: 'City'),
+              decoration: InputDecoration(
+                hintText: 'City',
+                hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.grey),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              ),
               cursorColor: AppStyles.cursorColor,
             ),
             const SizedBox(height: 10),
             TextField(
               controller: countryController,
-              decoration: AppStyles.inputFieldStyle(hintText: 'Country'),
+              decoration: InputDecoration(
+                hintText: 'Country',
+                hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.grey),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              ),
               cursorColor: AppStyles.cursorColor,
             ),
             const SizedBox(height: 10),
             TextField(
               controller: streetController,
-              decoration: AppStyles.inputFieldStyle(hintText: 'Street'),
+              decoration: InputDecoration(
+                hintText: 'Street',
+                hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.grey),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              ),
               cursorColor: AppStyles.cursorColor,
             ),
             const SizedBox(height: 10),
             TextField(
               controller: houseNumberController,
-              decoration: AppStyles.inputFieldStyle(hintText: 'House Number'),
+              decoration: InputDecoration(
+                hintText: 'House Number',
+                hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.grey),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              ),
               cursorColor: AppStyles.cursorColor,
             ),
             const SizedBox(height: 10),
             TextField(
               controller: localNumberController,
-              decoration: AppStyles.inputFieldStyle(hintText: 'Apartment Number'),
+              decoration: InputDecoration(
+                hintText: 'Apartment Number',
+                hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.grey),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              ),
               cursorColor: AppStyles.cursorColor,
             ),
             const SizedBox(height: 10),
             TextField(
               controller: postalCodeController,
-              decoration: AppStyles.inputFieldStyle(hintText: 'Postal Code'),
+              decoration: InputDecoration(
+                hintText: 'Postal Code',
+                hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.grey),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              ),
               cursorColor: AppStyles.cursorColor,
             ),
             const SizedBox(height: 10),
             TextField(
               controller: descriptionController,
-              decoration: AppStyles.inputFieldStyle(hintText: 'Description'),
+              decoration: InputDecoration(
+                hintText: 'Description',
+                hintStyle: const TextStyle(color: Colors.black), // Black placeholder text
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.grey),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              ),
               maxLines: 3,
               cursorColor: AppStyles.cursorColor,
             ),
@@ -124,7 +222,9 @@ class AddProjectDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: onCancel,
-          style: AppStyles.textButtonStyle(),
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.black, // Black text color for Cancel
+          ),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
