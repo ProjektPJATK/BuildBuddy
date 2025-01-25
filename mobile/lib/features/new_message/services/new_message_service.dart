@@ -2,15 +2,29 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/shared/config/config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NewMessageService {
+  /// Get the token from SharedPreferences
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
   /// Pobierz identyfikatory odbiorców na podstawie nazw i użytkownika
   Future<List<int>> getRecipientIds(int userId, List<String> recipientNames) async {
     final Set<int> recipientIds = {};
     print('[NewMessageService] Fetching recipient IDs for userId: $userId');
 
     try {
-      final response = await http.get(Uri.parse(AppConfig.getTeamsEndpoint(userId)));
+      final token = await _getToken();
+      final response = await http.get(
+        Uri.parse(AppConfig.getTeamsEndpoint(userId)),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> teams = json.decode(response.body);
@@ -18,7 +32,13 @@ class NewMessageService {
 
         for (var team in teams) {
           final teamId = team['id'];
-          final membersResponse = await http.get(Uri.parse(AppConfig.getTeammatesEndpoint(teamId)));
+          final membersResponse = await http.get(
+            Uri.parse(AppConfig.getTeammatesEndpoint(teamId)),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          );
 
           if (membersResponse.statusCode == 200) {
             final List<dynamic> teammates = json.decode(membersResponse.body);
@@ -52,8 +72,13 @@ class NewMessageService {
   Future<Map<String, dynamic>> getConversationData(int conversationId) async {
     print('[NewMessageService] Fetching conversation data for ID: $conversationId');
     try {
+      final token = await _getToken();
       final response = await http.get(
         Uri.parse('${AppConfig.getBaseUrl()}/api/Conversation/$conversationId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
 
       if (response.statusCode == 200) {
@@ -73,7 +98,14 @@ class NewMessageService {
     print('[NewMessageService] Searching for conversation with recipient IDs: $recipientIds');
 
     try {
-      final response = await http.get(Uri.parse(AppConfig.getChatListEndpoint(userId)));
+      final token = await _getToken();
+      final response = await http.get(
+        Uri.parse(AppConfig.getChatListEndpoint(userId)),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> conversations = json.decode(response.body);
@@ -110,11 +142,18 @@ class NewMessageService {
   Future<int> _createNewConversation(int userId, List<int> recipientIds) async {
     print('[NewMessageService] Creating new conversation for userId: $userId');
     try {
+      final token = await _getToken();
       final uri = Uri.parse(
         '${AppConfig.createConversationEndpoint()}?user1Id=$userId&user2Id=${recipientIds.first}',
       );
 
-      final createResponse = await http.post(uri);
+      final createResponse = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (createResponse.statusCode == 200) {
         final newConversation = json.decode(createResponse.body);
@@ -137,12 +176,19 @@ class NewMessageService {
 
   /// Dodaj użytkownika do konwersacji
   Future<void> _addUserToConversation(int conversationId, int userId) async {
+    final token = await _getToken();
     final addUserUri = Uri.parse(
       '${AppConfig.getBaseUrl()}/api/Conversation/$conversationId/addUser?userId=$userId',
     );
 
     try {
-      final addUserResponse = await http.post(addUserUri);
+      final addUserResponse = await http.post(
+        addUserUri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (addUserResponse.statusCode == 200) {
         print('[NewMessageService] Added user $userId to conversation $conversationId');

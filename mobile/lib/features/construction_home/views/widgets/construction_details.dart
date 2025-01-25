@@ -200,7 +200,42 @@ class _ConstructionDetailsState extends State<ConstructionDetails> {
       });
     }
   }
+Future<void> _updateLastChecked(int conversationId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('lastChecked_$conversationId', DateTime.now().toIso8601String());
 
+    print("[ConstructionDetails] Last checked updated for conversation $conversationId");
+  }
+
+   Future<void> _navigateToConversation() async {
+    if (conversationId != null) {
+      // Aktualizacja stanu aplikacji
+      appState.currentPage = 'chats';
+      appState.isConstructionContext = false;
+
+      // Zapisanie czasu ostatniej wiadomości i aktualizacja ostatniego wejścia
+      await _saveLastMessageTime(conversationId!);
+      await _updateLastChecked(conversationId!);
+
+      // Nawigacja do ekranu czatu
+      Navigator.pushNamed(
+        context,
+        '/chat',
+        arguments: {
+          'conversationId': conversationId,
+          'conversationName': conversationName,
+          'participants': participants,
+        },
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nie znaleziono konwersacji'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -238,7 +273,7 @@ class _ConstructionDetailsState extends State<ConstructionDetails> {
                 Align(
                   alignment: Alignment.center,
                   child: ConstructionChatButton(
-                    onPressed: () => print("Navigate to chat"),
+                   onPressed: _navigateToConversation,
                   ),
                 ),
               ],

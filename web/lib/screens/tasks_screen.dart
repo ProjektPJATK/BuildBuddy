@@ -111,29 +111,39 @@ String? _getCookieValue(String key) {
     }
   }
 
-  Future<void> _deleteJob(int jobId, int addressId) async {
-    try {
-      await TaskService.deleteJob(jobId);
-      print('[UI] Successfully deleted Job ID: $jobId');
+Future<void> _deleteJob(int jobId, int addressId) async {
+  try {
+    await TaskService.deleteJob(jobId);
+    print('[UI] Successfully deleted Job ID: $jobId');
 
-      setState(() {
-        jobs[addressId] = jobs[addressId]!.where((job) => job['id'] != jobId).toList();
-        actualizations.remove(jobId);
-        if (jobs[addressId]!.isEmpty) {
-          jobs.remove(addressId);
-        }
-      });
+    setState(() {
+      jobs[addressId] = jobs[addressId]!.where((job) => job['id'] != jobId).toList();
+      actualizations.remove(jobId);
+      if (jobs[addressId]!.isEmpty) {
+        jobs.remove(addressId);
+      }
+    });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Job deleted successfully.')),
-      );
-    } catch (e) {
-      print('Error deleting Job ID: $jobId: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete job: $e')),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Job deleted successfully.')),
+    );
+
+    // Reload the current screen
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation1, animation2) => super.widget,
+        transitionDuration: Duration.zero, // No animation
+        reverseTransitionDuration: Duration.zero, // No animation
+      ),
+    );
+  } catch (e) {
+    print('Error deleting Job ID: $jobId: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to delete job: $e')),
+    );
   }
+}
 
  Future<void> _addTask(int addressId) async {
   final nameController = TextEditingController();
