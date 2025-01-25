@@ -2,6 +2,7 @@ using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using BuildBuddy.Data.Abstractions;
 using BuildBuddy.Data.Model;
+using Microsoft.AspNetCore.JsonPatch;
 
 
 namespace BuildBuddy.Application.Services
@@ -70,23 +71,38 @@ namespace BuildBuddy.Application.Services
             return jobDto;
         }
 
-        public async Task UpdateJobAsync(int id, JobDto jobDto)
+        public async Task PatchJobAsync(int id, JsonPatchDocument<JobDto> patchDoc)
         {
-            var task = await _dbContext.Jobs.GetByID(id);
+            var job = await _dbContext.Jobs.GetByID(id);
 
-            if (task != null)
+            if (job == null)
             {
-                task.Name = jobDto.Name;
-                task.Message = jobDto.Message;
-                task.StartTime = jobDto.StartTime;
-                task.EndTime = jobDto.EndTime;
-                task.AllDay = jobDto.AllDay;
-                task.AddressId = jobDto.AddressId;
-                
-                await _dbContext.SaveChangesAsync();
+                throw new KeyNotFoundException($"Job with ID {id} not found.");
             }
-        }
 
+            var jobDto = new JobDto
+            {
+                Id = job.Id,
+                Name = job.Name,
+                Message = job.Message,
+                StartTime = job.StartTime,
+                EndTime = job.EndTime,
+                AllDay = job.AllDay,
+                AddressId = job.AddressId ?? 0
+            };
+
+            patchDoc.ApplyTo(jobDto);
+
+            job.Name = jobDto.Name;
+            job.Message = jobDto.Message;
+            job.StartTime = jobDto.StartTime;
+            job.EndTime = jobDto.EndTime;
+            job.AllDay = jobDto.AllDay;
+            job.AddressId = jobDto.AddressId;
+
+            await _dbContext.SaveChangesAsync();
+        }
+        
         public async Task DeleteJobAsync(int id)
         {
             var job = await _dbContext.Jobs.GetByID(id);

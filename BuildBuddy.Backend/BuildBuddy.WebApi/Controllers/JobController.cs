@@ -2,6 +2,7 @@
 using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuildBuddy.WebApi.Controllers;
@@ -42,11 +43,18 @@ namespace BuildBuddy.WebApi.Controllers;
             var createdTask = await _jobService.CreateJobAsync(jobDto);
             return CreatedAtAction(nameof(GetTaskById), new { id = createdTask.Id }, createdTask);
         }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTask(int id, JobDto jobDto)
+        
+        [Authorize(Policy = "PowerLevel2And3")]
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchTask(int id, [FromBody] JsonPatchDocument<JobDto> patchDoc)
         {
-            await _jobService.UpdateJobAsync(id, jobDto);
+            if (patchDoc == null)
+            {
+                return BadRequest("Invalid patch document.");
+            }
+
+            await _jobService.PatchJobAsync(id, patchDoc);
+
             return NoContent();
         }
 
