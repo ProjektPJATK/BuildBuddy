@@ -24,7 +24,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(places);
         }
         
-        [Authorize(Policy = "PowerLevel2And3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpGet("{id}")]
         public async Task<ActionResult<AddressDto>> GetPlaceById(int id)
         {
