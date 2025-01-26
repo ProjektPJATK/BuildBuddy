@@ -46,6 +46,9 @@ class AddProjectDialog extends StatelessWidget {
     }
 
     bool _validateFields() {
+  final numberRegExp = RegExp(r'^[0-9]+$'); // Walidacja dla liczb
+  final postalCodeRegExp = RegExp(r'^[a-zA-Z0-9\s\-]+$'); // Walidacja dla kodu pocztowego
+
       if (teamNameController.text.isEmpty ||
           cityController.text.isEmpty ||
           countryController.text.isEmpty ||
@@ -57,6 +60,22 @@ class AddProjectDialog extends StatelessWidget {
         _showErrorDialog('All fields must be filled.');
         return false;
       }
+
+      if (!numberRegExp.hasMatch(houseNumberController.text)) {
+    _showErrorDialog('House Number must contain only numbers.');
+    return false;
+  }
+
+  if (!numberRegExp.hasMatch(localNumberController.text)) {
+    _showErrorDialog('Apartment Number must contain only numbers.');
+    return false;
+  }
+
+  if (!postalCodeRegExp.hasMatch(postalCodeController.text)) {
+    _showErrorDialog('Postal Code must contain only alphanumeric characters or special symbols.');
+    return false;
+  }
+  
       return true;
     }
 
