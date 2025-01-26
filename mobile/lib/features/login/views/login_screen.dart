@@ -16,6 +16,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool _isSessionChecked = false; // Flaga, aby sprawdzić sesję tylko raz
+
   @override
   void initState() {
     super.initState();
@@ -23,41 +25,45 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _checkUserSession() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
-  if (token != null) {
-    try {
-      // Endpoint do sprawdzenia ważności tokena
-      final response = await http.get(
-        Uri.parse('${AppConfig.getBaseUrl()}/api/Address'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
-      );
-      if (response.statusCode == 200) {
-        // Token jest ważny
-        Navigator.pushReplacementNamed(context, '/home');
-      } else if (response.statusCode == 401) {
-        // Token jest nieważny, wylogowanie
-        print('[SessionCheck] Token expired or invalid. Logging out.');
-        await prefs.clear();
-        Navigator.pushReplacementNamed(context, '/login');
-      } else {
-        // Inny błąd
-        print('[SessionCheck] Unexpected error: ${response.statusCode}');
-        Navigator.pushReplacementNamed(context, '/login');
+    if (_isSessionChecked) return; // Jeśli sesja była sprawdzana, zakończ
+
+    setState(() {
+      _isSessionChecked = true; // Ustaw flagę na true, aby uniknąć wielokrotnego sprawdzania
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    print("Sprawdzam sesję");
+
+    if (token != null) {
+      try {
+        // Endpoint do sprawdzenia ważności tokena
+        final response = await http.get(
+          Uri.parse('${AppConfig.getBaseUrl()}/api/Address'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+          },
+        );
+        if (response.statusCode == 200) {
+          // Token jest ważny
+          print("Token ważny");
+          Navigator.pushReplacementNamed(context, '/home');
+        } else if (response.statusCode == 401) {
+          // Token jest nieważny, wylogowanie
+          print('[SessionCheck] Token expired or invalid. Logging out.');
+          await prefs.clear();
+          // Nie wywołuj `pushReplacementNamed` na ekranie logowania, aby uniknąć pętli
+        } else {
+          // Inny błąd
+          print('[SessionCheck] Unexpected error: ${response.statusCode}');
+        }
+      } catch (e) {
+        // Obsługa błędu sieciowego
+        print('[SessionCheck] Network error: $e');
       }
-    } catch (e) {
-      // Obsługa błędu sieciowego
-      print('[SessionCheck] Network error: $e');
-      Navigator.pushReplacementNamed(context, '/login');
     }
-  } else {
-    // Brak tokena, przekierowanie na ekran logowania
-    Navigator.pushReplacementNamed(context, '/login');
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +117,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             content: Text(errorMessage),
                             backgroundColor: const Color.fromARGB(255, 43, 42, 42),
                           ),
-                          
                         );
                       }
                     },

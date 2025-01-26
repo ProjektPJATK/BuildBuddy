@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/shared/config/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../shared/themes/styles.dart';
 import '../bloc/home_bloc.dart';
@@ -9,6 +10,7 @@ import 'widgets/build_option.dart';
 import 'widgets/notification_item.dart';
 import 'package:mobile/shared/widgets/bottom_navigation.dart';
 import 'package:mobile/shared/state/app_state.dart' as appState;
+import 'package:http/http.dart' as http;
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -19,11 +21,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> unreadConversations = []; // Lista rozmów z nowymi wiadomościami
   bool hasNewMessages = false; // Flaga do wykrywania nowych wiadomości
+bool _isSessionChecked = false; 
 
   @override
   void initState() {
     super.initState();
     _initializeUser();
+    _checkUserSession();
     appState.currentPage = 'home';
   }
 
@@ -39,6 +43,47 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     _loadUnreadConversations();
+  }
+
+Future<void> _checkUserSession() async {
+    if (_isSessionChecked) return; // Jeśli sesja była sprawdzana, zakończ
+
+    setState(() {
+      _isSessionChecked = true; // Ustaw flagę na true, aby uniknąć wielokrotnego sprawdzania
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    print("Sprawdzam sesję");
+
+    if (token != null) {
+      try {
+        // Endpoint do sprawdzenia ważności tokena
+        final response = await http.get(
+          Uri.parse('${AppConfig.getBaseUrl()}/api/Address'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+          },
+        );
+        if (response.statusCode == 200) {
+          // Token jest ważny
+          print("Token ważny");
+        } else if (response.statusCode == 401) {
+          Navigator.pushReplacementNamed(context, '/');
+          print('[SessionCheck] Token expired or invalid. Logging out.');
+          await prefs.clear();
+          // Nie wywołuj `pushReplacementNamed` na ekranie logowania, aby uniknąć pętli
+        } else {
+          // Inny błąd
+          Navigator.pushReplacementNamed(context, '/');
+          print('[SessionCheck] Unexpected error: ${response.statusCode}');
+        }
+      } catch (e) {
+        // Obsługa błędu sieciowego
+        print('[SessionCheck] Network error: $e');
+      }
+    }
   }
 
   Future<void> _loadUnreadConversations() async {

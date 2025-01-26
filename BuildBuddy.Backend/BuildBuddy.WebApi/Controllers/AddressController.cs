@@ -17,6 +17,7 @@ namespace BuildBuddy.WebApi.Controllers;
         }
 
         [HttpGet]
+        [Authorize(Policy = "PowerLevelAll")]
         public async Task<ActionResult<IEnumerable<AddressDto>>> GetAllPlaces()
         {
             var places = await _addressService.GetAllAddressesAsync();
