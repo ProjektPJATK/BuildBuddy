@@ -14,19 +14,21 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   Future<void> _onFetchProfileFromCache(
-      FetchProfileFromCacheEvent event, Emitter<ProfileState> emit) async {
-    try {
-      final user = await userService.getCachedUserProfile();
-      if (user != null) {
-        final imageUrl = await userService.getUserImage(user.id);
-        emit(ProfileLoaded(user, imageUrl: imageUrl));
-      } else {
-        emit(ProfileError('No cached profile found.'));
-      }
-    } catch (e) {
-      emit(ProfileError('Error loading cached profile.'));
+    FetchProfileFromCacheEvent event, Emitter<ProfileState> emit) async {
+  emit(ProfileLoadingFromCache()); // Nowy stan
+  try {
+    final user = await userService.getCachedUserProfile();
+    if (user != null) {
+      final imageUrl = await userService.getUserImage(user.id);
+      emit(ProfileLoaded(user, imageUrl: imageUrl));
+    } else {
+      emit(ProfileError('No cached profile found.'));
     }
+  } catch (e) {
+    emit(ProfileError('Error loading cached profile.'));
   }
+}
+
 
   Future<void> _onFetchProfile(
       FetchProfileEvent event, Emitter<ProfileState> emit) async {

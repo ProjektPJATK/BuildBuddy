@@ -18,5 +18,6 @@ class ProfileError extends ProfileState {
 
   ProfileError(this.message);
 }
+class ProfileLoadingFromCache extends ProfileState {}
 
 class LogoutSuccess extends ProfileState {}

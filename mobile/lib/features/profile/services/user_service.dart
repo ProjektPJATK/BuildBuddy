@@ -158,15 +158,14 @@ class UserService {
 
   /// Pobierz URL zdjęcia użytkownika
   Future<String> getUserImage(int userId) async {
-    final url = AppConfig.getUserImageEndpoint(userId);
-    final token = await _getToken();
+  final url = AppConfig.getUserImageEndpoint(userId);
+  final token = await _getToken();
 
-    if (token == null) {
-      throw Exception('Token not found in preferences');
-    }
+  if (token == null) {
+    throw Exception('Token not found in preferences');
+  }
 
-    print('Fetching user image from: $url');
-
+  try {
     final response = await http.get(Uri.parse(url), headers: {
       'accept': 'application/json',
       'Authorization': 'Bearer $token',
@@ -175,8 +174,12 @@ class UserService {
     if (response.statusCode == 200) {
       final List<dynamic> images = jsonDecode(response.body);
       return images.isNotEmpty ? images[0] : '';
-    } else {
-      throw Exception('Failed to fetch user image.');
     }
+  } catch (e) {
+    print('Failed to fetch user image: $e');
   }
+
+  return ''; // Zwróć pusty string w przypadku błędu
+}
+
 }
