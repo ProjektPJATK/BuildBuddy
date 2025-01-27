@@ -12,20 +12,13 @@ class AppStyles {
     ),
   );
 
-  // Semi-transparent filter
   static const Color filterColor = Colors.black87;
-
-  // Semi-transparent white background
   static const Color transparentWhite = Colors.white70;
-
-  // Header style
   static const TextStyle headerStyle = TextStyle(
     color: Color.fromARGB(255, 49, 49, 49),
     fontSize: 18,
     fontWeight: FontWeight.bold,
   );
-
-  // General text style
   static const TextStyle textStyle = TextStyle(
     color: Colors.black,
     fontSize: 12,

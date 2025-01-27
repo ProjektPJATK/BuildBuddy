@@ -137,9 +137,9 @@ Widget _buildPlaceholderProfile() {
                       BlocBuilder<ProfileBloc, ProfileState>(
                           builder: (context, state) {
                             if (state is ProfileLoadingFromCache || (state is ProfileLoading && userProfile == null)) {
-                              return _buildPlaceholderProfile(); // Placeholder, gdy dane są ładowane z cache
+                              return _buildPlaceholderProfile();
                             } else if (state is ProfileLoaded) {
-                              userProfile = state.profile; // Cache profile
+                              userProfile = state.profile;
                               return _buildProfileContent(userProfile!);
                             } else if (state is LogoutSuccess) {
                               Future.microtask(() {
@@ -147,11 +147,11 @@ Widget _buildPlaceholderProfile() {
                               });
                               return const SizedBox.shrink();
                             } else if (state is ProfileError && userProfile == null) {
-                              return _buildErrorMessage(state.message); // Błąd tylko, gdy brak danych w cache
+                              return _buildErrorMessage(state.message); 
                             } else if (userProfile != null) {
-                              return _buildProfileContent(userProfile!); // Wyświetl dane z cache
+                              return _buildProfileContent(userProfile!);
                             }
-                            return const SizedBox.shrink(); // Domyślny pusty widok
+                            return const SizedBox.shrink();
                           },
                         )
 

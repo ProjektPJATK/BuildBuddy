@@ -205,8 +205,7 @@ void _showEditUserDialog(BuildContext context, int userId, int teamId) {
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
               ),
-            ),
-            
+            ), 
           ],
         ),
         actions: [
