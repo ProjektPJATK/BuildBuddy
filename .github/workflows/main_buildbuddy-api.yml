@@ -25,18 +25,37 @@ jobs:
         run: dotnet build BuildBuddy.Backend/BuildBuddy.Api.sln --configuration Release
         working-directory: ${{ github.workspace }}
 
+      - name: Build Web API
+        run: dotnet build BuildBuddy.Backend/BuildBuddy.WebApi/BuildBuddy.WebApi.csproj --configuration Release
+        working-directory: ${{ github.workspace }}
+
+      - name: Build SignalR
+        run: dotnet build BuildBuddy.Backend/BuildBuddy.SignalR/BuildBuddy.SignalR.csproj --configuration Release
+        working-directory: ${{ github.workspace }}
 
       - name: Restore dependencies
         run: dotnet restore BuildBuddy.Backend/BuildBuddy.WebApi/BuildBuddy.WebApi.csproj
 
-      - name: dotnet publish
-        run: dotnet publish BuildBuddy.Backend/BuildBuddy.WebApi/BuildBuddy.WebApi.csproj --configuration Release --output ./myapp
+      - name: Restore dependencies for SignalR
+        run: dotnet restore BuildBuddy.Backend/BuildBuddy.SignalR/BuildBuddy.SignalR.csproj
 
-      - name: Upload artifact for deployment job
+      - name: Publish Web API
+        run: dotnet publish BuildBuddy.Backend/BuildBuddy.WebApi/BuildBuddy.WebApi.csproj --configuration Release --output ./myapp-webapi
+
+      - name: Publish SignalR
+        run: dotnet publish BuildBuddy.Backend/BuildBuddy.SignalR/BuildBuddy.SignalR.csproj --configuration Release --output ./myapp-signalr
+
+      - name: Upload Web API artifact
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ./myapp
+          name: .net-webapi
+          path: ./myapp-webapi
+
+      - name: Upload SignalR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: .net-signalr
+          path: ./myapp-signalr
 
   deploy:
     runs-on: windows-latest
