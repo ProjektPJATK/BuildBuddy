@@ -16,8 +16,11 @@ class ChatHubService {
 
     _connection = HubConnectionBuilder()
     .withUrl(
-      url,
-      HttpConnectionOptions(),
+    url,
+    HttpConnectionOptions(
+      skipNegotiation: true, // Pomija etap negocjacji
+      transport: HttpTransportType.webSockets, // Wymusza WebSockets
+      ),
     )
     .withAutomaticReconnect()
     .build();
