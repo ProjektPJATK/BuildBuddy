@@ -25,37 +25,18 @@ jobs:
         run: dotnet build BuildBuddy.Backend/BuildBuddy.Api.sln --configuration Release
         working-directory: ${{ github.workspace }}
 
-      - name: Build Web API
-        run: dotnet build BuildBuddy.Backend/BuildBuddy.WebApi/BuildBuddy.WebApi.csproj --configuration Release
-        working-directory: ${{ github.workspace }}
-
-      - name: Build SignalR
-        run: dotnet build BuildBuddy.Backend/BuildBuddy.WebSocets/BuildBuddy.WebSocets.csproj --configuration Release
-        working-directory: ${{ github.workspace }}
 
       - name: Restore dependencies
-        run: dotnet restore BuildBuddy.Backend/BuildBuddy.WebApi/BuildBuddy.WebApi.csproj
+        run: dotnet restore BuildBuddy.WebApi/BuildBuddy.WebApi.csproj
 
-      - name: Restore dependencies for SignalR
-        run: dotnet restore BuildBuddy.Backend/BuildBuddy.WebSocets/BuildBuddy.WebSocets.csproj
+      - name: dotnet publish
+        run: dotnet publish BuildBuddy.WebApi/BuildBuddy.WebApi.csproj --configuration Release --output ./myapp
 
-      - name: Publish Web API
-        run: dotnet publish BuildBuddy.Backend/BuildBuddy.WebApi/BuildBuddy.WebApi.csproj --configuration Release --output ./myapp-webapi
-
-      - name: Publish SignalR
-        run: dotnet publish BuildBuddy.Backend/BuildBuddy.WebSocets/BuildBuddy.WebSocets.csproj --configuration Release --output ./myapp-signalr
-
-      - name: Upload Web API artifact
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: .net-webapi
-          path: ./myapp-webapi
-
-      - name: Upload SignalR artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: .net-signalr
-          path: ./myapp-signalr
+          name: .net-app
+          path: ./myapp
 
   deploy:
     runs-on: windows-latest
@@ -67,18 +48,11 @@ jobs:
       id-token: write #This is required for requesting the JWT
 
     steps:
-      - name: Download Web API artifact
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: .net-webapi
-          path: ./deploy-package
-          
-      - name: Download SignalR artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: .net-signalr
-          path: ./deploy-package
-      
+          name: .net-app
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -86,10 +60,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6F34B57B6A0446F5A572F148AC863A39 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2863652E4A8D45EA8A9EAD5397D9676F }}
 
-      - name: Deploy Web API + SignalR to Azure
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'BuildBuddy-api' 
+          app-name: 'BuildBuddy-api'
           slot-name: 'Production'
-          package: ./deploy-package
-          
+          package: .
