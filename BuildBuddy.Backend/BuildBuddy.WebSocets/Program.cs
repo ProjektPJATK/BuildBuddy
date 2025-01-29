@@ -16,18 +16,20 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.AllowAnyHeader()
+        policy
+            .WithOrigins("https://green-flower-058ace803.4.azurestaticapps.net") // ✅ Only allow frontend
+            .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials()
-            .SetIsOriginAllowed(_ => true);
+            .AllowCredentials();  // ✅ Required for WebSockets
     });
 });
 
 var app = builder.Build();
 
 app.UseRouting();
+
 app.UseCors("CorsPolicy");
 
-app.MapHub<ChatHub>("/Chat");
+app.MapHub<ChatHub>("/Chat").RequireCors("CorsPolicy");
 
 app.Run();
