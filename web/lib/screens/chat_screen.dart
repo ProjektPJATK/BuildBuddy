@@ -61,7 +61,7 @@ _fetchHistory();
 
     if (userId != null) {
       await _chatHubService.connect(
-        baseUrl: "http://127.0.0.1:5088",
+        baseUrl: "https://buildbuddy-websocets-hdgubwc5cebedhhz.northeurope-01.azurewebsites.net/",
         conversationId: widget.conversationId,
         userId: userId!,
         onMessageReceived: _onMessageReceived,

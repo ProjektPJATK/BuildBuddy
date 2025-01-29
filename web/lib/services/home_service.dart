@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:universal_html/html.dart' as html;
 
 class HomeService {
-  final String baseUrl = 'http://127.0.0.1:5159/api/User';
+  final String baseUrl = 'https://buildbuddy-api-fwezfydta4atcags.northeurope-01.azurewebsites.net/api/User';
 
   // Pobierz token z cookies
   String? _getAuthToken() {

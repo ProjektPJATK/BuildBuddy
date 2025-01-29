@@ -6,8 +6,8 @@ class AppConfig {
 
 static const String s3BaseUrl = "https://buildbuddybucket.s3.amazonaws.com";
 
-  static String getBaseUrl() => "http://$backendIP:$backendPort";
-  static String getChatUrl() => "http://$backendIP:$backendChatPort";
+  static String getBaseUrl() => "https://buildbuddy-api-fwezfydta4atcags.northeurope-01.azurewebsites.net/";
+  static String getChatUrl() => "https://buildbuddy-websocets-hdgubwc5cebedhhz.northeurope-01.azurewebsites.net/";
 
 
   static String getRoleEndpoint(int roleId) => "${getBaseUrl()}/api/Roles/$roleId";

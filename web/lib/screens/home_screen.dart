@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       // Pobranie danych użytkownika
       final userResponse = await http.get(
-        Uri.parse('http://localhost:5159/api/User/$userId'),
+        Uri.parse('https://buildbuddy-api-fwezfydta4atcags.northeurope-01.azurewebsites.net/api/User/$userId'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -60,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Pobranie zdjęcia użytkownika
         final imageResponse = await http.get(
-          Uri.parse('http://localhost:5159/api/User/$userId/image'),
+          Uri.parse('https://buildbuddy-api-fwezfydta4atcags.northeurope-01.azurewebsites.net/api/User/$userId/image'),
           headers: {'Authorization': 'Bearer $token'},
         );
 
@@ -96,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
 Future<void> _refreshImage(int userId, String token) async {
   try {
     final imageResponse = await http.get(
-      Uri.parse('http://localhost:5159/api/User/$userId/image'),
+      Uri.parse('https://buildbuddy-api-fwezfydta4atcags.northeurope-01.azurewebsites.net/api/User/$userId/image'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -134,7 +134,7 @@ Future<void> _refreshImage(int userId, String token) async {
     try {
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://localhost:5159/api/User/$userId/upload-image'),
+        Uri.parse('https://buildbuddy-api-fwezfydta4atcags.northeurope-01.azurewebsites.net/api/User/$userId/upload-image'),
       );
       request.headers['Authorization'] = 'Bearer $token';
 
