@@ -17,10 +17,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("CorsPolicy", policy =>
     {
         policy
-            .WithOrigins("https://green-flower-058ace803.4.azurestaticapps.net") // ✅ Only allow frontend
+            .WithOrigins("https://green-flower-058ace803.4.azurestaticapps.net")
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials();  // ✅ Required for WebSockets
+            .AllowCredentials();  
     });
 });
 
