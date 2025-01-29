@@ -19,7 +19,9 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("https://green-flower-058ace803.4.azurestaticapps.net")
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowCredentials()
+            .SetIsOriginAllowedToAllowWildcardSubdomains()
+            .SetIsOriginAllowed(origin => true);
     });
 });
 
