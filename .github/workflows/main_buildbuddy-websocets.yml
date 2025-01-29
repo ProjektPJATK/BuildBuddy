@@ -22,16 +22,21 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build BuildBuddy.Backend/BuildBuddy.Api.sln --configuration Release
+        working-directory: ${{ github.workspace }}
+
+
+      - name: Restore dependencies
+        run: dotnet restore BuildBuddy.Backend/BuildBuddy.WebSockets/BuildBuddy.WebSockets.csproj
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish BuildBuddy.Backend/BuildBuddy.WebApi/BuildBuddy.WebApi.csproj --configuration Release --output ./myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ./myapp
 
   deploy:
     runs-on: windows-latest
