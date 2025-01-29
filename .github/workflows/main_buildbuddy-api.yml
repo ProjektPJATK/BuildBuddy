@@ -67,10 +67,17 @@ jobs:
       id-token: write #This is required for requesting the JWT
 
     steps:
-      - name: Download artifact from build job
+      - name: Download Web API artifact
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
+          name: .net-webapi
+          path: ./deploy-package
+          
+      - name: Download SignalR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-signalr
+          path: ./deploy-package
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -79,11 +86,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6F34B57B6A0446F5A572F148AC863A39 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2863652E4A8D45EA8A9EAD5397D9676F }}
 
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
+      - name: Deploy Web API + SignalR to Azure
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'BuildBuddy-api'
+          app-name: 'BuildBuddy-api' 
           slot-name: 'Production'
-          package: .
+          package: ./deploy-package
           
