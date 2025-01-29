@@ -30,20 +30,20 @@ jobs:
         working-directory: ${{ github.workspace }}
 
       - name: Build SignalR
-        run: dotnet build BuildBuddy.Backend/BuildBuddy.SignalR/BuildBuddy.SignalR.csproj --configuration Release
+        run: dotnet build BuildBuddy.Backend/BuildBuddy.SignalR/BuildBuddy.WebSocets.csproj --configuration Release
         working-directory: ${{ github.workspace }}
 
       - name: Restore dependencies
         run: dotnet restore BuildBuddy.Backend/BuildBuddy.WebApi/BuildBuddy.WebApi.csproj
 
       - name: Restore dependencies for SignalR
-        run: dotnet restore BuildBuddy.Backend/BuildBuddy.SignalR/BuildBuddy.SignalR.csproj
+        run: dotnet restore BuildBuddy.Backend/BuildBuddy.SignalR/BuildBuddy.WebSocets.csproj
 
       - name: Publish Web API
         run: dotnet publish BuildBuddy.Backend/BuildBuddy.WebApi/BuildBuddy.WebApi.csproj --configuration Release --output ./myapp-webapi
 
       - name: Publish SignalR
-        run: dotnet publish BuildBuddy.Backend/BuildBuddy.SignalR/BuildBuddy.SignalR.csproj --configuration Release --output ./myapp-signalr
+        run: dotnet publish BuildBuddy.Backend/BuildBuddy.SignalR/BuildBuddy.WebSocets.csproj --configuration Release --output ./myapp-signalr
 
       - name: Upload Web API artifact
         uses: actions/upload-artifact@v4
