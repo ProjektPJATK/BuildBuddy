@@ -37,7 +37,7 @@ jobs:
         run: dotnet restore BuildBuddy.Backend/BuildBuddy.WebApi/BuildBuddy.WebApi.csproj
 
       - name: Restore dependencies for SignalR
-        run: dotnet restore BuildBuddy.Backend/BuildBuddy.SignalR/BuildBuddy.WebSocets.csproj
+        run: dotnet restore BuildBuddy.Backend/BuildBuddy.WebSocets/BuildBuddy.WebSocets.csproj
 
       - name: Publish Web API
         run: dotnet publish BuildBuddy.Backend/BuildBuddy.WebApi/BuildBuddy.WebApi.csproj --configuration Release --output ./myapp-webapi
