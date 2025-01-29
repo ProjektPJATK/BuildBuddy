@@ -27,6 +27,7 @@ jobs:
 
       - name: Build Flutter Web
         run: flutter build web
+        working-directory: .
 
       - name: Build And Deploy
         id: builddeploy
@@ -35,8 +36,8 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GREEN_FLOWER_058ACE803 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "build/web" # ✅ Poprawiona ścieżka
-          output_location: "build/web" # ✅ Poprawiona ścieżka
+          app_location: "build/web" 
+          output_location: "build/web"  
 
 
   close_pull_request_job:
