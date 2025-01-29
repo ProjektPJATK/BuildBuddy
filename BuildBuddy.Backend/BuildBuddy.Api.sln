@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildBuddy.Storage.Reposito
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildBuddy.Application.Abstractions", "BuildBuddy.Application.Abstractions\BuildBuddy.Application.Abstractions.csproj", "{DDFDD8CA-76E5-4A9D-A383-FB082ACF0208}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildBuddy.WebSocets", "BuildBuddy.WebSocets\BuildBuddy.WebSocets.csproj", "{97C2E5B7-AFC2-4CF6-91F2-4B0827EC9998}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{DDFDD8CA-76E5-4A9D-A383-FB082ACF0208}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDFDD8CA-76E5-4A9D-A383-FB082ACF0208}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDFDD8CA-76E5-4A9D-A383-FB082ACF0208}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97C2E5B7-AFC2-4CF6-91F2-4B0827EC9998}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97C2E5B7-AFC2-4CF6-91F2-4B0827EC9998}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97C2E5B7-AFC2-4CF6-91F2-4B0827EC9998}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97C2E5B7-AFC2-4CF6-91F2-4B0827EC9998}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
