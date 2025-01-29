@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class NotificationItem extends StatelessWidget {
   final String title;
+  final VoidCallback onClose; // Dodany parametr onClose
 
-  const NotificationItem({super.key, required this.title});
+  const NotificationItem({super.key, required this.title, required this.onClose});
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +24,10 @@ class NotificationItem extends StatelessWidget {
           title: Text(
             title,
             style: const TextStyle(fontSize: 12),
+          ),
+          trailing: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: onClose, // Użycie onClose
           ),
         ),
       ),

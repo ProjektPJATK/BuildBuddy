@@ -1,5 +1,6 @@
 import '../models/inventory_item_model.dart';
 
+/// Abstract base class for inventory states
 abstract class InventoryState {}
 
 /// State emitted while loading inventory data
@@ -23,6 +24,9 @@ class InventoryLoaded extends InventoryState {
     );
   }
 }
+
+/// State emitted when no inventory is found for the specified address
+class NoInventoryFound extends InventoryState {}
 
 /// State emitted when an error occurs
 class InventoryError extends InventoryState {

@@ -25,8 +25,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(items);
         }
 
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpGet("{id}")]
         public async Task<ActionResult<BuildingArticlesDto>> GetItemById(int id)
         {
@@ -38,8 +37,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(item);
         }
         
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpPost]
         public async Task<ActionResult<BuildingArticlesDto>> CreateItem(BuildingArticlesDto buildingArticlesDto)
         {
@@ -47,9 +45,8 @@ namespace BuildBuddy.WebApi.Controllers;
             return CreatedAtAction(nameof(GetItemById), new { id = createdItem.Id }, createdItem);
         }
 
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchItem(int id, JsonPatchDocument<BuildingArticlesDto> patchDocument)
         {
@@ -76,8 +73,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
 
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteItem(int id)
         {
@@ -85,8 +81,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpGet("address/{addressId}")]
         public async Task<IActionResult> GetItemsByPlace(int addressId)
         {

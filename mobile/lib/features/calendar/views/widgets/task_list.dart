@@ -21,13 +21,13 @@ class TaskList extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Zadania na: ${DateFormat('dd.MM.yyyy', 'pl_PL').format(selectedDay)}',
+            'Tasks for: ${DateFormat('dd.MM.yyyy', 'pl_PL').format(selectedDay)}',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Expanded(
             child: tasks.isEmpty
-                ? const Center(child: Text('Brak zadań na ten dzień.'))
+                ? const Center(child: Text('No task for today.'))
                 : ListView.builder(
                     itemCount: tasks.length,
                     itemBuilder: (context, index) {

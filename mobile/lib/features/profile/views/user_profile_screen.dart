@@ -30,17 +30,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   // Load user profile with cache check
   void _loadUserProfile() async {
-    final profileBloc = context.read<ProfileBloc>();
+  final profileBloc = context.read<ProfileBloc>();
 
-    // Check if the profile is already cached
-    if (userProfile == null) {
-      profileBloc.add(FetchProfileFromCacheEvent());
+  // Natychmiast załaduj dane z cache
+  profileBloc.add(FetchProfileFromCacheEvent());
 
-      Future.delayed(const Duration(milliseconds: 500), () {
-        profileBloc.add(FetchProfileEvent());
-      });
-    }
-  }
+  // Pobierz dane z API po krótkim opóźnieniu
+  Future.delayed(const Duration(milliseconds: 500), () {
+    profileBloc.add(FetchProfileEvent());
+  });
+}
+
 
   void _logout() {
     context.read<ProfileBloc>().add(LogoutEvent());
@@ -53,19 +53,68 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         user: profile,
         onSave: (updatedProfile) async {
           setState(() {
-            userProfile = updatedProfile;  // Update local cache
+            userProfile = updatedProfile; // Update local cache
           });
           context.read<ProfileBloc>().add(EditProfileEvent(updatedProfile));
 
           // Reload the user image after profile update
           final updatedImageUrl = await _userService.getUserImage(profile.id);
           setState(() {
-            userImageUrl = updatedImageUrl;  // Update image cache
+            userImageUrl = updatedImageUrl; // Update image cache
           });
         },
       ),
     );
   }
+
+Widget _buildPlaceholderProfile() {
+  return SingleChildScrollView(
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 30),
+          const CircleAvatar(
+            radius: 50,
+            child: CircularProgressIndicator(),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            width: 200,
+            height: 24,
+            color: Colors.grey[300],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            width: 150,
+            height: 16,
+            color: Colors.grey[300],
+          ),
+          const SizedBox(height: 20),
+          for (int i = 0; i < 3; i++) ...[
+            Container(
+              width: double.infinity,
+              height: 16,
+              color: Colors.grey[300],
+              margin: const EdgeInsets.symmetric(vertical: 8),
+            ),
+          ],
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () => context.read<ProfileBloc>().add(FetchProfileEvent()),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('RETRY'),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -84,32 +133,28 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 Expanded(
                   child: Container(
                     color: AppStyles.transparentWhite,
-                    child: BlocBuilder<ProfileBloc, ProfileState>(
-                      builder: (context, state) {
-                        if (state is ProfileLoading && userProfile == null) {
-                          return const Center(child: CircularProgressIndicator());
-                        } else if (state is ProfileLoaded) {
-                          userProfile = state.profile;  // Cache profile
-                          return _buildProfileContent(userProfile!);
-                        } else if (state is LogoutSuccess) {
-                          Future.microtask(() {
-                            Navigator.pushReplacementNamed(context, '/');
-                          });
-                          return const SizedBox.shrink();
-                        } else if (state is ProfileError && userProfile == null) {
-                          return Center(
-                            child: Text(
-                              state.message,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          );
-                        } else if (userProfile != null) {
-                          // If the cached profile exists, display it
-                          return _buildProfileContent(userProfile!);
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
+                    child: 
+                      BlocBuilder<ProfileBloc, ProfileState>(
+                          builder: (context, state) {
+                            if (state is ProfileLoadingFromCache || (state is ProfileLoading && userProfile == null)) {
+                              return _buildPlaceholderProfile();
+                            } else if (state is ProfileLoaded) {
+                              userProfile = state.profile;
+                              return _buildProfileContent(userProfile!);
+                            } else if (state is LogoutSuccess) {
+                              Future.microtask(() {
+                                Navigator.pushReplacementNamed(context, '/');
+                              });
+                              return const SizedBox.shrink();
+                            } else if (state is ProfileError && userProfile == null) {
+                              return _buildErrorMessage(state.message); 
+                            } else if (userProfile != null) {
+                              return _buildProfileContent(userProfile!);
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        )
+
                   ),
                 ),
                 BottomNavigation(onTap: (index) {
@@ -150,7 +195,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           child: Icon(Icons.person, size: 50),
                         );
                       } else {
-                        userImageUrl = snapshot.data;  // Cache the image URL
+                        userImageUrl = snapshot.data; // Cache the image URL
                         return CircleAvatar(
                           radius: 50,
                           backgroundImage: NetworkImage(userImageUrl!),
@@ -180,7 +225,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('EDYTUJ PROFIL'),
+                  child: const Text('EDIT PROFILE'),
                 ),
                 const SizedBox(width: 20),
                 ElevatedButton(
@@ -189,7 +234,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
                   ),
-                  child: const Text('WYLOGUJ SIĘ'),
+                  child: const Text('LOG OUT'),
                 ),
               ],
             ),
@@ -199,15 +244,39 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
+  Widget _buildErrorMessage(String message) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            message,
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _logout,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromARGB(255, 1, 149, 248),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('LOG OUT'),
+          ),
+        ],
+      ),
+    );
+  }
+
   // Load user image from cache or API
   Future<String> _loadUserImage(int userId) async {
     if (userImageUrl != null) return userImageUrl!;
     try {
       final imageUrl = await _userService.getUserImage(userId);
-      userImageUrl = imageUrl;  // Cache the result
+      userImageUrl = imageUrl; // Cache the result
       return imageUrl;
     } catch (e) {
-      return '';  // Return empty if loading fails
+      return ''; // Return empty if loading fails
     }
   }
 }

@@ -6,7 +6,7 @@ import '../../features/chat/bloc/chat_bloc.dart';
 class ChatHubService {
   late HubConnection _hubConnection;
   bool _connected = false;
-
+bool get isConnected => _connected;
   Future<void> connect({
   required String baseUrl,
   required int conversationId,

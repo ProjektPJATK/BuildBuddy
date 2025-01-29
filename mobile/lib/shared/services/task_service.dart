@@ -6,7 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
 
 class TaskService {
-  // Filter tasks by selected day
+  /// Pobierz token z SharedPreferences
+  static Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  /// Filtruj zadania według dnia
   static List<Map<String, dynamic>> getTasksForDay(
       List<Map<String, dynamic>> tasks, DateTime day) {
     return tasks.where((task) {
@@ -18,134 +24,187 @@ class TaskService {
     }).toList();
   }
 
-  // Fetch tasks for the logged-in user
+  /// Pobierz zadania dla zalogowanego użytkownika
   static Future<List<Map<String, dynamic>>> fetchTasks() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      int? userId = prefs.getInt('userId');
+      final userId = prefs.getInt('userId');
+      final token = await _getToken();
 
-      if (userId == null) {
-        throw Exception('User ID not found in SharedPreferences');
+      if (userId == null || token == null) {
+        throw Exception('User ID or token not found in SharedPreferences');
       }
 
       final response = await http.get(
         Uri.parse(AppConfig.getUserJobEndpoint(userId)),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
       );
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = json.decode(response.body);
-        List<Map<String, dynamic>> tasks =
-            jsonData.map<Map<String, dynamic>>((task) {
+        return jsonData.map<Map<String, dynamic>>((task) {
           return {
             'id': task['id'],
             'name': task['name'],
             'message': task['message'],
             'startTime': DateTime.parse(task['startTime']),
             'endTime': DateTime.parse(task['endTime']),
-            'jobId': task['id'],
+            'jobId': task['id'], // Reflects the correct jobId
           };
         }).toList();
-
-        print('Tasks successfully fetched: ${tasks.length}');
-        return tasks;
       } else {
-        print('Failed to load tasks. Status Code: ${response.statusCode}');
-        throw Exception('Failed to load tasks');
+        throw Exception('Failed to load tasks: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching tasks: $e');
       rethrow;
     }
   }
 
-  // Create a new task actualization and return jobId instead of actualizationId
-  static Future<int> createTaskActualization(int jobId, String message) async {
-    final url = Uri.parse('${AppConfig.getBaseUrl()}/api/JobActualization');
+  /// Pobierz aktualizacje zadania
+  static Future<List<Map<String, dynamic>>> fetchJobActualizations(int jobId) async {
+    try {
+      final token = await _getToken();
+      if (token == null) throw Exception('Token not found in SharedPreferences');
 
-    final body = jsonEncode({
-      "id": 0,
-      "message": message,
-      "isDone": false,
-      "jobImageUrl": [],
-      "jobId": jobId,
-    });
+      final response = await http.get(
+        Uri.parse(AppConfig.getJobActualizationEndpoint(jobId)),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
 
-    print('Creating task actualization for jobId: $jobId...');
-    print('Request Body: $body');
-
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: body,
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final jsonResponse = json.decode(response.body);
-      print('Task Actualization created successfully. ID: ${jsonResponse['id']}');
-      return jobId;
-    } else {
-      print('Failed to create task actualization.');
-      throw Exception('Failed to create task actualization');
-    }
-  }
-
-  // Upload images to the newly created actualization
-  static Future<void> uploadImages(int jobId, List<File> images) async {
-    print('Uploading ${images.length} images for Job ID: $jobId');
-
-    List<String> uploadedPaths = [];
-
-    for (File image in images) {
-      int retries = 0;
-      bool uploaded = false;
-
-      while (!uploaded && retries < 3) {
-        try {
-          print('Attempting to upload image: ${image.path} (Try: ${retries + 1}/3)');
-          final imagePath = await uploadImage(jobId, image);  // Get image path after upload
-          uploadedPaths.add(imagePath);  // Store image paths
-          print('Image uploaded successfully: ${image.path}');
-          uploaded = true;
-        } catch (e) {
-          retries++;
-          print('Failed to upload image: ${image.path}');
-          if (retries == 3) {
-            print('ERROR: Image upload failed after 3 attempts.');
-            throw Exception('Failed to upload image: ${image.path}');
-          }
-        }
+      if (response.statusCode == 200) {
+        List<dynamic> jsonData = json.decode(response.body);
+        return jsonData.map<Map<String, dynamic>>((actualization) {
+          return {
+            'id': actualization['id'],
+            'message': actualization['message'],
+            'isDone': actualization['isDone'],
+            'jobImageUrl': List<String>.from(actualization['jobImageUrl'] ?? []),
+            'jobId': actualization['jobId'],
+          };
+        }).toList();
+      } else {
+        throw Exception('Failed to fetch job actualizations: ${response.statusCode}');
       }
+    } catch (e) {
+      rethrow;
     }
-    print('All image paths uploaded: $uploadedPaths');
   }
 
-  // Upload a single image to the correct endpoint using jobId
-  static Future<String> uploadImage(int jobId, File image) async {
-    final url = Uri.parse(AppConfig.postAddImageEndpoint(jobId));
+  /// Utwórz nową aktualizację zadania
+  static Future<int> createTaskActualization(int jobId, String message) async {
+    try {
+      final token = await _getToken();
+      if (token == null) throw Exception('Token not found in SharedPreferences');
 
-    var request = http.MultipartRequest('POST', url);
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        'image',
-        image.path,
-        contentType: MediaType('image', 'jpeg'),
-      ),
-    );
+      final url = Uri.parse(AppConfig.postJobActualizationEndpoint());
+      final body = jsonEncode({
+        "id": 0,
+        "message": message,
+        "isDone": false,
+        "jobImageUrl": [],
+        "jobId": jobId,
+      });
 
-    print('Sending image to URL: $url');
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: body,
+      );
 
-    if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
-      print('Image uploaded successfully for Job ID: $jobId');
-      
-      // Simulate returning the uploaded image path (extract from response or generate)
-      return 'images/job/${image.path.split('/').last}';
-    } else {
-      print('Failed to upload image.');
-      throw Exception('Failed to upload image');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final jsonResponse = json.decode(response.body);
+        return jsonResponse['id'];
+      } else {
+        throw Exception('Failed to create task actualization.');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Wyślij obrazy do aktualizacji
+  static Future<void> uploadImages(int jobActualizationId, List<File> images) async {
+    for (File image in images) {
+      await uploadImage(jobActualizationId, image);
+    }
+  }
+
+  /// Wyślij pojedynczy obraz
+  static Future<String> uploadImage(int jobActualizationId, File image) async {
+    try {
+      final token = await _getToken();
+      if (token == null) throw Exception('Token not found in SharedPreferences');
+
+      final url = Uri.parse(AppConfig.postAddImageEndpoint(jobActualizationId));
+      var request = http.MultipartRequest('POST', url);
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image',
+          image.path,
+          contentType: MediaType('image', 'jpeg'),
+        ),
+      );
+
+      request.headers.addAll({
+        'Authorization': 'Bearer $token',
+      });
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
+        return 'images/job/${image.path.split('/').last}';
+      } else {
+        throw Exception('Failed to upload image.');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Pobierz zadania dla adresu
+  static Future<List<Map<String, dynamic>>> fetchTasksByAddress(
+      int userId, int addressId) async {
+    try {
+      final token = await _getToken();
+      if (token == null) throw Exception('Token not found in SharedPreferences');
+
+      final endpoint = AppConfig.getUserJobActualizationByAddress(userId, addressId);
+      final response = await http.get(
+        Uri.parse(endpoint),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        return jsonData.map<Map<String, dynamic>>((task) {
+          final startTime = DateTime.parse(task['startTime'] ?? '');
+          final endTime = DateTime.parse(task['endTime'] ?? '');
+          return {
+            'id': task['id'],
+            'addressId': task['addressId'],
+            'name': task['name'],
+            'message': task['message'],
+            'startTime': startTime,
+            'endTime': endTime,
+            'allDay': task['allDay'] ?? false,
+          };
+        }).toList();
+      } else {
+        throw Exception('Failed to fetch tasks: ${response.statusCode}');
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 }

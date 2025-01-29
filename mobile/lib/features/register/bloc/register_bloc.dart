@@ -2,6 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'register_event.dart';
 import 'register_state.dart';
 import '../services/register_service.dart';
+import '../models/user_model_register.dart';
+
 
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   RegisterBloc() : super(RegisterInitial()) {

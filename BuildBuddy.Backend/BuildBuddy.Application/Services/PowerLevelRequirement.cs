@@ -4,13 +4,14 @@ namespace BuildBuddy.Application.Services;
 
 public class PowerLevelRequirement : IAuthorizationRequirement
 {
-    public int PowerLevel { get; }
+    public int[] AllowedPowerLevels { get; }
 
-    public PowerLevelRequirement(int powerLevel)
+    public PowerLevelRequirement(params int[] allowedPowerLevels)
     {
-        PowerLevel = powerLevel;
+        AllowedPowerLevels = allowedPowerLevels;
     }
 }
+
 
 public class PowerLevelHandler : AuthorizationHandler<PowerLevelRequirement>
 {
@@ -20,7 +21,7 @@ public class PowerLevelHandler : AuthorizationHandler<PowerLevelRequirement>
 
         if (powerLevelClaim != null && int.TryParse(powerLevelClaim.Value, out int powerLevel))
         {
-            if (powerLevel >= requirement.PowerLevel)
+            if (requirement.AllowedPowerLevels.Contains(powerLevel))
             {
                 context.Succeed(requirement);
             }
@@ -28,5 +29,5 @@ public class PowerLevelHandler : AuthorizationHandler<PowerLevelRequirement>
 
         return Task.CompletedTask;
     }
-
 }
+

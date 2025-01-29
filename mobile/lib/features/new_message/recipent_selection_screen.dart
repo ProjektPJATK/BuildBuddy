@@ -1,8 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mobile/shared/themes/styles.dart';
 import 'package:mobile/shared/config/config.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RecipientSelectionScreen extends StatefulWidget {
   final List<String> initialSelectedRecipients;
@@ -16,11 +17,10 @@ class RecipientSelectionScreen extends StatefulWidget {
 
   @override
   _RecipientSelectionScreenState createState() =>
-      _RecipientSelectionScreenState();  // Poprawiona nazwa
+      _RecipientSelectionScreenState();
 }
 
-class _RecipientSelectionScreenState
-    extends State<RecipientSelectionScreen> {
+class _RecipientSelectionScreenState extends State<RecipientSelectionScreen> {
   List<String> allRecipients = [];
   List<String> displayedRecipients = [];
   List<String> selectedRecipients = [];
@@ -33,13 +33,29 @@ class _RecipientSelectionScreenState
     selectedRecipients = widget.initialSelectedRecipients;
   }
 
+  /// Get the token from SharedPreferences
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  /// Load recipients with `Authorization: Bearer <token>` header
   Future<void> _loadRecipients() async {
     List<String> recipients = [];
 
     try {
-      // Pobierz zespoły użytkownika
+      final token = await _getToken();
+      if (token == null) {
+        throw Exception('Token is missing. Please log in again.');
+      }
+
+      // Fetch user teams
       final teamsResponse = await http.get(
         Uri.parse(AppConfig.getTeamsEndpoint(widget.userId)),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
 
       if (teamsResponse.statusCode == 200) {
@@ -48,9 +64,13 @@ class _RecipientSelectionScreenState
         for (var team in teams) {
           final teamId = team['id'];
 
-          // Pobierz członków zespołu
+          // Fetch team members
           final membersResponse = await http.get(
             Uri.parse(AppConfig.getTeammatesEndpoint(teamId)),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
           );
 
           if (membersResponse.statusCode == 200) {
@@ -61,15 +81,20 @@ class _RecipientSelectionScreenState
                 recipients.add('${mate['name']} ${mate['surname']}');
               }
             }
+          } else {
+            print('Error fetching teammates for teamId $teamId: ${membersResponse.statusCode}');
           }
         }
+      } else {
+        print('Error fetching teams: ${teamsResponse.statusCode}');
+        throw Exception('Failed to fetch teams: ${teamsResponse.body}');
       }
     } catch (e) {
-      print('Błąd podczas pobierania odbiorców: $e');
+      print('Error during recipient loading: $e');
     }
 
     setState(() {
-      allRecipients = recipients.toSet().toList(); // Unikalne imiona
+      allRecipients = recipients.toSet().toList(); // Unique names
       allRecipients.sort();
       displayedRecipients = List.from(allRecipients);
     });
@@ -91,7 +116,7 @@ class _RecipientSelectionScreenState
         children: [
           Container(decoration: AppStyles.backgroundDecoration),
           Container(color: AppStyles.filterColor.withOpacity(0.75)),
-          Container(color: AppStyles.transparentWhite),  // Tło na całą stronę
+          Container(color: AppStyles.transparentWhite),
           Column(
             children: [
               Padding(

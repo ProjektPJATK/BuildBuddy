@@ -14,12 +14,18 @@ class TaskItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final String title = task['name'] ?? 'Brak nazwy';
     final String description = task['message'] ?? 'Brak opisu';
-    
-    // Parse DateTime and Format
-    final DateTime startTime = DateTime.parse(task['startTime']);
-    final DateTime endTime = DateTime.parse(task['endTime']);
-    final String formattedStartTime = DateFormat('yyyy-MM-dd HH:mm').format(startTime);
-    final String formattedEndTime = DateFormat('yyyy-MM-dd HH:mm').format(endTime);
+
+    // Parse DateTime and Format with Error Handling
+    String formattedStartTime = 'Invalid Date';
+    String formattedEndTime = 'Invalid Date';
+    try {
+      final DateTime startTime = DateTime.parse(task['startTime']);
+      final DateTime endTime = DateTime.parse(task['endTime']);
+      formattedStartTime = DateFormat('yyyy-MM-dd HH:mm').format(startTime);
+      formattedEndTime = DateFormat('yyyy-MM-dd HH:mm').format(endTime);
+    } catch (e) {
+      print('Error parsing startTime or endTime for task: $task, Error: $e');
+    }
 
     final int? taskId = task['id'];
 
@@ -36,7 +42,7 @@ class TaskItem extends StatelessWidget {
                 description: description,
                 startTime: formattedStartTime,
                 endTime: formattedEndTime,
-                taskDate: formattedStartTime.split(' ')[0],  // Extract date
+                taskDate: formattedStartTime.split(' ')[0], // Extract date
                 taskId: taskId,
               ),
             ),
@@ -78,7 +84,7 @@ class TaskItem extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Godziny: $formattedStartTime - $formattedEndTime',
+                    'Hours: $formattedStartTime - $formattedEndTime',
                     style: const TextStyle(fontSize: 12, color: Colors.black),
                   ),
                 ],

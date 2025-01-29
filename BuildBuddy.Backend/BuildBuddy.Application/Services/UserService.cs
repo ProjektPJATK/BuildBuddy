@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using BuildBuddy.Application.Abstractions;
@@ -116,13 +116,24 @@ namespace BuildBuddy.Application.Services
                 Mail = userDto.Mail,
                 Password = userDto.Password,
                 UserImageUrl = userDto.UserImageUrl,
-                PreferredLanguage = userDto.PreferredLanguage
+                PreferredLanguage = userDto.PreferredLanguage,
             };
+
+            var role = await _dbContext.Roles.GetAsync(filter: r => r.PowerLevel == 1);
+            var roleEntity = role.FirstOrDefault();
+            if (roleEntity != null)
+            {
+                user.RoleId = roleEntity.Id;
+            }
 
             _dbContext.Users.Insert(user);
             await _dbContext.SaveChangesAsync();
 
             userDto.Id = user.Id;
+            userDto.RoleId = user.RoleId ?? 0;
+            userDto.RoleName = roleEntity?.Name ?? "No Role";
+            userDto.PowerLevel = roleEntity?.PowerLevel ?? 0;
+
             return userDto;
         }
 
@@ -247,7 +258,7 @@ namespace BuildBuddy.Application.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(2),
+                Expires = DateTime.UtcNow.AddHours(8),
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Issuer"],
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -256,7 +267,5 @@ namespace BuildBuddy.Application.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-
-
     }
 }

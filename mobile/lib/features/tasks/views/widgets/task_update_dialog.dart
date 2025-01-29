@@ -48,7 +48,7 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
   Future<void> _saveUpdate() async {
     if (_commentController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Komentarz nie może być pusty.')),
+        const SnackBar(content: Text('comment can not be empty.')),
       );
       return;
     }
@@ -69,12 +69,12 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
 
       widget.onSave(_commentController.text, _selectedImages);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Aktualizacja zapisana pomyślnie.')),
+        const SnackBar(content: Text('Actualization is saved.')),
       );
     } catch (e) {
       print('Failed to save update: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Błąd zapisu aktualizacji.')),
+        const SnackBar(content: Text('Error while saving.')),
       );
     } finally {
       setState(() {
@@ -90,7 +90,7 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
       backgroundColor: Colors.black.withOpacity(0.8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: const Text(
-        'Dodaj Aktualizację',
+        'Make update',
         style: TextStyle(color: Colors.white),
       ),
       content: SingleChildScrollView(
@@ -100,7 +100,7 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
               controller: _commentController,
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
-                hintText: 'Dodaj komentarz',
+                hintText: 'add comment',
                 hintStyle: const TextStyle(color: Colors.white70),
                 filled: true,
                 fillColor: Colors.grey.withOpacity(0.2),
@@ -133,7 +133,7 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
                     child: const FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        'Dodaj Zdjęcia',
+                        'Add photo',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -152,7 +152,7 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
                     child: const FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        'Zrób Zdjęcie',
+                        'Chose photo',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -167,7 +167,7 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text(
-            'Anuluj',
+            'Cancel',
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -180,7 +180,7 @@ class _TaskUpdateDialogState extends State<TaskUpdateDialog> {
             ),
           ),
           child: Text(
-            _isLoading ? 'Zapisywanie...' : 'Zapisz',
+            _isLoading ? 'Saving...' : 'Save',
             style: const TextStyle(color: Colors.white),
           ),
         ),

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/features/construction_inventory/models/inventory_item_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../blocs/inventory_bloc.dart';
 import '../blocs/inventory_event.dart';
 import '../blocs/inventory_state.dart';
-import '../models/inventory_item_model.dart';
+
 import '../../../shared/widgets/bottom_navigation.dart';
 import '../../../shared/themes/styles.dart';
 import 'widgets/edit_item_dialog.dart';
@@ -25,33 +26,21 @@ class _InventoryScreenState extends State<InventoryScreen> {
     _loadInventory();
   }
 
- void _loadInventory() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
-  final addressIdString = prefs.getString('addressId');
+  void _loadInventory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final int? addressId = prefs.getInt('addressId');
 
-  print("Token: $token");
-  print("address ID (string): $addressIdString");
-
-  if (token != null && addressIdString != null) {
-    final addressId = int.tryParse(addressIdString);
-    print("address ID (parsed): $addressId");
-
-    if (addressId != null) {
+    if (token != null && addressId != null) {
       context.read<InventoryBloc>().add(
             LoadInventoryEvent(token: token, addressId: addressId),
           );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid address ID in cache')),
+        const SnackBar(content: Text('Failed to load inventory: Missing data')),
       );
     }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Failed to load inventory: Missing data')),
-    );
   }
-}
 
   void _showEditItemDialog(BuildContext context, InventoryItemModel item) {
     showDialog(
@@ -78,14 +67,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Layers
           Container(
             decoration: AppStyles.backgroundDecoration,
           ),
           Container(
             color: AppStyles.filterColor.withOpacity(0.75),
           ),
-          // Main Content
           Positioned(
             top: 0,
             left: 0,
@@ -93,19 +80,17 @@ class _InventoryScreenState extends State<InventoryScreen> {
             bottom: 0,
             child: Column(
               children: [
-                // Header
                 Container(
                   color: AppStyles.transparentWhite,
                   width: double.infinity,
                   padding:
                       const EdgeInsets.symmetric(vertical: 20, horizontal: 16.0),
                   child: Text(
-                    'Inwentarz budowy',
+                    'Construction inventory',
                     style: AppStyles.headerStyle
                         .copyWith(color: Colors.black, fontSize: 22),
                   ),
                 ),
-                // Search Bar
                 Container(
                   color: AppStyles.transparentWhite,
                   padding:
@@ -118,7 +103,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           .add(FilterInventoryEvent(query: query));
                     },
                     decoration: InputDecoration(
-                      hintText: 'Wyszukaj przedmioty...',
+                      hintText: 'Search building articles...',
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.9),
                       border: OutlineInputBorder(
@@ -129,7 +114,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     ),
                   ),
                 ),
-                // Inventory List
                 Expanded(
                   child: Container(
                     color: AppStyles.transparentWhite,
@@ -141,6 +125,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
                         } else if (state is InventoryError) {
                           return const Center(
                               child: Text('Error fetching inventory items'));
+                        } else if (state is NoInventoryFound) {
+                          return const Center(
+                              child: Text('No items found for the specified address.'));
                         } else if (state is InventoryLoaded) {
                           return ListView.builder(
                             padding: const EdgeInsets.all(8),
@@ -152,7 +139,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                                 child: ListTile(
                                   title: Text(item.name),
                                   subtitle: Text(
-                                    'Zakupione: ${item.purchased} | Pozostałe: ${item.remaining}',
+                                    'Bought: ${item.purchased}${item.metrics}  Remaining: ${item.remaining}${item.metrics}',
                                   ),
                                   trailing: IconButton(
                                     icon: Icon(Icons.edit,
@@ -171,7 +158,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     ),
                   ),
                 ),
-                // Bottom Navigation
                 BottomNavigation(
                   onTap: (index) {
                     if (index == 0) {
@@ -180,7 +166,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       Navigator.pushNamed(context, '/home');
                     }
                   },
-                  
                 ),
               ],
             ),

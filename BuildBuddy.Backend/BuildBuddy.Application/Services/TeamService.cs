@@ -114,6 +114,23 @@ namespace BuildBuddy.Application.Services
                     _dbContext.Conversations.Delete(conversation);
                 }
 
+                var jobs = await _dbContext.Jobs.GetAsync(filter: j => j.Id == id);
+                foreach (var job in jobs)
+                {
+                    var jobActualizations = await _dbContext.JobActualizations.GetAsync(filter: ja => ja.JobId == job.Id);
+                    foreach (var jobActualization in jobActualizations)
+                    {
+                        _dbContext.JobActualizations.Delete(jobActualization);
+                    }
+                    _dbContext.Jobs.Delete(job);
+                }
+
+                var address = await _dbContext.Addresses.GetByID(team.AddressId.Value);
+                if (address != null)
+                {
+                    _dbContext.Addresses.Delete(address);
+                }
+
                 _dbContext.Teams.Delete(team);
                 await _dbContext.SaveChangesAsync();
             }

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:mobile/features/profile/models/user_model.dart';
+import '../models/user_model_register.dart';
+
 
 
 abstract class RegisterEvent extends Equatable {

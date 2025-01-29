@@ -5,7 +5,8 @@ namespace BuildBuddy.Application.Abstractions;
 public interface IJobActualizationService
 {
     Task<IEnumerable<JobActualizationDto>> GetAllJobsActualizationAsync();
-    Task<JobActualizationDto> GetJobActualizationByIdAsync(int id);
+   Task<List<JobActualizationDto>> GetJobActualizationByIdAsync(int id);
+
     Task<JobActualizationDto> CreateJobActualizationAsync(JobActualizationDto conversationDto);
     Task UpdateJobActualizationAsync(int id, JobActualizationDto conversationDto);
     Task DeleteJobActualizationAsync(int id);

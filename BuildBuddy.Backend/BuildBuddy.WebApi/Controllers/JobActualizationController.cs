@@ -23,9 +23,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(tasksActualization);
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpGet("{id}")]
         public async Task<ActionResult<JobActualizationDto>> GetTaskActualizationById(int id)
         {
@@ -37,9 +35,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(taskActualization);
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpPost]
         public async Task<ActionResult<JobActualizationDto>> CreateTaskActualization(JobActualizationDto jobActualizationDto)
         {
@@ -62,9 +58,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpPost("{jobId}/add-image")]
         public async Task<IActionResult> AddTaskImage(int jobId, IFormFile image)
         {
@@ -73,9 +67,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpDelete("{jobId}/delete-image")]
         public async Task<IActionResult> DeleteTaskImage(int jobId, [FromQuery] string imageUrl)
         {
@@ -83,9 +75,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpGet("{jobId}/images")]
         public async Task<IActionResult> GetTaskImages(int jobId)
         {
@@ -97,8 +87,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(images);
         }
         
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpPost("{id}/toggle-status")]
         public async Task<IActionResult> ToggleJobActualizationStatus(int id)
         {

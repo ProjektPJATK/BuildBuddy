@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class EditItemDialog extends StatefulWidget {
-  final int remaining;
-  final int purchased;
-  final ValueChanged<int> onSave;
+  final double remaining;
+  final double purchased;
+  final ValueChanged<double> onSave;
 
   const EditItemDialog({
     super.key,
@@ -69,7 +69,7 @@ class _EditItemDialogState extends State<EditItemDialog> {
         ),
         ElevatedButton(
           onPressed: () {
-            final newRemaining = int.tryParse(_remainingController.text);
+            final newRemaining = double.tryParse(_remainingController.text);
             if (newRemaining == null || newRemaining > widget.purchased) {
               // Show error if input is invalid
               ScaffoldMessenger.of(context).showSnackBar(

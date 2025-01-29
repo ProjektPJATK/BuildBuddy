@@ -24,8 +24,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(roles);
         }
 
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpGet("{id}")]
         public async Task<ActionResult<RoleDto>> GetRoleById(int id)
         {
@@ -82,7 +81,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
-        //[Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel3")]
         [HttpPost("{roleId}/users/{userId}")]
         public async Task<IActionResult> AssignRoleToUser(int roleId, int userId)
         {

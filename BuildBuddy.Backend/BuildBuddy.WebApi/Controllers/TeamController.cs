@@ -50,7 +50,8 @@ namespace BuildBuddy.WebApi.Controllers;
             await _teamService.UpdateTeamAsync(id, teamDto);
             return NoContent();
         }
-
+        
+        [Authorize(Policy = "PowerLevel3")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTeam(int id)
         {
@@ -74,8 +75,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpGet("{teamId}/users")]
         public async Task<IActionResult> GetUsersByTeamId(int teamId)
         {

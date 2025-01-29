@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobile/features/profile/models/user_model.dart';
 import 'package:mobile/features/register/views/widgets/phone_number_field.dart';
 import 'package:mobile/features/register/views/widgets/styled_text_field.dart';
+import 'package:mobile/shared/localization/language_list.dart';
 import 'package:mobile/shared/themes/styles.dart';
 import '../bloc/register_bloc.dart';
 import '../bloc/register_event.dart';
 import '../bloc/register_state.dart';
+import '../models/user_model_register.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -19,16 +20,16 @@ class RegisterScreen extends StatelessWidget {
         listener: (context, state) {
           if (state is RegisterSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Rejestracja zakończona pomyślnie!')),
+              const SnackBar(content: Text('Registration successful!')),
             );
             Navigator.pop(context);
           } else if (state is RegisterFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error)),
+              SnackBar(content: Text('Registration failed: ${state.error}')),
             );
           }
         },
-        child: RegisterForm(),
+        child: const RegisterForm(),
       ),
     );
   }
@@ -48,8 +49,11 @@ class _RegisterFormState extends State<RegisterForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _telephoneNrController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
   String _selectedCountryCode = '+48';
+  String? _selectedLanguageCode;
+
+  // Password validation regex
+  final _passwordRegex = RegExp(r'^(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*\d)(?=.*[A-Z]).{8,}$');
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +73,7 @@ class _RegisterFormState extends State<RegisterForm> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 50),
-                  const Text('Zarejestruj się', style: AppStyles.formTitleStyle),
+                  const Text('Register', style: AppStyles.formTitleStyle),
                   const SizedBox(height: 30),
                   Form(
                     key: _formKey,
@@ -77,17 +81,17 @@ class _RegisterFormState extends State<RegisterForm> {
                       children: [
                         StyledTextField(
                           controller: _nameController,
-                          labelText: 'Imię',
+                          labelText: 'Name',
                         ),
                         const SizedBox(height: 12),
                         StyledTextField(
                           controller: _surnameController,
-                          labelText: 'Nazwisko',
+                          labelText: 'Surname',
                         ),
                         const SizedBox(height: 12),
                         StyledTextField(
                           controller: _emailController,
-                          labelText: 'Adres e-mail',
+                          labelText: 'E-mail',
                           keyboardType: TextInputType.emailAddress,
                         ),
                         const SizedBox(height: 12),
@@ -103,39 +107,94 @@ class _RegisterFormState extends State<RegisterForm> {
                         const SizedBox(height: 12),
                         StyledTextField(
                           controller: _passwordController,
-                          labelText: 'Hasło',
+                          labelText: 'Password',
                           obscureText: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Password is required';
+                            } else if (!_passwordRegex.hasMatch(value)) {
+                              return 'The password must contain at least 8 characters, including 1 digit, 1 special character, and 1 uppercase letter.';
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 12),
-                        StyledTextField(
-                          controller: _confirmPasswordController,
-                          labelText: 'Powtórz hasło',
-                          obscureText: true,
+                        TextField(
+                          readOnly: true,
+                          onTap: () async {
+                            final selectedLanguage = await showModalBottomSheet<String>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Container(
+                                  color: const Color.fromARGB(181, 0, 0, 0),
+                                  child: ListView(
+                                    children: languages.map((lang) {
+                                      return ListTile(
+                                        title: Text(
+                                          lang['name']!,
+                                          style: const TextStyle(color: Colors.white),
+                                        ),
+                                        onTap: () {
+                                          Navigator.pop(context, lang['code']);
+                                        },
+                                      );
+                                    }).toList(),
+                                  ),
+                                );
+                              },
+                            );
+                            if (selectedLanguage != null) {
+                              setState(() {
+                                _selectedLanguageCode = selectedLanguage;
+                              });
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Choose preferred language',
+                            labelStyle: TextStyle(color: _selectedLanguageCode == null ? Colors.grey : Colors.white),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: const BorderSide(color: Colors.grey),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: const BorderSide(color: Colors.white),
+                            ),
+                          ),
+                          style: const TextStyle(color: Colors.white),
+                          controller: TextEditingController(
+                            text: _selectedLanguageCode != null
+                                ? languages.firstWhere((lang) => lang['code'] == _selectedLanguageCode)['name']
+                                : '',
+                          ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
-                          style: AppStyles.buttonStyle(),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              final user = User(
-                                id: 0,  // Domyślne id, bo serwer je nadaje automatycznie
-                                name: _nameController.text,
-                                surname: _surnameController.text,
-                                email: _emailController.text,
-                                telephoneNr: '$_selectedCountryCode${_telephoneNrController.text}',
-                                password: _passwordController.text,
-                                userImageUrl: "string",  // Opcjonalne
-                                preferredLanguage: "pl",    // Opcjonalne
-                              );
+                    style: AppStyles.buttonStyle(),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        final user = User(
+                          id: 0,
+                          name: _nameController.text,
+                          surname: _surnameController.text,
+                          mail: _emailController.text,
+                          telephoneNr: '$_selectedCountryCode${_telephoneNrController.text}',
+                          password: _passwordController.text,
+                          userImageUrl: "string",
+                          preferredLanguage: _selectedLanguageCode ?? "en",
+                          roleId: 0, // Default role assignment
+                          roleName: "string", // Default role name
+                          powerLevel: 0, // Default power level
+                        );
 
-                              context.read<RegisterBloc>().add(RegisterSubmitted(user));
-                            }
-                          },
-                          child: const Text('ZAREJESTRUJ'),
-                        )
+                        context.read<RegisterBloc>().add(RegisterSubmitted(user));
+                      }
+                    },
+                    child: const Text('REGISTER'),
+                  ),
                 ],
               ),
             ),

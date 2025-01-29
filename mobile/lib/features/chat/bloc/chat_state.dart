@@ -15,10 +15,16 @@ class ChatLoaded extends ChatState {
   ChatLoaded(this.messages) {
     print("[ChatState] ChatLoaded with ${messages.length} messages");
   }
+
+  @override
+  List<Object?> get props => [messages];
 }
 
 class ChatError extends ChatState {
   final String errorMessage;
 
   ChatError(this.errorMessage);
+
+  @override
+  List<Object?> get props => [errorMessage];
 }

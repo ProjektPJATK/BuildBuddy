@@ -72,7 +72,7 @@ class DisplayImageCarousel extends StatelessWidget {
     return imageUrls.isEmpty
         ? const Center(
             child: Text(
-              'Brak zdjęć do wyświetlenia',
+              'No photo to display',
               style: TextStyle(color: Colors.white70),
             ),
           )

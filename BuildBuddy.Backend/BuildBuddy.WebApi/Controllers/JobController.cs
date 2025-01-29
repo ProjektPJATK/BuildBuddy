@@ -2,6 +2,7 @@
 using BuildBuddy.Application.Abstractions;
 using BuildBuddy.Contract;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuildBuddy.WebApi.Controllers;
@@ -35,24 +36,29 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(task);
         }
 
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpPost]
         public async Task<ActionResult<JobDto>> CreateTask(JobDto jobDto)
         {
             var createdTask = await _jobService.CreateJobAsync(jobDto);
             return CreatedAtAction(nameof(GetTaskById), new { id = createdTask.Id }, createdTask);
         }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTask(int id, JobDto jobDto)
+        
+        [Authorize(Policy = "PowerLevel2And3")]
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchTask(int id, [FromBody] JsonPatchDocument<JobDto> patchDoc)
         {
-            await _jobService.UpdateJobAsync(id, jobDto);
+            if (patchDoc == null)
+            {
+                return BadRequest("Invalid patch document.");
+            }
+
+            await _jobService.PatchJobAsync(id, patchDoc);
+
             return NoContent();
         }
 
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(int id)
         {
@@ -60,9 +66,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return NoContent();
         }
         
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetJobsByUserId(int userId)
         {
@@ -73,8 +77,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(tasks);
         }
 
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpPost("assign")]
         public async Task<IActionResult> AssignTaskToUser(int taskId, int userId)
         {
@@ -91,9 +94,8 @@ namespace BuildBuddy.WebApi.Controllers;
                 return BadRequest(ex.Message);
             }
         }
-        [Authorize(Policy = "PowerLevel1")]
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        
+        [Authorize(Policy = "PowerLevelAll")]
         [HttpGet("user/{userId}/address/{addressId}")]
         public async Task<IActionResult> GetJobsByUserIdAndAddressId(int userId, int addressId)
         {
@@ -104,8 +106,8 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(jobs);
         }
         
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpGet("address/{addressId}")]
         public async Task<IActionResult> GetJobsByAddressId(int addressId)
         {
@@ -116,8 +118,7 @@ namespace BuildBuddy.WebApi.Controllers;
             return Ok(jobs);
         }
         
-        [Authorize(Policy = "PowerLevel2")]
-        [Authorize(Policy = "PowerLevel3")]
+        [Authorize(Policy = "PowerLevel2And3")]
         [HttpDelete("{jobId}/user/{userId}")]
         public async Task<IActionResult> RemoveUserFromJob(int jobId, int userId)
         {

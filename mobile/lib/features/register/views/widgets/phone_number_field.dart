@@ -53,7 +53,7 @@ class PhoneNumberField extends StatelessWidget {
             controller: controller,
             keyboardType: TextInputType.phone,
             style: const TextStyle(color: Colors.white),
-            decoration: AppStyles.inputFieldStyle(hintText: 'Numer telefonu'),
+            decoration: AppStyles.inputFieldStyle(hintText: 'Telephone number'),
             validator: Validator.validatePhoneNumber,  // Użycie walidatora
           ),
         ),
