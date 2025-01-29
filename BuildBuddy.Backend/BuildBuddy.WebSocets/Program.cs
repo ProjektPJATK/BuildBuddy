@@ -16,12 +16,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.AllowAnyHeader()
+        policy.WithOrigins("https://green-flower-058ace803.4.azurestaticapps.net")
+            .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials()
-            .SetIsOriginAllowed(_ => true);
+            .AllowCredentials();
     });
 });
+
 
 var app = builder.Build();
 
