@@ -31,11 +31,5 @@ public class ChatController : ControllerBase
         await _chatService.ResetReadStatus(conversationId, userId);
         return Ok();
     }
-    
-    [HttpGet]
-    [Route("Test")]
-    public IActionResult Test()
-    {
-        return Ok("Test");
-    }
+  
 }
