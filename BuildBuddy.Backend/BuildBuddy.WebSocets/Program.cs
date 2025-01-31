@@ -16,7 +16,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.WithOrigins("https://green-flower-058ace803.4.azurestaticapps.net")
+        policy.WithOrigins("https://green-flower-058ace803.4.azurestaticapps.net", "http://localhost:64171")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()
