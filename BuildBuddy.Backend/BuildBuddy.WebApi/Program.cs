@@ -22,7 +22,7 @@ builder.Services.AddCors(options =>
         policy.AllowAnyOrigin()
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .SetIsOriginAllowed(_ => true) // Obsługuje wszystkie originy
+              .SetIsOriginAllowed(_ => true)
               .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
     });
 });
