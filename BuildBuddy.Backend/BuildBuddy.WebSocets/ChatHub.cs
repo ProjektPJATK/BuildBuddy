@@ -38,7 +38,7 @@ public class ChatHub : Hub
             await Clients.Caller.SendAsync(
                 "ReceiveMessage", 
                 senderId,
-                text,
+                text ?? string.Empty,
                 message.DateTimeDate
                 );
     }
@@ -46,7 +46,7 @@ public class ChatHub : Hub
     public async Task FetchHistory(int conversationId, int userId)
     {
         var messages = await _chatService.GetChatHistory(conversationId, userId);
-        await Clients.Caller.SendAsync("ReceiveHistory", messages);
+        await Clients.Caller.SendAsync("ReceiveHistory", messages ?? new List<object>());
     }
     
     public override async Task OnConnectedAsync()

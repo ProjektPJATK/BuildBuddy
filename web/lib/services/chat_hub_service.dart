@@ -18,7 +18,7 @@ class ChatHubService {
     .withUrl(
     url,
     HttpConnectionOptions(
-      skipNegotiation: true,
+      skipNegotiation: false,
       transport: HttpTransportType.webSockets,),
     )
     .withAutomaticReconnect()
