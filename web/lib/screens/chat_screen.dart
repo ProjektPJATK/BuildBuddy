@@ -339,6 +339,13 @@ Future<void> _sendMessage(String text) async {
                         fillColor: Colors.transparent,
                       ),
                       style: const TextStyle(color: Colors.black),
+                      onSubmitted: (text) {
+                        final trimmedText = text.trim();
+                        if (trimmedText.isNotEmpty) {
+                          _sendMessage(trimmedText);
+                          _messageController.clear();
+                        }
+                      },
                     ),
                   ),
                   IconButton(
